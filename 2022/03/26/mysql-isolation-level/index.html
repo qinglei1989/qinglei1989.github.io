@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="top,CentOS7,Linux">
+    <meta name="keywords" content="mysql-isolation-level, JAVA">
     <meta name="description" content="失落时悄悄徘徊，伤感时默默遐想">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>ps命令 | 山西小魔头技术博客</title>
+    <title>mysql-isolation-level | 山西小魔头技术博客</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/10.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/22.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">ps命令</h1>
+                    <h1 class="description center-align post-title">mysql-isolation-level</h1>
                 </div>
             </div>
         </div>
@@ -431,8 +431,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/Linux/">
-                                <span class="chip bg-color">Linux</span>
+                            <a href="/tags/mysql/">
+                                <span class="chip bg-color">mysql</span>
                             </a>
                         
                     </div>
@@ -443,8 +443,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" class="post-category">
-                                操作系统
+                            <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" class="post-category">
+                                数据库
                             </a>
                         
                     </div>
@@ -456,7 +456,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2022-02-20
+                    2022-03-26
                 </div>
                 
 
@@ -480,129 +480,153 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <meta name="referrer" content="no-referrer"> 
-
-<p>Linux ps （英文全拼：process status）命令用于显示当前进程的状态，类似于 windows 的任务管理器。</p>
+                <p>Mysql数据库隔离级别  未完待续</p>
 <span id="more"></span>
 
-<h2 id="Linux-ps-命令"><a href="#Linux-ps-命令" class="headerlink" title="Linux ps 命令"></a>Linux ps 命令</h2><blockquote>
-<p>语法 </p>
+<center><h2>MYSQL事务隔离级别</h2></center>
+
+<h4 id><a href="#" class="headerlink" title></a></h4><blockquote>
+<p>InnoDB解决幻读的方案–LBCC&amp;MVCC</p>
 </blockquote>
-<pre class="line-numbers language-none"><code class="language-none">ps [options][--help]<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p><code>InnoDB</code>默认的事务隔离级别是RR，它为了解决该隔离级别下的幻读的并发问题，提出了<code>LBCC</code>和<code>MVCC</code>两种方案。其中<code>LBCC</code>解决的是当前读情况下的幻读，<code>MVCC</code>解决的是普通读（快照读）的幻读。</p>
+<p><strong>知识点</strong></p>
+<p>InnoDB的RR隔离级别并没有完全解决幻读的问题。如果在同一个事务里面，只是总是执行普通的select快照读，是不会产生幻读的。</p>
+<p>但是如果在这个事务里面通过当前读或者先更新然后快照读的形式来读取数据，就会产生幻读。</p>
+<p><strong>测试用表</strong></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">-- auto-generated definition
+create table test_read
+(
+    id   bigint auto_increment comment &#39;主键&#39;
+        primary key,
+    name varchar(32) default &#39;&#39; null comment &#39;姓名&#39;
+)
+    comment &#39;幻读测试表&#39;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><strong>初始化数据</strong></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">insert into test_read (id, name) values (1, &#39;wang&#39;);
+insert into test_read (id, name) values (2, &#39;zhang&#39;);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
 <blockquote>
-<p>常用参数</p>
+<p>幻读情形1</p>
 </blockquote>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">-A 列出所有的进程
--w 显示加宽可以显示较多的资讯
--au 显示较详细的资讯
--aux 显示所有包含其他使用者的行程<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>打开两个终端，连上mysql，分别启动事务1和事务2。</p>
+<table>
+<thead>
+<tr>
+<th>事务1</th>
+<th>事务2</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>start transaction;</td>
+<td>start transaction;</td>
+</tr>
+<tr>
+<td>insert into test_read (name) values (‘zhao’);</td>
+<td>–</td>
+</tr>
+<tr>
+<td>select * from test_read;</td>
+<td>select * from test_read;</td>
+</tr>
+</tbody></table>
+<p>查询出来的结果如下：</p>
+<p>事务1：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">1,wang
+2,zhang
+3,zhao<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
+<p>事务2：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">1,wang
+2,zhang<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>很明显事务2没有查询到事务1未提交的新插入数据。原因也很简单，因为普通的select语句是快照读，而事务b启动时，它的快照数据就已经被版本锁定了。</p>
+<p>如果事务2进行当前读是否能够读取到事务1未提交的新插入数据呢？</p>
+<p>我们在事务2里面执行如下命令来看看执行结果：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">select * from test_read lock in share mode;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>执行完成之后我们发现事务b此时会block住，原因是事务1的insert语句排它锁住了id为3的新插入数据，而事务2想请求所有行的共享锁，肯定是需要等待的。</p>
+<p>事务1提交之后，事务2依然无法读取到事务a新插入的数据，因为事务b还是读取到的是快照数据，所以不包含事务a提交之后的新数据。</p>
+<h4 id="如果此时事务b使用当前读，能否获取到事务a已提交的新插入数据呢？"><a href="#如果此时事务b使用当前读，能否获取到事务a已提交的新插入数据呢？" class="headerlink" title="如果此时事务b使用当前读，能否获取到事务a已提交的新插入数据呢？"></a>如果此时事务b使用当前读，能否获取到事务a已提交的新插入数据呢？</h4><table>
+<thead>
+<tr>
+<th>事务1</th>
+<th>事务2</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>start transaction;</td>
+<td>start transaction;</td>
+</tr>
+<tr>
+<td>insert into test_read (name) values (‘zhao’);</td>
+<td>–</td>
+</tr>
+<tr>
+<td>select * from test_read;</td>
+<td>select * from test_read;</td>
+</tr>
+<tr>
+<td>commit;</td>
+<td>–</td>
+</tr>
+<tr>
+<td>–</td>
+<td>select * from test_read lock in share mode;</td>
+</tr>
+</tbody></table>
+<p>查询出来的结果如下：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">1,wang
+2,zhang
+3,zhao<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p><strong>可以查询到事务a已提交的新数据，所以此时使用当前读就产生了幻读</strong>。</p>
 <blockquote>
-<p>au(x) 输出格式 : <strong>USER PID %CPU %MEM VSZ RSS TTY STAT START TIME COMMAND</strong></p>
+<p>幻读情形2</p>
 </blockquote>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">USER: 行程拥有者
-PID: pid
-%CPU: 占用的 CPU 使用率
-%MEM: 占用的记忆体使用率
-VSZ: 占用的虚拟记忆体大小
-RSS: 占用的记忆体大小
-TTY: 终端的次要装置号码 (minor device number of tty)
-	STAT: 该行程的状态:
-        D: 无法中断的休眠状态 (通常 IO 的进程)
-        R: 正在执行中
-        S: 静止状态
-        T: 暂停执行
-        Z: 不存在但暂时无法消除
-        W: 没有足够的记忆体分页可分配
-        &lt;: 高优先序的行程
-        N: 低优先序的行程
-        L: 有记忆体分页分配并锁在记忆体内 (实时系统或捱A I&#x2F;O)
-START: 行程开始时间
-TIME: 执行的时间
-COMMAND:所执行的指令<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<table>
+<thead>
+<tr>
+<th>事务1</th>
+<th>事务2</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>start transaction;</td>
+<td>start transaction;</td>
+</tr>
+<tr>
+<td>insert into test_read (name) values (‘zhao’);</td>
+<td>–</td>
+</tr>
+<tr>
+<td>select * from test_read;</td>
+<td>select * from test_read;</td>
+</tr>
+<tr>
+<td>commit;</td>
+<td>–</td>
+</tr>
+<tr>
+<td>–</td>
+<td>update test_read set name=’bbb’ where id = 3;</td>
+</tr>
+<tr>
+<td>–</td>
+<td>select * from test_read;</td>
+</tr>
+</tbody></table>
+<p>第一条命令使用update更新了事务a已提交的新数据，第二条命令通过普通的select语句查看快照数据。</p>
+<p>查询出来的结果如下：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">1,wang
+2,zhang
+3,bbb<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
-<blockquote>
-<p>应用举例</p>
-</blockquote>
-<p><strong>ps -l</strong>只能查看自己bash的进程</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-api-v1-6944b5848b-6x5d2:~$ ps -l
-F S   UID     PID    PPID  C PRI  NI ADDR SZ WCHAN  TTY          TIME CMD
-4 S  1000    1519       0  0  80   0 -  5283 wait   pts&#x2F;0    00:00:00 bash
-0 R  1000    1536    1519  0  80   0 -  7486 -      pts&#x2F;0    00:00:00 ps
-work@authority-api-v1-6944b5848b-6x5d2:~$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p><strong>ps aux</strong>所有系统运行的进程，按照PID的顺序来排序显示</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-api-v1-6944b5848b-6x5d2:~$ ps aux
-USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
-work           1  0.0  0.0   4280    64 ?        Ss   Feb15   0:00 &#x2F;bin&#x2F;sh -c  PROJECT_DIR&#x3D;&#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api $PROJECT_DIR&#x2F;bin&#x2F;bootstrap
-work           6  0.0  0.0  19728   992 ?        S    Feb15   0:00 &#x2F;bin&#x2F;bash &#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api&#x2F;bin&#x2F;bootstrap run
-work          16  0.0  0.0  19880  1152 ?        S    Feb15   0:00 &#x2F;bin&#x2F;bash &#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api&#x2F;bin&#x2F;..&#x2F;&#x2F;lib&#x2F;authority-api.jar run
-work          47  0.8  0.3 7494192 686500 ?      Sl   Feb15  56:13 &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;bin&#x2F;java -Dsun.misc.URLClassPath.disableJarChecking&#x3D;true -
-work        1519  0.0  0.0  21132  4696 pts&#x2F;0    Ss   00:56   0:00 bash
-work        1544  0.0  0.0  38384  3072 pts&#x2F;0    R+   01:35   0:00 ps aux<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p><strong>查找指定进程</strong></p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-api-v1-6944b5848b-6x5d2:~$ ps -ef | grep java| grep auth
-work          47      16  0 Feb15 ?        00:56:13 &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;bin&#x2F;java -Dsun.misc.URLClassPath.disableJarChecking&#x3D;true -DLOG_PATH&#x3D;&#x2F;mnt&#x2F;logs&#x2F;authority-api -server -XX:MaxRAMPercentage&#x3D;30.0 -XX:InitialRAMPercentage&#x3D;30.0 -XX:MinRAMPercentage&#x3D;30.0 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath&#x3D;&#x2F;mnt&#x2F;logs&#x2F;authority-api&#x2F;jvm -XX:ErrorFile&#x3D;&#x2F;mnt&#x2F;logs&#x2F;authority-api&#x2F;jvm&#x2F;jvm_err.log -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:ConcGCThreads&#x3D;2 -XX:ParallelGCThreads&#x3D;2 -XX:+ScavengeBeforeFullGC -XX:+CMSScavengeBeforeRemark -XX:+CMSParallelRemarkEnabled -XX:CMSInitiatingOccupancyFraction&#x3D;70 -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles&#x3D;1 -XX:GCLogFileSize&#x3D;50M -verbose:gc -XX:+PrintHeapAtGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+PrintGCApplicationStoppedTime -Xloggc:&#x2F;mnt&#x2F;logs&#x2F;authority-api&#x2F;jvm&#x2F;gc.log -javaagent:&#x2F;usr&#x2F;local&#x2F;jmx-exporter&#x2F;jmx_prometheus_javaagent-0.14.0.jar&#x3D;9990:&#x2F;usr&#x2F;local&#x2F;jmx-exporter&#x2F;prometheus-jmx-config.yaml -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -jar &#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api&#x2F;lib&#x2F;authority-api.jar --server.address&#x3D;0.0.0.0 --spring.config.location&#x3D;&#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api&#x2F;conf&#x2F; --spring.profiles.active&#x3D;testing --logging.config&#x3D;&#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api&#x2F;conf&#x2F;log4j2.yml<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<p><strong>显示指定用户信息</strong></p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-api-v1-6944b5848b-6x5d2:~$ ps -u work
-    PID TTY          TIME CMD
-      1 ?        00:00:00 sh
-      6 ?        00:00:00 bootstrap
-     16 ?        00:00:00 authority-api.j
-     47 ?        00:56:13 java
-   1519 pts&#x2F;0    00:00:00 bash
-   1549 pts&#x2F;0    00:00:00 ps
-work@authority-api-v1-6944b5848b-6x5d2:~$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p><strong>显示所有进程信息，连同命令行</strong></p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-api-v1-6944b5848b-6x5d2:~$ ps -ef
-UID          PID    PPID  C STIME TTY          TIME CMD
-work           1       0  0 Feb15 ?        00:00:00 &#x2F;bin&#x2F;sh -c  PROJECT_DIR&#x3D;&#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api $PROJECT_DIR&#x2F;bin&#x2F;bootstrap run
-work           6       1  0 Feb15 ?        00:00:00 &#x2F;bin&#x2F;bash &#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api&#x2F;bin&#x2F;bootstrap run
-work          16       6  0 Feb15 ?        00:00:00 &#x2F;bin&#x2F;bash &#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api&#x2F;bin&#x2F;..&#x2F;&#x2F;lib&#x2F;authority-api.jar run
-work          47      16  0 Feb15 ?        00:56:13 &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;bin&#x2F;java -Dsun.misc.URLClassPath.disableJarChecking&#x3D;true -DLOG_PATH&#x3D;&#x2F;mnt&#x2F;
-work        1519       0  0 00:56 pts&#x2F;0    00:00:00 bash
-work        1550    1519  0 01:40 pts&#x2F;0    00:00:00 ps -ef
-work@authority-api-v1-6944b5848b-6x5d2:~$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p><strong>根据 CPU 使用来升序排序</strong></p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">
-work@authority-api-v1-6944b5848b-6x5d2:~$ ps aux --sort -pcpu
-USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
-work          47  0.8  0.3 7494192 686500 ?      Sl   Feb15  56:14 &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;bin&#x2F;java -Dsun.misc.URLClassPath.disableJarChecking&#x3D;true -
-work           1  0.0  0.0   4280    64 ?        Ss   Feb15   0:00 &#x2F;bin&#x2F;sh -c  PROJECT_DIR&#x3D;&#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api $PROJECT_DIR&#x2F;bin&#x2F;bootstrap
-work           6  0.0  0.0  19728   992 ?        S    Feb15   0:00 &#x2F;bin&#x2F;bash &#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api&#x2F;bin&#x2F;bootstrap run
-work          16  0.0  0.0  19880  1152 ?        S    Feb15   0:00 &#x2F;bin&#x2F;bash &#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api&#x2F;bin&#x2F;..&#x2F;&#x2F;lib&#x2F;authority-api.jar run
-work        1519  0.0  0.0  21132  4812 pts&#x2F;0    Ss   00:56   0:00 bash
-work        1555  0.0  0.0  38384  2984 pts&#x2F;0    R+   01:45   0:00 ps aux --sort -pcpu
-work@authority-api-v1-6944b5848b-6x5d2:~$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p><strong>根据 内存使用来升序排序</strong></p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-api-v1-6944b5848b-6x5d2:~$ ps -aux --sort -pmem
-USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
-work          47  0.8  0.3 7494192 686500 ?      Sl   Feb15  56:14 &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;bin&#x2F;java -Dsun.misc.URLClassPath.disableJarChecking&#x3D;true -
-work        1519  0.0  0.0  21132  4812 pts&#x2F;0    Ss   00:56   0:00 bash
-work        1558  0.0  0.0  38384  3100 pts&#x2F;0    R+   01:46   0:00 ps -aux --sort -pmem
-work          16  0.0  0.0  19880  1152 ?        S    Feb15   0:00 &#x2F;bin&#x2F;bash &#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api&#x2F;bin&#x2F;..&#x2F;&#x2F;lib&#x2F;authority-api.jar run
-work           6  0.0  0.0  19728   992 ?        S    Feb15   0:00 &#x2F;bin&#x2F;bash &#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api&#x2F;bin&#x2F;bootstrap run
-work           1  0.0  0.0   4280    64 ?        Ss   Feb15   0:00 &#x2F;bin&#x2F;sh -c  PROJECT_DIR&#x3D;&#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api $PROJECT_DIR&#x2F;bin&#x2F;bootstrap
-work@authority-api-v1-6944b5848b-6x5d2:~$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p><strong>我们也可以将它们合并到一个命令，并通过管道显示前10个结果：</strong></p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">
-work@authority-api-v1-6944b5848b-6x5d2:~$ ps aux --sort -pcpu,+pmem | head -n 3
-USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
-work          47  0.8  0.3 7494192 686500 ?      Sl   Feb15  56:14 &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;bin&#x2F;java -Dsun.misc.URLClassPath.disableJarChecking&#x3D;true -DLOG_PATH&#x3D;&#x2F;mnt&#x2F;logs&#x2F;authority-api -server -XX:MaxRAMPercentage&#x3D;30.0 -XX:InitialRAMPercentage&#x3D;30.0 -XX:MinRAMPercentage&#x3D;30.0 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath&#x3D;&#x2F;mnt&#x2F;logs&#x2F;authority-api&#x2F;jvm -XX:ErrorFile&#x3D;&#x2F;mnt&#x2F;logs&#x2F;authority-api&#x2F;jvm&#x2F;jvm_err.log -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:ConcGCThreads&#x3D;2 -XX:ParallelGCThreads&#x3D;2 -XX:+ScavengeBeforeFullGC -XX:+CMSScavengeBeforeRemark -XX:+CMSParallelRemarkEnabled -XX:CMSInitiatingOccupancyFraction&#x3D;70 -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles&#x3D;1 -XX:GCLogFileSize&#x3D;50M -verbose:gc -XX:+PrintHeapAtGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+PrintGCApplicationStoppedTime -Xloggc:&#x2F;mnt&#x2F;logs&#x2F;authority-api&#x2F;jvm&#x2F;gc.log -javaagent:&#x2F;usr&#x2F;local&#x2F;jmx-exporter&#x2F;jmx_prometheus_javaagent-0.14.0.jar&#x3D;9990:&#x2F;usr&#x2F;local&#x2F;jmx-exporter&#x2F;prometheus-jmx-config.yaml -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -jar &#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api&#x2F;lib&#x2F;authority-api.jar --server.address&#x3D;0.0.0.0 --spring.config.location&#x3D;&#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api&#x2F;conf&#x2F; --spring.profiles.active&#x3D;testing --logging.config&#x3D;&#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api&#x2F;conf&#x2F;log4j2.yml
-work           1  0.0  0.0   4280    64 ?        Ss   Feb15   0:00 &#x2F;bin&#x2F;sh -c  PROJECT_DIR&#x3D;&#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api $PROJECT_DIR&#x2F;bin&#x2F;bootstrap run
-work@authority-api-v1-6944b5848b-6x5d2:~$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<p><strong>可以看到事务a已提交的新数据被事务b使用update语句更新了，并且通过普通的select语句给查询出来了，很显然，出现了幻读</strong>。</p>
 <blockquote>
 <p>引用</p>
 </blockquote>
-<p><a target="_blank" rel="noopener" href="https://linux.cn/article-4743-1.html">10个重要的Linux ps命令实战</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/364331468">InnoDB解决幻读的方案–LBCC&amp;MVCC</a></p>
 
                 
             </div>
@@ -629,7 +653,7 @@ work@authority-api-v1-6944b5848b-6x5d2:~$<span aria-hidden="true" class="line-nu
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://www.yipinxieli.com/2022/02/20/linux-ps/">http://www.yipinxieli.com/2022/02/20/linux-ps/</a>
+                    <a href="http://www.yipinxieli.com/2022/03/26/mysql-isolation-level/">http://www.yipinxieli.com/2022/03/26/mysql-isolation-level/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -667,8 +691,8 @@ work@authority-api-v1-6944b5848b-6x5d2:~$<span aria-hidden="true" class="line-nu
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/Linux/">
-                                    <span class="chip bg-color">Linux</span>
+                                <a href="/tags/mysql/">
+                                    <span class="chip bg-color">mysql</span>
                                 </a>
                             
                         </div>
@@ -840,29 +864,82 @@ work@authority-api-v1-6944b5848b-6x5d2:~$<span aria-hidden="true" class="line-nu
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
-                <a href="/2022/02/21/jvm-eclipse/">
+                <a href="/2022/03/26/mysql-isolation-level/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/13.jpg" class="responsive-img" alt="Eclipse Memory Analysis使用">
+                        <img src="/medias/featureimages/22.jpg" class="responsive-img" alt="mysql-isolation-level">
                         
-                        <span class="card-title">Eclipse Memory Analysis使用</span>
+                        <span class="card-title">mysql-isolation-level</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            Eclipse Memory Analyzer是一个快速而功能丰富的Java堆分析器，可帮助您查找内存泄漏并减少内存消耗。使用内存分析器分析数亿个对象的生产性堆转储，快速计算保留的对象大小，查看谁阻止垃圾收集器收集对象，运行报告以自动提取泄
+                            Mysql数据库隔离级别  未完待续
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2022-02-21
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-03-26
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" class="post-category">
+                                    数据库
+                                </a>
+                            
+                            
                         </span>
+                    </div>
+                </div>
+
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/mysql/">
+                        <span class="chip bg-color">mysql</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2022/03/20/java-synchronized/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/21.jpg" class="responsive-img" alt="synchronized锁升级与降级">
+                        
+                        <span class="card-title">synchronized锁升级与降级</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+
+针对Synchronized。在Java 5通过引入锁升级的机制来实现高效Synchronized。这三种锁的状态是通过对象监视器在对象头中的字段来表明的。偏向锁是指一段同步代码一直被一个线程所访问，那么该线程会自动获取锁。降低获取锁的
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-03-20
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -878,60 +955,8 @@ work@authority-api-v1-6944b5848b-6x5d2:~$<span aria-hidden="true" class="line-nu
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/JVM/">
-                        <span class="chip bg-color">JVM</span>
-                    </a>
-                    
-                </div>
-                
-            </div>
-        </div>
-        
-        
-        <div class="article col s12 m6" data-aos="fade-up">
-            <div class="article-badge right-badge text-color">
-                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
-            </div>
-            <div class="card">
-                <a href="/2022/02/20/linux-top/">
-                    <div class="card-image">
-                        
-                        
-                        <img src="/medias/featureimages/20.jpg" class="responsive-img" alt="top命令">
-                        
-                        <span class="card-title">top命令</span>
-                    </div>
-                </a>
-                <div class="card-content article-content">
-                    <div class="summary block-with-text">
-                        
-                             
-
-top 命令用于实时显示系统资源使用情况。它可以显示系统摘要信息，以及内核当前正在管理的进程或线程的列表。
-top 命令可以实时动态地查看系统的整体运行情况，是一个非常实用的系统性能和运行信息的监测工具。通过 top 命令所提供的互动
-                        
-                    </div>
-                    <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-02-20
-                            </span>
-                        <span class="publish-author">
-                            
-                            <i class="fas fa-bookmark fa-fw icon-category"></i>
-                            
-                            <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" class="post-category">
-                                    操作系统
-                                </a>
-                            
-                            
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="card-action article-tags">
-                    
-                    <a href="/tags/Linux/">
-                        <span class="chip bg-color">Linux</span>
+                    <a href="/tags/Thread/">
+                        <span class="chip bg-color">Thread</span>
                     </a>
                     
                 </div>
