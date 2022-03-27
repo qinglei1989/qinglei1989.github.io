@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="mysql-isolation-level, JAVA">
+    <meta name="keywords" content="JAVA,JVM,JAVA虚拟机">
     <meta name="description" content="失落时悄悄徘徊，伤感时默默遐想">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>mysql-isolation-level | 山西小魔头技术博客</title>
+    <title>Java 虚拟机进程状态工具jps | 山西小魔头技术博客</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/22.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/15.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">mysql-isolation-level</h1>
+                    <h1 class="description center-align post-title">Java 虚拟机进程状态工具jps</h1>
                 </div>
             </div>
         </div>
@@ -431,8 +431,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/mysql/">
-                                <span class="chip bg-color">mysql</span>
+                            <a href="/tags/JVM/">
+                                <span class="chip bg-color">JVM</span>
                             </a>
                         
                     </div>
@@ -443,8 +443,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" class="post-category">
-                                数据库
+                            <a href="/categories/JAVA/" class="post-category">
+                                JAVA
                             </a>
                         
                     </div>
@@ -456,7 +456,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2022-03-26
+                    2022-03-28
                 </div>
                 
 
@@ -480,153 +480,296 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>Mysql数据库隔离级别  未完待续</p>
+                <p>利用JVM内建的指令对Java应用程序的资源和性能进行实时的命令行的监控，包括了对进程的classloader，compiler，gc情况；可以用来监视VM内存内的各种堆和非堆的大小及其内存使用量，以及加载类的数量。</p>
 <span id="more"></span>
 
-<center><h2>MYSQL事务隔离级别</h2></center>
-
-<h4 id><a href="#" class="headerlink" title></a></h4><blockquote>
-<p>InnoDB解决幻读的方案–LBCC&amp;MVCC</p>
-</blockquote>
-<p><code>InnoDB</code>默认的事务隔离级别是RR，它为了解决该隔离级别下的幻读的并发问题，提出了<code>LBCC</code>和<code>MVCC</code>两种方案。其中<code>LBCC</code>解决的是当前读情况下的幻读，<code>MVCC</code>解决的是普通读（快照读）的幻读。</p>
-<p><strong>知识点</strong></p>
-<p>InnoDB的RR隔离级别并没有完全解决幻读的问题。如果在同一个事务里面，只是总是执行普通的select快照读，是不会产生幻读的。</p>
-<p>但是如果在这个事务里面通过当前读或者先更新然后快照读的形式来读取数据，就会产生幻读。</p>
-<p><strong>测试用表</strong></p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">-- auto-generated definition
-create table test_read
-(
-    id   bigint auto_increment comment &#39;主键&#39;
-        primary key,
-    name varchar(32) default &#39;&#39; null comment &#39;姓名&#39;
-)
-    comment &#39;幻读测试表&#39;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p><strong>初始化数据</strong></p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">insert into test_read (id, name) values (1, &#39;wang&#39;);
-insert into test_read (id, name) values (2, &#39;zhang&#39;);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<h1><center>Java 虚拟机进程状态工具JPS</center></h1>
 
 <blockquote>
-<p>幻读情形1</p>
-</blockquote>
-<p>打开两个终端，连上mysql，分别启动事务1和事务2。</p>
+<h4 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h4></blockquote>
+<p>jstat  [option vmid [interval  [s|ms][count]]  [count]]  ]</p>
+<blockquote>
+<h4 id="options"><a href="#options" class="headerlink" title="options"></a>options</h4></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jstat -options
+-class
+-compiler
+-gc
+-gccapacity
+-gccause
+-gcmetacapacity
+-gcnew
+-gcnewcapacity
+-gcold
+-gcoldcapacity
+-gcutil
+-printcompilation<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>jstat工具主要选项</p>
 <table>
 <thead>
 <tr>
-<th>事务1</th>
-<th>事务2</th>
+<th>选项</th>
+<th>作用</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>start transaction;</td>
-<td>start transaction;</td>
+<td>-class</td>
+<td>监视类装载、卸载数量、总空间以及类装载所耗费的时间</td>
 </tr>
 <tr>
-<td>insert into test_read (name) values (‘zhao’);</td>
-<td>–</td>
+<td>-compiler</td>
+<td>输出JIT编译器编译过的方法、耗时等信息</td>
 </tr>
 <tr>
-<td>select * from test_read;</td>
-<td>select * from test_read;</td>
+<td>-gc</td>
+<td>监视Java堆状况，包括Eden区、两个survivor区、老年代、元空间的容量、已用空间、GC时间合计等信息</td>
+</tr>
+<tr>
+<td>-gccapacity</td>
+<td>监视内容与-gc基本相同，但输出主要关注Java堆各个区域使用到的最大、最小空间</td>
+</tr>
+<tr>
+<td>-gccause</td>
+<td>与-gcutil功能一样，但是会额外输出导致上一次GC产生的原因</td>
+</tr>
+<tr>
+<td>-gcmetacapacity</td>
+<td>输出元数据用到的最大、最小空间</td>
+</tr>
+<tr>
+<td>-gcnew</td>
+<td>监视新生代GC状况</td>
+</tr>
+<tr>
+<td>-gcnewcapacity</td>
+<td>监视内容与-gcnew基本相同，输出主要关注使用到的最大、最小空间</td>
+</tr>
+<tr>
+<td>-gcold</td>
+<td>监视老年代状况</td>
+</tr>
+<tr>
+<td>-gcoldcapacity</td>
+<td>监视内容与-gcold基本相同，输出主要关注用到的最大、最小空间</td>
+</tr>
+<tr>
+<td>-gcutil</td>
+<td>监视内容与-gc基本相同，但输出主要关注已使用空间占总空间的百分比</td>
+</tr>
+<tr>
+<td>-printcompilation</td>
+<td>输出已经被JIT编译的方法</td>
 </tr>
 </tbody></table>
-<p>查询出来的结果如下：</p>
-<p>事务1：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">1,wang
-2,zhang
-3,zhao<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<p>事务2：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">1,wang
-2,zhang<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<p>很明显事务2没有查询到事务1未提交的新插入数据。原因也很简单，因为普通的select语句是快照读，而事务b启动时，它的快照数据就已经被版本锁定了。</p>
-<p>如果事务2进行当前读是否能够读取到事务1未提交的新插入数据呢？</p>
-<p>我们在事务2里面执行如下命令来看看执行结果：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">select * from test_read lock in share mode;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>执行完成之后我们发现事务b此时会block住，原因是事务1的insert语句排它锁住了id为3的新插入数据，而事务2想请求所有行的共享锁，肯定是需要等待的。</p>
-<p>事务1提交之后，事务2依然无法读取到事务a新插入的数据，因为事务b还是读取到的是快照数据，所以不包含事务a提交之后的新数据。</p>
-<h4 id="如果此时事务b使用当前读，能否获取到事务a已提交的新插入数据呢？"><a href="#如果此时事务b使用当前读，能否获取到事务a已提交的新插入数据呢？" class="headerlink" title="如果此时事务b使用当前读，能否获取到事务a已提交的新插入数据呢？"></a>如果此时事务b使用当前读，能否获取到事务a已提交的新插入数据呢？</h4><table>
-<thead>
-<tr>
-<th>事务1</th>
-<th>事务2</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>start transaction;</td>
-<td>start transaction;</td>
-</tr>
-<tr>
-<td>insert into test_read (name) values (‘zhao’);</td>
-<td>–</td>
-</tr>
-<tr>
-<td>select * from test_read;</td>
-<td>select * from test_read;</td>
-</tr>
-<tr>
-<td>commit;</td>
-<td>–</td>
-</tr>
-<tr>
-<td>–</td>
-<td>select * from test_read lock in share mode;</td>
-</tr>
-</tbody></table>
-<p>查询出来的结果如下：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">1,wang
-2,zhang
-3,zhao<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<p><strong>可以查询到事务a已提交的新数据，所以此时使用当前读就产生了幻读</strong>。</p>
 <blockquote>
-<p>幻读情形2</p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th>事务1</th>
-<th>事务2</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>start transaction;</td>
-<td>start transaction;</td>
-</tr>
-<tr>
-<td>insert into test_read (name) values (‘zhao’);</td>
-<td>–</td>
-</tr>
-<tr>
-<td>select * from test_read;</td>
-<td>select * from test_read;</td>
-</tr>
-<tr>
-<td>commit;</td>
-<td>–</td>
-</tr>
-<tr>
-<td>–</td>
-<td>update test_read set name=’bbb’ where id = 3;</td>
-</tr>
-<tr>
-<td>–</td>
-<td>select * from test_read;</td>
-</tr>
-</tbody></table>
-<p>第一条命令使用update更新了事务a已提交的新数据，第二条命令通过普通的select语句查看快照数据。</p>
-<p>查询出来的结果如下：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">1,wang
-2,zhang
-3,bbb<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<p><strong>可以看到事务a已提交的新数据被事务b使用update语句更新了，并且通过普通的select语句给查询出来了，很显然，出现了幻读</strong>。</p>
+<h4 id="示例："><a href="#示例：" class="headerlink" title="示例："></a>示例：</h4></blockquote>
+<p>以下输出空间单位都是KB，时间单位都是s</p>
 <blockquote>
-<p>引用</p>
+<p>类加载统计</p>
 </blockquote>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/364331468">InnoDB解决幻读的方案–LBCC&amp;MVCC</a></p>
+<pre class="line-numbers language-none"><code class="language-none">Loaded:加载class的数量
+Bytes：所占用空间大小
+Unloaded：未加载数量
+Bytes:未加载占用空间
+Time：时间<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jstat -class 47
+Loaded  Bytes  Unloaded  Bytes     Time
+ 12225 23448.0        0     0.0      16.53<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>编译统计</p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">Compiled：编译数量。
+Failed：失败数量
+Invalid：不可用数量
+Time：时间
+FailedType：失败类型
+FailedMethod：失败的方法<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jstat -compiler 47
+Compiled Failed Invalid   Time   FailedType FailedMethod
+   14158      1       0    71.73          1 com&#x2F;mysql&#x2F;jdbc&#x2F;AbandonedConnectionCleanupThread run<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>垃圾回收统计</p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">S0C：第一个幸存区的大小
+S1C：第二个幸存区的大小
+S0U：第一个幸存区的使用大小
+S1U：第二个幸存区的使用大小
+EC：伊甸园区的大小
+EU：伊甸园区的使用大小
+OC：老年代大小
+OU：老年代使用大小
+MC：方法区大小
+MU：方法区使用大小
+CCSC:压缩类空间大小
+CCSU:压缩类空间使用大小
+YGC：年轻代垃圾回收次数
+YGCT：年轻代垃圾回收消耗时间
+FGC：老年代垃圾回收次数
+FGCT：老年代垃圾回收消耗时间
+GCT：垃圾回收消耗总时间<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jstat -gc 47
+ S0C    S1C    S0U    S1U      EC       EU        OC         OU       MC     MU    CCSC   CCSU   YGC     YGCT    FGC    FGCT     GCT
+17024.0 17024.0  0.0    22.7  136320.0 60520.6   460416.0   88295.8   76212.0 74725.3 8392.0 8040.4    223    1.986   4      0.277    2.263<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/2022/03/28/jvm-command-jstat/gc.png" alt="空间大小"></p>
+<blockquote>
+<p>堆内存统计</p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">NGCMN：新生代最小容量
+NGCMX：新生代最大容量
+NGC：当前新生代容量
+S0C：第一个幸存区大小
+S1C：第二个幸存区的大小
+EC：伊甸园区的大小
+OGCMN：老年代最小容量
+OGCMX：老年代最大容量
+OGC：当前老年代大小
+OC:当前老年代大小
+MCMN:最小元数据容量
+MCMX：最大元数据容量
+MC：当前元数据空间大小
+CCSMN：最小压缩类空间大小
+CCSMX：最大压缩类空间大小
+CCSC：当前压缩类空间大小
+YGC：年轻代gc次数
+FGC：老年代GC次数<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jstat -gccapacity 47
+ NGCMN    NGCMX     NGC     S0C   S1C       EC      OGCMN      OGCMX       OGC         OC       MCMN     MCMX      MC     CCSMN    CCSMX     CCSC    YGC    FGC
+170368.0 170368.0 170368.0 17024.0 17024.0 136320.0   460416.0   460416.0   460416.0   460416.0      0.0 1118208.0  76212.0      0.0 1048576.0   8392.0    223     4<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>新生代垃圾回收统计</p>
+</blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">S0C：第一个幸存区大小
+S1C：第二个幸存区的大小
+S0U：第一个幸存区的使用大小
+S1U：第二个幸存区的使用大小
+TT:对象在新生代存活的次数
+MTT:对象在新生代存活的最大次数
+DSS:期望的幸存区大小
+EC：伊甸园区的大小
+EU：伊甸园区的使用大小
+YGC：年轻代垃圾回收次数
+YGCT：年轻代垃圾回收消耗时间<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jstat -gcnew 47
+ S0C    S1C    S0U    S1U   TT MTT  DSS      EC       EU     YGC     YGCT
+17024.0 17024.0    0.0   22.7  6   6 8512.0 136320.0  63300.2    223    1.986<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>新生代内存统计</p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">NGCMN：新生代最小容量
+NGCMX：新生代最大容量
+NGC：当前新生代容量
+S0CMX：最大幸存1区大小
+S0C：当前幸存1区大小
+S1CMX：最大幸存2区大小
+S1C：当前幸存2区大小
+ECMX：最大伊甸园区大小
+EC：当前伊甸园区大小
+YGC：年轻代垃圾回收次数
+FGC：老年代回收次数<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jstat -gcnewcapacity 47
+  NGCMN      NGCMX       NGC      S0CMX     S0C     S1CMX     S1C       ECMX        EC      YGC   FGC
+  170368.0   170368.0   170368.0  17024.0  17024.0  17024.0  17024.0   136320.0   136320.0   223     4<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>老年代垃圾回收统计</p>
+</blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">MC：方法区大小
+MU：方法区使用大小
+CCSC:压缩类空间大小
+CCSU:压缩类空间使用大小
+OC：老年代大小
+OU：老年代使用大小
+YGC：年轻代垃圾回收次数
+FGC：老年代垃圾回收次数
+FGCT：老年代垃圾回收消耗时间
+GCT：垃圾回收消耗总时间<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jstat -gcold 47
+   MC       MU      CCSC     CCSU       OC          OU       YGC    FGC    FGCT     GCT
+ 76212.0  74725.3   8392.0   8040.4    460416.0     88295.8    223     4    0.277    2.263<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>老年代内存统计</p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">OGCMN：老年代最小容量
+OGCMX：老年代最大容量
+OGC：当前老年代大小
+OC：老年代大小
+YGC：年轻代垃圾回收次数
+FGC：老年代垃圾回收次数
+FGCT：老年代垃圾回收消耗时间
+GCT：垃圾回收消耗总时间<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jstat -gcoldcapacity 47
+   OGCMN       OGCMX        OGC         OC       YGC   FGC    FGCT     GCT
+   460416.0    460416.0    460416.0    460416.0   223     4    0.277    2.263<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>元数据空间统计</p>
+</blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">MCMN:最小元数据容量
+MCMX：最大元数据容量
+MC：当前元数据空间大小
+CCSMN：最小压缩类空间大小
+CCSMX：最大压缩类空间大小
+CCSC：当前压缩类空间大小
+YGC：年轻代垃圾回收次数
+FGC：老年代垃圾回收次数
+FGCT：老年代垃圾回收消耗时间
+GCT：垃圾回收消耗总时间<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jstat -gcmetacapacity 47
+   MCMN       MCMX        MC       CCSMN      CCSMX       CCSC     YGC   FGC    FGCT     GCT
+       0.0  1118208.0    76212.0        0.0  1048576.0     8392.0   223     4    0.277    2.263<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>总结垃圾回收统计</p>
+</blockquote>
+<pre class="line-numbers language-none"><code class="language-none">S0：幸存1区当前使用比例
+S1：幸存2区当前使用比例
+E：Eden区使用比例
+O：老年代使用比例
+M：元数据区使用比例
+CCS：压缩使用比例
+YGC：年轻代垃圾回收次数
+FGC：老年代垃圾回收次数
+FGCT：老年代垃圾回收消耗时间
+GCT：垃圾回收消耗总时间<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jstat -gcutil 47
+  S0     S1     E      O      M     CCS    YGC     YGCT    FGC    FGCT     GCT
+  0.00   0.13  55.01  19.18  98.05  95.81    223    1.986     4    0.277    2.263<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/2022/03/28/jvm-command-jstat/gcutil.png" alt="垃圾回收"></p>
+<blockquote>
+<h4 id="分析jstat输出的工具"><a href="#分析jstat输出的工具" class="headerlink" title="分析jstat输出的工具"></a>分析jstat输出的工具</h4></blockquote>
+<p>jstat的挑战之一是您需要手动分析生成的统计信息。 正如您看到的那样，仅了解/解释一行内容将花费很长时间，这将很繁琐。 您可以使用<a target="_blank" rel="noopener" href="https://gceasy.io/">GCeasy工具</a> ，该工具可以解析jstat输出并生成具有洞察力的图形和指标。</p>
+<blockquote>
+<h4 id="jstat局限性"><a href="#jstat局限性" class="headerlink" title="jstat局限性"></a>jstat局限性</h4></blockquote>
+<p>它没有提供有关GC活动的丰富详细信息。 它仅提供足够的信息。 例如，从jstat您将不知道：</p>
+<ul>
+<li>如果一次样本中报告了多个GC事件，那么我们将不知道每个GC事件的暂停时间是多少。</li>
+<li>用户（即Java层），系统（即内核）和用户花费了多少时间。</li>
+<li>有多少个GC线程正在工作，并占用了多少时间？</li>
+<li>一个GC事件具有几个子阶段（例如初始标记，清理，备注，并发标记……）。 无法提供信息分类。</li>
+<li>每个GC事件回收多少字节。</li>
+</ul>
+<p>有时，jstat报告的数据也会产生<a target="_blank" rel="noopener" href="https://kamilszymanski.github.io/interpreting-jstats-number-of-full-gc-events/">误导</a> 。</p>
+<p>如果您想进行准确的GC分析，GC日志是更可靠的方法。</p>
+<blockquote>
+<h4 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h4></blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/sxdcgaq8080/p/11089841.html">【JVM】jstat命令详解—JVM的统计监测工具 </a></p>
 
                 
             </div>
@@ -653,7 +796,7 @@ insert into test_read (id, name) values (2, &#39;zhang&#39;);<span aria-hidden="
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://www.yipinxieli.com/2022/03/26/mysql-isolation-level/">http://www.yipinxieli.com/2022/03/26/mysql-isolation-level/</a>
+                    <a href="http://www.yipinxieli.com/2022/03/28/jvm-command-jstat/">http://www.yipinxieli.com/2022/03/28/jvm-command-jstat/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -691,8 +834,8 @@ insert into test_read (id, name) values (2, &#39;zhang&#39;);<span aria-hidden="
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/mysql/">
-                                    <span class="chip bg-color">mysql</span>
+                                <a href="/tags/JVM/">
+                                    <span class="chip bg-color">JVM</span>
                                 </a>
                             
                         </div>
@@ -864,9 +1007,10 @@ insert into test_read (id, name) values (2, &#39;zhang&#39;);<span aria-hidden="
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/2022/03/28/jvm-command-jstat/">
                     <div class="card-image">
@@ -884,9 +1028,9 @@ insert into test_read (id, name) values (2, &#39;zhang&#39;);<span aria-hidden="
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2022-03-28
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-03-28
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -899,6 +1043,7 @@ insert into test_read (id, name) values (2, &#39;zhang&#39;);<span aria-hidden="
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -917,33 +1062,31 @@ insert into test_read (id, name) values (2, &#39;zhang&#39;);<span aria-hidden="
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2022/03/20/java-synchronized/">
+                <a href="/2022/03/26/mysql-isolation-level/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/21.jpg" class="responsive-img" alt="synchronized锁升级与降级">
+                        <img src="/medias/featureimages/22.jpg" class="responsive-img" alt="mysql-isolation-level">
                         
-                        <span class="card-title">synchronized锁升级与降级</span>
+                        <span class="card-title">mysql-isolation-level</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            
-
-针对Synchronized。在Java 5通过引入锁升级的机制来实现高效Synchronized。这三种锁的状态是通过对象监视器在对象头中的字段来表明的。偏向锁是指一段同步代码一直被一个线程所访问，那么该线程会自动获取锁。降低获取锁的
+                            Mysql数据库隔离级别  未完待续
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-03-20
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-03-26
                             </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/JAVA/" class="post-category">
-                                    JAVA
+                            <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" class="post-category">
+                                    数据库
                                 </a>
                             
                             
@@ -953,8 +1096,8 @@ insert into test_read (id, name) values (2, &#39;zhang&#39;);<span aria-hidden="
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/Thread/">
-                        <span class="chip bg-color">Thread</span>
+                    <a href="/tags/mysql/">
+                        <span class="chip bg-color">mysql</span>
                     </a>
                     
                 </div>
