@@ -1011,19 +1011,20 @@ GCT：垃圾回收消耗总时间<span aria-hidden="true" class="line-numbers-ro
             <div class="article-badge left-badge text-color">
                 <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2022/03/29/jvm-command-jinfo/">
+                <a href="/2022/03/29/java-thread-factory/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/21.jpg" class="responsive-img" alt="JAVA配置信息工具jinfo">
+                        <img src="/medias/featureimages/12.jpg" class="responsive-img" alt="线程池">
                         
-                        <span class="card-title">JAVA配置信息工具jinfo</span>
+                        <span class="card-title">线程池</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            jinfo 是 JDK 自带的命令，可以用来查看正在运行的 java 应用程序的扩展参数，包括Java System属性和JVM命令行参数；也可以动态的修改正在运行的 JVM 一些参数。当系统崩溃时，jinfo可以从core文件里面知道崩溃
+                            线程的创建和销毁都需要映射到操作系统，因此其代价是比较高昂的。出于避免频繁创建、销毁线程以及方便线程管理的需要，线程池应运而生。
+在项目工程中，基于池化思想的技术应用很多，例如基于线程池的任务并发执行，中间件服务的连接池配置，通过对共享资源
                         
                     </div>
                     <div class="publish-info">
@@ -1045,8 +1046,8 @@ GCT：垃圾回收消耗总时间<span aria-hidden="true" class="line-numbers-ro
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/JVM/">
-                        <span class="chip bg-color">JVM</span>
+                    <a href="/tags/Thread/">
+                        <span class="chip bg-color">Thread</span>
                     </a>
                     
                 </div>

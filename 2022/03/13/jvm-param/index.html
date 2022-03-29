@@ -491,6 +491,9 @@
 <h4 id="JVM-参数及默认值"><a href="#JVM-参数及默认值" class="headerlink" title="JVM 参数及默认值"></a>JVM 参数及默认值</h4></blockquote>
 <p>Java 每个大版本间，都会有些参数变动，所以在写 JVM 配置前，一定要先看下你选择的参数是否还支持。Oracle 官网文档肯定是个途径，但不是最便捷的。下面这条命令可以立马查看所有参数及其默认值，而且还不用运行应用。</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">java -XX:+PrintFlagsFinal -version<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>表格的每一行包括五列，来表示一个参数。第一列表示参数的数据类型，第二列是名称，第四列为值，第五列是参数的类别。第三列”=”表示第四列是参数的默认值，而”:=” 表明了参数被用户或者JVM赋值了。</p>
+<p>可以进行过滤，仅查看被修改项：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">java -XX:+PrintFlagsFinal -version | grep &quot;:&quot;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">work@permission-center-portal-6df6466c6c-qhhwq:~$ java -XX:+PrintFlagsFinal -version
 [Global flags]
@@ -1234,6 +1237,14 @@ openjdk version &quot;1.8.0_222&quot;
 OpenJDK Runtime Environment (build 1.8.0_222-b10)
 OpenJDK 64-Bit Server VM (build 25.222-b10, mixed mode)
 work@permission-center-portal-6df6466c6c-qhhwq:~$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>-XX:+PrintFlagsInitial 是打印所有的默认参数设置</strong><br><strong>-XX:+PrintFlagsFinal 是打印最终值，如果某个默认值被新值覆盖，显示新值</strong><br><strong>-XX:+PrintCommandLineFlags 是打印那些被新值覆盖的项</strong></p>
+<p>打印那些被新值覆盖的项</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-679dd585c4-9rsf9:~$ java -XX:+PrintCommandLineFlags -version
+-XX:InitialHeapSize&#x3D;8388608 -XX:MaxHeapSize&#x3D;134217728 -XX:+PrintCommandLineFlags -XX:+UseCompressedClassPointers -XX:+UseCompressedOops
+openjdk version &quot;1.8.0_222&quot;
+OpenJDK Runtime Environment (build 1.8.0_222-b10)
+OpenJDK 64-Bit Server VM (build 25.222-b10, mixed mode)
+work@authority-schedule-v1-679dd585c4-9rsf9:~$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <blockquote>
 <h4 id="垃圾回收器相关"><a href="#垃圾回收器相关" class="headerlink" title="垃圾回收器相关"></a>垃圾回收器相关</h4></blockquote>
