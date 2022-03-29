@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="JAVA,JVM,JAVA虚拟机">
+    <meta name="keywords" content="JAVA,JVM,JAVA虚拟机,jinfo">
     <meta name="description" content="失落时悄悄徘徊，伤感时默默遐想">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>Java 虚拟机进程状态工具jstat | 山西小魔头技术博客</title>
+    <title>JAVA配置信息工具jinfo | 山西小魔头技术博客</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/6.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/21.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">Java 虚拟机进程状态工具jstat</h1>
+                    <h1 class="description center-align post-title">JAVA配置信息工具jinfo</h1>
                 </div>
             </div>
         </div>
@@ -456,7 +456,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2022-03-28
+                    2022-03-29
                 </div>
                 
 
@@ -480,296 +480,246 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>利用JVM内建的指令对Java应用程序的资源和性能进行实时的命令行的监控，包括了对进程的classloader，compiler，gc情况；可以用来监视VM内存内的各种堆和非堆的大小及其内存使用量，以及加载类的数量。</p>
+                <p>jinfo 是 JDK 自带的命令，可以用来查看正在运行的 java 应用程序的扩展参数，包括Java System属性和JVM命令行参数；也可以动态的修改正在运行的 JVM 一些参数。当系统崩溃时，jinfo可以从core文件里面知道崩溃的Java应用程序的配置信息。</p>
+<p><strong>jps -v口令只能查看到显示指定的参数，如果想要查看未被显示指定的参数的值就要使用jinfo口令</strong></p>
 <span id="more"></span>
 
-<h1><center>Java 虚拟机进程状态工具JSTAT</center></h1>
+<h1><center>JAVA配置信息工具jinfo</center></h1>
 
 <blockquote>
-<h4 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h4></blockquote>
-<p>jstat  [option vmid [interval  [s|ms][count]]  [count]]  ]</p>
-<blockquote>
-<h4 id="options"><a href="#options" class="headerlink" title="options"></a>options</h4></blockquote>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jstat -options
--class
--compiler
--gc
--gccapacity
--gccause
--gcmetacapacity
--gcnew
--gcnewcapacity
--gcold
--gcoldcapacity
--gcutil
--printcompilation<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h4 id="命令格式"><a href="#命令格式" class="headerlink" title="命令格式"></a>命令格式</h4></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">jinfo [option] pid<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
-<p>jstat工具主要选项</p>
-<table>
-<thead>
-<tr>
-<th>选项</th>
-<th>作用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>-class</td>
-<td>监视类装载、卸载数量、总空间以及类装载所耗费的时间</td>
-</tr>
-<tr>
-<td>-compiler</td>
-<td>输出JIT编译器编译过的方法、耗时等信息</td>
-</tr>
-<tr>
-<td>-gc</td>
-<td>监视Java堆状况，包括Eden区、两个survivor区、老年代、元空间的容量、已用空间、GC时间合计等信息</td>
-</tr>
-<tr>
-<td>-gccapacity</td>
-<td>监视内容与-gc基本相同，但输出主要关注Java堆各个区域使用到的最大、最小空间</td>
-</tr>
-<tr>
-<td>-gccause</td>
-<td>与-gcutil功能一样，但是会额外输出导致上一次GC产生的原因</td>
-</tr>
-<tr>
-<td>-gcmetacapacity</td>
-<td>输出元数据用到的最大、最小空间</td>
-</tr>
-<tr>
-<td>-gcnew</td>
-<td>监视新生代GC状况</td>
-</tr>
-<tr>
-<td>-gcnewcapacity</td>
-<td>监视内容与-gcnew基本相同，输出主要关注使用到的最大、最小空间</td>
-</tr>
-<tr>
-<td>-gcold</td>
-<td>监视老年代状况</td>
-</tr>
-<tr>
-<td>-gcoldcapacity</td>
-<td>监视内容与-gcold基本相同，输出主要关注用到的最大、最小空间</td>
-</tr>
-<tr>
-<td>-gcutil</td>
-<td>监视内容与-gc基本相同，但输出主要关注已使用空间占总空间的百分比</td>
-</tr>
-<tr>
-<td>-printcompilation</td>
-<td>输出已经被JIT编译的方法</td>
-</tr>
-</tbody></table>
 <blockquote>
-<h4 id="示例："><a href="#示例：" class="headerlink" title="示例："></a>示例：</h4></blockquote>
-<p>以下输出空间单位都是KB，时间单位都是s</p>
+<h4 id="option"><a href="#option" class="headerlink" title="option"></a>option</h4></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">no option 输出全部的参数和系统属性
+-flag name 输出对应名称的参数
+-flag [+|-]name 开启或者关闭对应名称的参数
+-flag name&#x3D;value 设定对应名称的参数
+-flags 输出全部的参数
+-sysprops 输出系统属性。<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
 <blockquote>
-<p>类加载统计</p>
+<h4 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h4></blockquote>
+<blockquote>
+<p>no option</p>
 </blockquote>
-<pre class="line-numbers language-none"><code class="language-none">Loaded:加载class的数量
-Bytes：所占用空间大小
-Unloaded：未加载数量
-Bytes:未加载占用空间
-Time：时间<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$  jinfo 47
+Attaching to process ID 47, please wait...
+Debugger attached successfully.
+Server compiler detected.
+JVM version is 25.222-b10
+Java System Properties: &#x2F;&#x2F; 第一部分: Java System Properties
 
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jstat -class 47
-Loaded  Bytes  Unloaded  Bytes     Time
- 12225 23448.0        0     0.0      16.53<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+java.runtime.name &#x3D; OpenJDK Runtime Environment
+java.vm.version &#x3D; 25.222-b10
+sun.boot.library.path &#x3D; &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;amd64
+java.protocol.handler.pkgs &#x3D; org.springframework.boot.loader
+java.vendor.url &#x3D; http:&#x2F;&#x2F;java.oracle.com&#x2F;
+java.vm.vendor &#x3D; Oracle Corporation
+path.separator &#x3D; :
+file.encoding.pkg &#x3D; sun.io
+java.vm.name &#x3D; OpenJDK 64-Bit Server VM
+sun.os.patch.level &#x3D; unknown
+sun.java.launcher &#x3D; SUN_STANDARD
+user.dir &#x3D; &#x2F;home&#x2F;work&#x2F;www&#x2F;authority-schedule&#x2F;lib
+java.vm.specification.name &#x3D; Java Virtual Machine Specification
+PID &#x3D; 47
+java.runtime.version &#x3D; 1.8.0_222-b10
+java.awt.graphicsenv &#x3D; sun.awt.X11GraphicsEnvironment
+os.arch &#x3D; amd64
+java.endorsed.dirs &#x3D; &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;endorsed
+line.separator &#x3D;
+
+java.io.tmpdir &#x3D; &#x2F;tmp
+java.vm.specification.vendor &#x3D; Oracle Corporation
+os.name &#x3D; Linux
+sun.jnu.encoding &#x3D; UTF-8
+java.library.path &#x3D; &#x2F;usr&#x2F;java&#x2F;packages&#x2F;lib&#x2F;amd64:&#x2F;usr&#x2F;lib64:&#x2F;lib64:&#x2F;lib:&#x2F;usr&#x2F;lib
+spring.beaninfo.ignore &#x3D; true
+java.specification.name &#x3D; Java Platform API Specification
+java.class.version &#x3D; 52.0
+sun.management.compiler &#x3D; HotSpot 64-Bit Tiered Compilers
+os.version &#x3D; 4.18.20-2.el7.wuba.lp.x86_64
+user.home &#x3D; &#x2F;home&#x2F;work
+user.timezone &#x3D; Asia&#x2F;Shanghai
+catalina.useNaming &#x3D; false
+java.awt.printerjob &#x3D; sun.print.PSPrinterJob
+file.encoding &#x3D; UTF-8
+java.specification.version &#x3D; 1.8
+catalina.home &#x3D; &#x2F;tmp&#x2F;tomcat.1163525377000352696.8080
+org.springframework.boot.logging.LoggingSystem &#x3D; com.renrenche.log.Log4J2LoggingSystemPatch
+user.name &#x3D; work
+java.class.path &#x3D; &#x2F;home&#x2F;work&#x2F;www&#x2F;authority-schedule&#x2F;lib&#x2F;authority-schedule.jar:&#x2F;usr&#x2F;local&#x2F;jmx-exporter&#x2F;jmx_prometheus_javaagent-0.14.0.jar
+java.vm.specification.version &#x3D; 1.8
+sun.arch.data.model &#x3D; 64
+sun.java.command &#x3D; &#x2F;home&#x2F;work&#x2F;www&#x2F;authority-schedule&#x2F;lib&#x2F;authority-schedule.jar --server.address&#x3D;0.0.0.0 --spring.config.location&#x3D;&#x2F;home&#x2F;work&#x2F;www&#x2F;authority-schedule&#x2F;conf&#x2F; --spring.profiles.active&#x3D;production --logging.config&#x3D;&#x2F;home&#x2F;work&#x2F;www&#x2F;authority-schedule&#x2F;conf&#x2F;log4j2.yml
+java.home &#x3D; &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre
+user.language &#x3D; en
+java.specification.vendor &#x3D; Oracle Corporation
+sun.misc.URLClassPath.disableJarChecking &#x3D; true
+awt.toolkit &#x3D; sun.awt.X11.XToolkit
+java.vm.info &#x3D; mixed mode
+java.version &#x3D; 1.8.0_222
+java.ext.dirs &#x3D; &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;ext:&#x2F;usr&#x2F;java&#x2F;packages&#x2F;lib&#x2F;ext
+sun.boot.class.path &#x3D; &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;resources.jar:&#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;rt.jar:&#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;sunrsasign.jar:&#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;jsse.jar:&#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;jce.jar:&#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;charsets.jar:&#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;jfr.jar:&#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;classes
+java.awt.headless &#x3D; true
+java.vendor &#x3D; Oracle Corporation
+catalina.base &#x3D; &#x2F;tmp&#x2F;tomcat.1163525377000352696.8080
+file.separator &#x3D; &#x2F;
+java.vendor.url.bug &#x3D; http:&#x2F;&#x2F;bugreport.sun.com&#x2F;bugreport&#x2F;
+sun.io.unicode.encoding &#x3D; UnicodeLittle
+sun.cpu.endian &#x3D; little
+LOG_PATH &#x3D; &#x2F;mnt&#x2F;logs&#x2F;authority-schedule
+sun.cpu.isalist &#x3D;
+
+VM Flags: &#x2F;&#x2F; 第二部分:jvm 参数
+Non-default VM flags: -XX:CICompilerCount&#x3D;2 -XX:CMSInitiatingOccupancyFraction&#x3D;70 -XX:+CMSParallelRemarkEnabled -XX:+CMSScavengeBeforeRemark -XX:ConcGCThreads&#x3D;2 -XX:ErrorFile&#x3D;null -XX:GCLogFileSize&#x3D;52428800 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath&#x3D;null -XX:InitialHeapSize&#x3D;645922816 -XX:InitialRAMPercentage&#x3D;null -XX:MaxHeapSize&#x3D;645922816 -XX:MaxNewSize&#x3D;174456832 -XX:MaxRAMPercentage&#x3D;null -XX:MaxTenuringThreshold&#x3D;6 -XX:MinHeapDeltaBytes&#x3D;196608 -XX:MinRAMPercentage&#x3D;null -XX:NewSize&#x3D;174456832 -XX:NumberOfGCLogFiles&#x3D;1 -XX:OldPLABSize&#x3D;16 -XX:OldSize&#x3D;471465984 -XX:ParallelGCThreads&#x3D;2 -XX:+PrintGC -XX:+PrintGCApplicationStoppedTime -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintHeapAtGC -XX:+ScavengeBeforeFullGC -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:+UseConcMarkSweepGC -XX:+UseGCLogFileRotation -XX:+UseParNewGC
+Command line:  -Dsun.misc.URLClassPath.disableJarChecking&#x3D;true -DLOG_PATH&#x3D;&#x2F;mnt&#x2F;logs&#x2F;authority-schedule -XX:MaxRAMPercentage&#x3D;30.0 -XX:InitialRAMPercentage&#x3D;30.0 -XX:MinRAMPercentage&#x3D;30.0 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath&#x3D;&#x2F;mnt&#x2F;logs&#x2F;authority-schedule&#x2F;jvm -XX:ErrorFile&#x3D;&#x2F;mnt&#x2F;logs&#x2F;authority-schedule&#x2F;jvm&#x2F;jvm_err.log -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:ConcGCThreads&#x3D;2 -XX:ParallelGCThreads&#x3D;2 -XX:+ScavengeBeforeFullGC -XX:+CMSScavengeBeforeRemark -XX:+CMSParallelRemarkEnabled -XX:CMSInitiatingOccupancyFraction&#x3D;70 -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles&#x3D;1 -XX:GCLogFileSize&#x3D;50M -verbose:gc -XX:+PrintHeapAtGC -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+PrintGCApplicationStoppedTime -Xloggc:&#x2F;mnt&#x2F;logs&#x2F;authority-schedule&#x2F;jvm&#x2F;gc.log -javaagent:&#x2F;usr&#x2F;local&#x2F;jmx-exporter&#x2F;jmx_prometheus_javaagent-0.14.0.jar&#x3D;9990:&#x2F;usr&#x2F;local&#x2F;jmx-exporter&#x2F;prometheus-jmx-config.yaml -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap
+
+work@authority-schedule-v1-fbf4cfd6d-86zhw:~$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <blockquote>
-<p>编译统计</p>
+<p><code>-flag name</code> 查看指定的 jvm 参数的值</p>
 </blockquote>
-<pre class="line-numbers language-none"><code class="language-none">Compiled：编译数量。
-Failed：失败数量
-Invalid：不可用数量
-Time：时间
-FailedType：失败类型
-FailedMethod：失败的方法<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jstat -compiler 47
-Compiled Failed Invalid   Time   FailedType FailedMethod
-   14158      1       0    71.73          1 com&#x2F;mysql&#x2F;jdbc&#x2F;AbandonedConnectionCleanupThread run<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$
+work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jinfo -flag PrintGC 47
+-XX:+PrintGC
+work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jinfo -flag PrintGCDetails 47
+-XX:+PrintGCDetails
+work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jinfo -flag PrintGCTimeStamps 47
+-XX:+PrintGCTimeStamps
+work@authority-schedule-v1-fbf4cfd6d-86zhw:~$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <blockquote>
-<p>垃圾回收统计</p>
+<p><code>-flag [+|-]name</code> 使用 jinfo 可以在不重启虚拟机的情况下，可以动态的修改 jvm 的参数。尤其在线上的环境特别有用。</p>
 </blockquote>
-<pre class="line-numbers language-none"><code class="language-none">S0C：第一个幸存区的大小
-S1C：第二个幸存区的大小
-S0U：第一个幸存区的使用大小
-S1U：第二个幸存区的使用大小
-EC：伊甸园区的大小
-EU：伊甸园区的使用大小
-OC：老年代大小
-OU：老年代使用大小
-MC：方法区大小
-MU：方法区使用大小
-CCSC:压缩类空间大小
-CCSU:压缩类空间使用大小
-YGC：年轻代垃圾回收次数
-YGCT：年轻代垃圾回收消耗时间
-FGC：老年代垃圾回收次数
-FGCT：老年代垃圾回收消耗时间
-GCT：垃圾回收消耗总时间<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-679dd585c4-9rsf9:~$ jinfo -flag +PrintGC 47
+work@authority-schedule-v1-679dd585c4-9rsf9:~$
+work@authority-schedule-v1-679dd585c4-9rsf9:~$ jinfo -flag PrintGC 47
+-XX:+PrintGC
+work@authority-schedule-v1-679dd585c4-9rsf9:~$ jinfo -flag -PrintGC 47
+work@authority-schedule-v1-679dd585c4-9rsf9:~$ jinfo -flag PrintGC 47
+-XX:-PrintGC
+work@authority-schedule-v1-679dd585c4-9rsf9:~$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jstat -gc 47
- S0C    S1C    S0U    S1U      EC       EU        OC         OU       MC     MU    CCSC   CCSU   YGC     YGCT    FGC    FGCT     GCT
-17024.0 17024.0  0.0    22.7  136320.0 60520.6   460416.0   88295.8   76212.0 74725.3 8392.0 8040.4    223    1.986   4      0.277    2.263<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<p><img src="/2022/03/28/jvm-command-jstat/gc.png" alt="空间大小"></p>
 <blockquote>
-<p>堆内存统计</p>
+<p>-flag name=value 上一个示例主要是针对 boolean 值的参数设置的。如果是设置 value值，则需要使用 name=value 的形式。</p>
 </blockquote>
-<pre class="line-numbers language-none"><code class="language-none">NGCMN：新生代最小容量
-NGCMX：新生代最大容量
-NGC：当前新生代容量
-S0C：第一个幸存区大小
-S1C：第二个幸存区的大小
-EC：伊甸园区的大小
-OGCMN：老年代最小容量
-OGCMX：老年代最大容量
-OGC：当前老年代大小
-OC:当前老年代大小
-MCMN:最小元数据容量
-MCMX：最大元数据容量
-MC：当前元数据空间大小
-CCSMN：最小压缩类空间大小
-CCSMX：最大压缩类空间大小
-CCSC：当前压缩类空间大小
-YGC：年轻代gc次数
-FGC：老年代GC次数<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jstat -gccapacity 47
- NGCMN    NGCMX     NGC     S0C   S1C       EC      OGCMN      OGCMX       OGC         OC       MCMN     MCMX      MC     CCSMN    CCSMX     CCSC    YGC    FGC
-170368.0 170368.0 170368.0 17024.0 17024.0 136320.0   460416.0   460416.0   460416.0   460416.0      0.0 1118208.0  76212.0      0.0 1048576.0   8392.0    223     4<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-679dd585c4-9rsf9:~$ jinfo -flag HeapDumpPath 47
+-XX:HeapDumpPath&#x3D;&#x2F;mnt&#x2F;logs&#x2F;authority-schedule&#x2F;jvm
+work@authority-schedule-v1-679dd585c4-9rsf9:~$ jinfo -flag HeapDumpPath&#x3D;&#x2F;  47
+work@authority-schedule-v1-679dd585c4-9rsf9:~$ jinfo -flag HeapDumpPath 47
+-XX:HeapDumpPath&#x3D;&#x2F;
+work@authority-schedule-v1-679dd585c4-9rsf9:~$ jinfo -flag HeapDumpPath&#x3D;&#x2F;mnt&#x2F;logs&#x2F;authority-schedule&#x2F;jvm  47
+work@authority-schedule-v1-679dd585c4-9rsf9:~$ jinfo -flag HeapDumpPath 47
+-XX:HeapDumpPath&#x3D;&#x2F;mnt&#x2F;logs&#x2F;authority-schedule&#x2F;jvm<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <blockquote>
-<p>新生代垃圾回收统计</p>
+<p><code>-sysprops</code> 输出当前 jvm 进行的全部的系统属性</p>
 </blockquote>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">S0C：第一个幸存区大小
-S1C：第二个幸存区的大小
-S0U：第一个幸存区的使用大小
-S1U：第二个幸存区的使用大小
-TT:对象在新生代存活的次数
-MTT:对象在新生代存活的最大次数
-DSS:期望的幸存区大小
-EC：伊甸园区的大小
-EU：伊甸园区的使用大小
-YGC：年轻代垃圾回收次数
-YGCT：年轻代垃圾回收消耗时间<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-679dd585c4-9rsf9:~$ jinfo -sysprops 47
+Attaching to process ID 47, please wait...
+Debugger attached successfully.
+Server compiler detected.
+JVM version is 25.222-b10
+java.runtime.name &#x3D; OpenJDK Runtime Environment
+java.vm.version &#x3D; 25.222-b10
+sun.boot.library.path &#x3D; &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;amd64
+java.protocol.handler.pkgs &#x3D; org.springframework.boot.loader
+java.vendor.url &#x3D; http:&#x2F;&#x2F;java.oracle.com&#x2F;
+java.vm.vendor &#x3D; Oracle Corporation
+path.separator &#x3D; :
+file.encoding.pkg &#x3D; sun.io
+java.vm.name &#x3D; OpenJDK 64-Bit Server VM
+sun.os.patch.level &#x3D; unknown
+sun.java.launcher &#x3D; SUN_STANDARD
+user.dir &#x3D; &#x2F;home&#x2F;work&#x2F;www&#x2F;authority-schedule&#x2F;lib
+java.vm.specification.name &#x3D; Java Virtual Machine Specification
+PID &#x3D; 47
+java.runtime.version &#x3D; 1.8.0_222-b10
+java.awt.graphicsenv &#x3D; sun.awt.X11GraphicsEnvironment
+os.arch &#x3D; amd64
+java.endorsed.dirs &#x3D; &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;endorsed
+line.separator &#x3D;
 
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jstat -gcnew 47
- S0C    S1C    S0U    S1U   TT MTT  DSS      EC       EU     YGC     YGCT
-17024.0 17024.0    0.0   22.7  6   6 8512.0 136320.0  63300.2    223    1.986<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+java.io.tmpdir &#x3D; &#x2F;tmp
+java.vm.specification.vendor &#x3D; Oracle Corporation
+os.name &#x3D; Linux
+sun.jnu.encoding &#x3D; UTF-8
+java.library.path &#x3D; &#x2F;usr&#x2F;java&#x2F;packages&#x2F;lib&#x2F;amd64:&#x2F;usr&#x2F;lib64:&#x2F;lib64:&#x2F;lib:&#x2F;usr&#x2F;lib
+spring.beaninfo.ignore &#x3D; true
+java.specification.name &#x3D; Java Platform API Specification
+java.class.version &#x3D; 52.0
+sun.management.compiler &#x3D; HotSpot 64-Bit Tiered Compilers
+os.version &#x3D; 4.18.20-2.el7.wuba.lp.x86_64
+user.home &#x3D; &#x2F;home&#x2F;work
+user.timezone &#x3D; Asia&#x2F;Shanghai
+catalina.useNaming &#x3D; false
+java.awt.printerjob &#x3D; sun.print.PSPrinterJob
+file.encoding &#x3D; UTF-8
+java.specification.version &#x3D; 1.8
+catalina.home &#x3D; &#x2F;tmp&#x2F;tomcat.1577318281902238479.8082
+org.springframework.boot.logging.LoggingSystem &#x3D; com.renrenche.log.Log4J2LoggingSystemPatch
+user.name &#x3D; work
+java.class.path &#x3D; &#x2F;home&#x2F;work&#x2F;www&#x2F;authority-schedule&#x2F;lib&#x2F;authority-schedule.jar:&#x2F;usr&#x2F;local&#x2F;jmx-exporter&#x2F;jmx_prometheus_javaagent-0.14.0.jar
+java.vm.specification.version &#x3D; 1.8
+sun.arch.data.model &#x3D; 64
+sun.java.command &#x3D; &#x2F;home&#x2F;work&#x2F;www&#x2F;authority-schedule&#x2F;lib&#x2F;authority-schedule.jar --server.address&#x3D;0.0.0.0 --spring.config.location&#x3D;&#x2F;home&#x2F;work&#x2F;www&#x2F;authority-schedule&#x2F;conf&#x2F; --spring.profiles.active&#x3D;testing --logging.config&#x3D;&#x2F;home&#x2F;work&#x2F;www&#x2F;authority-schedule&#x2F;conf&#x2F;log4j2.yml
+java.home &#x3D; &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre
+user.language &#x3D; en
+java.specification.vendor &#x3D; Oracle Corporation
+sun.misc.URLClassPath.disableJarChecking &#x3D; true
+awt.toolkit &#x3D; sun.awt.X11.XToolkit
+java.vm.info &#x3D; mixed mode
+java.version &#x3D; 1.8.0_222
+java.ext.dirs &#x3D; &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;ext:&#x2F;usr&#x2F;java&#x2F;packages&#x2F;lib&#x2F;ext
+sun.boot.class.path &#x3D; &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;resources.jar:&#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;rt.jar:&#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;sunrsasign.jar:&#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;jsse.jar:&#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;jce.jar:&#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;charsets.jar:&#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;jfr.jar:&#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;classes
+java.awt.headless &#x3D; true
+java.vendor &#x3D; Oracle Corporation
+catalina.base &#x3D; &#x2F;tmp&#x2F;tomcat.1577318281902238479.8082
+file.separator &#x3D; &#x2F;
+java.vendor.url.bug &#x3D; http:&#x2F;&#x2F;bugreport.sun.com&#x2F;bugreport&#x2F;
+sun.io.unicode.encoding &#x3D; UnicodeLittle
+sun.cpu.endian &#x3D; little
+LOG_PATH &#x3D; &#x2F;mnt&#x2F;logs&#x2F;authority-schedule
+sun.cpu.isalist &#x3D;
+work@authority-schedule-v1-679dd<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <blockquote>
-<p>新生代内存统计</p>
+<p>注意</p>
 </blockquote>
-<pre class="line-numbers language-none"><code class="language-none">NGCMN：新生代最小容量
-NGCMX：新生代最大容量
-NGC：当前新生代容量
-S0CMX：最大幸存1区大小
-S0C：当前幸存1区大小
-S1CMX：最大幸存2区大小
-S1C：当前幸存2区大小
-ECMX：最大伊甸园区大小
-EC：当前伊甸园区大小
-YGC：年轻代垃圾回收次数
-FGC：老年代回收次数<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jstat -gcnewcapacity 47
-  NGCMN      NGCMX       NGC      S0CMX     S0C     S1CMX     S1C       ECMX        EC      YGC   FGC
-  170368.0   170368.0   170368.0  17024.0  17024.0  17024.0  17024.0   136320.0   136320.0   223     4<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>jinfo虽然可以在java程序运行时动态地修改虚拟机参数，但并不是所有的参数都支持动态修改。参数只有被标记 manageable的flag可以被实时修改。</p>
+<p><strong>查看被标记为manageable的参数</strong></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-679dd585c4-9rsf9:~$ java -XX:+PrintFlagsFinal -version | grep manageable
+     intx CMSAbortablePrecleanWaitMillis            &#x3D; 100                                 &#123;manageable&#125;
+     intx CMSTriggerInterval                        &#x3D; -1                                  &#123;manageable&#125;
+     intx CMSWaitDuration                           &#x3D; 2000                                &#123;manageable&#125;
+     bool HeapDumpAfterFullGC                       &#x3D; false                               &#123;manageable&#125;
+     bool HeapDumpBeforeFullGC                      &#x3D; false                               &#123;manageable&#125;
+     bool HeapDumpOnOutOfMemoryError                &#x3D; false                               &#123;manageable&#125;
+    ccstr HeapDumpPath                              &#x3D;                                     &#123;manageable&#125;
+    uintx MaxHeapFreeRatio                          &#x3D; 70                                  &#123;manageable&#125;
+    uintx MinHeapFreeRatio                          &#x3D; 40                                  &#123;manageable&#125;
+     bool PrintClassHistogram                       &#x3D; false                               &#123;manageable&#125;
+     bool PrintClassHistogramAfterFullGC            &#x3D; false                               &#123;manageable&#125;
+     bool PrintClassHistogramBeforeFullGC           &#x3D; false                               &#123;manageable&#125;
+     bool PrintConcurrentLocks                      &#x3D; false                               &#123;manageable&#125;
+     bool PrintGC                                   &#x3D; false                               &#123;manageable&#125;
+     bool PrintGCDateStamps                         &#x3D; false                               &#123;manageable&#125;
+     bool PrintGCDetails                            &#x3D; false                               &#123;manageable&#125;
+     bool PrintGCID                                 &#x3D; false                               &#123;manageable&#125;
+     bool PrintGCTimeStamps                         &#x3D; false                               &#123;manageable&#125;
+openjdk version &quot;1.8.0_222&quot;
+OpenJDK Runtime Environment (build 1.8.0_222-b10)
+OpenJDK 64-Bit Server VM (build 25.222-b10, mixed mode)
+work@authority-schedule-v1-679dd585c4-9rsf9:~$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <blockquote>
-<p>老年代垃圾回收统计</p>
+<p>引用</p>
 </blockquote>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">MC：方法区大小
-MU：方法区使用大小
-CCSC:压缩类空间大小
-CCSU:压缩类空间使用大小
-OC：老年代大小
-OU：老年代使用大小
-YGC：年轻代垃圾回收次数
-FGC：老年代垃圾回收次数
-FGCT：老年代垃圾回收消耗时间
-GCT：垃圾回收消耗总时间<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jstat -gcold 47
-   MC       MU      CCSC     CCSU       OC          OU       YGC    FGC    FGCT     GCT
- 76212.0  74725.3   8392.0   8040.4    460416.0     88295.8    223     4    0.277    2.263<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<blockquote>
-<p>老年代内存统计</p>
-</blockquote>
-<pre class="line-numbers language-none"><code class="language-none">OGCMN：老年代最小容量
-OGCMX：老年代最大容量
-OGC：当前老年代大小
-OC：老年代大小
-YGC：年轻代垃圾回收次数
-FGC：老年代垃圾回收次数
-FGCT：老年代垃圾回收消耗时间
-GCT：垃圾回收消耗总时间<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jstat -gcoldcapacity 47
-   OGCMN       OGCMX        OGC         OC       YGC   FGC    FGCT     GCT
-   460416.0    460416.0    460416.0    460416.0   223     4    0.277    2.263<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<blockquote>
-<p>元数据空间统计</p>
-</blockquote>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">MCMN:最小元数据容量
-MCMX：最大元数据容量
-MC：当前元数据空间大小
-CCSMN：最小压缩类空间大小
-CCSMX：最大压缩类空间大小
-CCSC：当前压缩类空间大小
-YGC：年轻代垃圾回收次数
-FGC：老年代垃圾回收次数
-FGCT：老年代垃圾回收消耗时间
-GCT：垃圾回收消耗总时间<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jstat -gcmetacapacity 47
-   MCMN       MCMX        MC       CCSMN      CCSMX       CCSC     YGC   FGC    FGCT     GCT
-       0.0  1118208.0    76212.0        0.0  1048576.0     8392.0   223     4    0.277    2.263<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<blockquote>
-<p>总结垃圾回收统计</p>
-</blockquote>
-<pre class="line-numbers language-none"><code class="language-none">S0：幸存1区当前使用比例
-S1：幸存2区当前使用比例
-E：Eden区使用比例
-O：老年代使用比例
-M：元数据区使用比例
-CCS：压缩使用比例
-YGC：年轻代垃圾回收次数
-FGC：老年代垃圾回收次数
-FGCT：老年代垃圾回收消耗时间
-GCT：垃圾回收消耗总时间<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-schedule-v1-fbf4cfd6d-86zhw:~$ jstat -gcutil 47
-  S0     S1     E      O      M     CCS    YGC     YGCT    FGC    FGCT     GCT
-  0.00   0.13  55.01  19.18  98.05  95.81    223    1.986     4    0.277    2.263<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<p><img src="/2022/03/28/jvm-command-jstat/gcutil.png" alt="垃圾回收"></p>
-<blockquote>
-<h4 id="分析jstat输出的工具"><a href="#分析jstat输出的工具" class="headerlink" title="分析jstat输出的工具"></a>分析jstat输出的工具</h4></blockquote>
-<p>jstat的挑战之一是您需要手动分析生成的统计信息。 正如您看到的那样，仅了解/解释一行内容将花费很长时间，这将很繁琐。 您可以使用<a target="_blank" rel="noopener" href="https://gceasy.io/">GCeasy工具</a> ，该工具可以解析jstat输出并生成具有洞察力的图形和指标。</p>
-<blockquote>
-<h4 id="jstat局限性"><a href="#jstat局限性" class="headerlink" title="jstat局限性"></a>jstat局限性</h4></blockquote>
-<p>它没有提供有关GC活动的丰富详细信息。 它仅提供足够的信息。 例如，从jstat您将不知道：</p>
-<ul>
-<li>如果一次样本中报告了多个GC事件，那么我们将不知道每个GC事件的暂停时间是多少。</li>
-<li>用户（即Java层），系统（即内核）和用户花费了多少时间。</li>
-<li>有多少个GC线程正在工作，并占用了多少时间？</li>
-<li>一个GC事件具有几个子阶段（例如初始标记，清理，备注，并发标记……）。 无法提供信息分类。</li>
-<li>每个GC事件回收多少字节。</li>
-</ul>
-<p>有时，jstat报告的数据也会产生<a target="_blank" rel="noopener" href="https://kamilszymanski.github.io/interpreting-jstats-number-of-full-gc-events/">误导</a> 。</p>
-<p>如果您想进行准确的GC分析，GC日志是更可靠的方法。</p>
-<blockquote>
-<h4 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h4></blockquote>
-<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/sxdcgaq8080/p/11089841.html">【JVM】jstat命令详解—JVM的统计监测工具 </a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/set-cookie/p/10947272.html">jinfo介绍</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/8d8aef212b25">jvm 性能调优工具之 jinfo</a></p>
 
                 
             </div>
@@ -796,7 +746,7 @@ GCT：垃圾回收消耗总时间<span aria-hidden="true" class="line-numbers-ro
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://www.yipinxieli.com/2022/03/28/jvm-command-jstat/">http://www.yipinxieli.com/2022/03/28/jvm-command-jstat/</a>
+                    <a href="http://www.yipinxieli.com/2022/03/29/jvm-command-jinfo/">http://www.yipinxieli.com/2022/03/29/jvm-command-jinfo/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -1007,9 +957,10 @@ GCT：垃圾回收消耗总时间<span aria-hidden="true" class="line-numbers-ro
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/2022/03/29/jvm-command-jinfo/">
                     <div class="card-image">
@@ -1027,9 +978,9 @@ GCT：垃圾回收消耗总时间<span aria-hidden="true" class="line-numbers-ro
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2022-03-29
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-03-29
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -1042,6 +993,7 @@ GCT：垃圾回收消耗总时间<span aria-hidden="true" class="line-numbers-ro
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -1060,31 +1012,31 @@ GCT：垃圾回收消耗总时间<span aria-hidden="true" class="line-numbers-ro
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2022/03/26/mysql-isolation-level/">
+                <a href="/2022/03/28/jvm-command-jstat/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/22.jpg" class="responsive-img" alt="mysql-isolation-level">
+                        <img src="/medias/featureimages/6.jpg" class="responsive-img" alt="Java 虚拟机进程状态工具jstat">
                         
-                        <span class="card-title">mysql-isolation-level</span>
+                        <span class="card-title">Java 虚拟机进程状态工具jstat</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            Mysql数据库隔离级别  未完待续
+                            利用JVM内建的指令对Java应用程序的资源和性能进行实时的命令行的监控，包括了对进程的classloader，compiler，gc情况；可以用来监视VM内存内的各种堆和非堆的大小及其内存使用量，以及加载类的数量。
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-03-26
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-03-28
                             </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" class="post-category">
-                                    数据库
+                            <a href="/categories/JAVA/" class="post-category">
+                                    JAVA
                                 </a>
                             
                             
@@ -1094,8 +1046,8 @@ GCT：垃圾回收消耗总时间<span aria-hidden="true" class="line-numbers-ro
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/mysql/">
-                        <span class="chip bg-color">mysql</span>
+                    <a href="/tags/JVM/">
+                        <span class="chip bg-color">JVM</span>
                     </a>
                     
                 </div>
