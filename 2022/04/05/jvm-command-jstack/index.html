@@ -1,0 +1,1948 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="JAVA,JVM,JAVA虚拟机">
+    <meta name="description" content="失落时悄悄徘徊，伤感时默默遐想">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>jvm-command-jstack | 山西小魔头技术博客</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery.min.js"></script>
+
+<meta name="generator" content="Hexo 5.4.0"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+
+
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">山西小魔头技术博客</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">山西小魔头技术博客</div>
+        <div class="logo-desc">
+            
+            失落时悄悄徘徊，伤感时默默遐想
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/20.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">jvm-command-jstack</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        width: 345px;
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        padding: 35px 0 15px 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content {
+        padding-bottom: 30px;
+        overflow: auto;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+
+        position: absolute;
+        right: 23.5vw;
+        display: block;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 15px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/JVM/">
+                                <span class="chip bg-color">JVM</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/JAVA/" class="post-category">
+                                JAVA
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2022-04-05
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>jstack是JDK自带的线程堆栈分析工具，使用该命令可以查看或导出 java 应用程序中线程堆栈信息。</p>
+<p>jstack用于生成java虚拟机当前时刻的线程快照。线程快照是当前java虚拟机内每一条线程正在执行的方法堆栈的集合，生成线程快照的主要目的是定位线程出现长时间停顿的原因，如线程间死锁、死循环、请求外部资源导致的长时间等待等。 线程出现停顿的时候通过jstack来查看各个线程的调用堆栈，就可以知道没有响应的线程到底在后台做什么事情，或者等待什么资源。 如果java程序崩溃生成core文件，jstack工具可以用来获得core文件的java stack和native stack的信息，从而可以轻松地知道java程序是如何崩溃和在程序何处发生问题。</p>
+<span id="more"></span>
+
+<h1><center>Java堆栈跟踪工具jstack</center></h1>
+
+<blockquote>
+<h4 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h4></blockquote>
+<p><strong>jstack</strong> [ <em>option</em> ] [ <em>vmid</em> ]</p>
+<table>
+<thead>
+<tr>
+<th>使用方式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>jstack [ option ] pid</td>
+<td>查看当前时间点，指定进程的dump堆栈信息</td>
+</tr>
+<tr>
+<td>jstack [ option ] pid &gt; 文件</td>
+<td>将当前时间点的指定进程的dump堆栈信息，写入到指定文件中</td>
+</tr>
+<tr>
+<td>jstack [ option ] executable core</td>
+<td>查看当前时间点，core文件的dump堆栈信息</td>
+</tr>
+<tr>
+<td>jstack [ option ] [server_id@]<remote server ip or hostname></remote></td>
+<td>查看当前时间点，远程机器的dump堆栈信息</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>option选项</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>-F</td>
+<td>当进程挂起了，此时’jstack [-l] pid’是没有相应的，可使用此参数来强制打印堆栈信息</td>
+</tr>
+<tr>
+<td>-m</td>
+<td>打印java和native c/c++框架的所有栈信息。一般排查不需要</td>
+</tr>
+<tr>
+<td>-l</td>
+<td>除堆栈外，打印关于锁的附加信息。会使得JVM停顿得长久得多-l 建议不要用。一般情况不需要使用。</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>使用</p>
+</blockquote>
+<p>jps查看java进程</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-api-v1-66c44d77d6-8hhkv:~$ jps
+132 Jps
+47 authority-api.jar<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>jstack查看指定进程的当前堆栈情况</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-api-v1-66c44d77d6-8hhkv:~$ jstack 47
+2022-04-05 23:12:22
+Full thread dump OpenJDK 64-Bit Server VM (25.222-b10 mixed mode):
+
+&quot;Attach Listener&quot; #53 daemon prio&#x3D;9 os_prio&#x3D;0 tid&#x3D;0x00007f3668001000 nid&#x3D;0x98 waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+&quot;http-nio-0.0.0.0-8081-exec-10&quot; #52 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007f3608011800 nid&#x3D;0x67 waiting on condition [0x00007f3630f86000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  &lt;0x00000000e73b9c28&gt; (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:103)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:31)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1074)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1134)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;http-nio-0.0.0.0-8081-exec-9&quot; #51 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007f3608010000 nid&#x3D;0x66 waiting on condition [0x00007f3631087000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  &lt;0x00000000e73b9c28&gt; (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:103)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:31)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1074)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1134)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:748)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>将指定进程的当前堆栈情况记录到某个文件中：</p>
+</blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-api-v1-66c44d77d6-8hhkv:~$ jstack 47 &gt; &#x2F;home&#x2F;work&#x2F;wangql.txt
+work@authority-api-v1-66c44d77d6-8hhkv:~$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>jstack实战之高cpu占用率排查</p>
+</blockquote>
+<p>测试代码：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">package com.tudou.util;
+
+import lombok.Synchronized;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
+public class JstackTest &#123;
+
+    public static Executor executor &#x3D; Executors.newFixedThreadPool(5);
+    public static Object lock &#x3D; new Object();
+    public static void main(String[] args) &#123;
+        Task task1 &#x3D; new Task();
+        Task task2 &#x3D; new Task();
+
+        executor.execute(task1);
+        executor.execute(task2);
+    &#125;
+    static class Task implements Runnable &#123;
+        @Override
+        public void run() &#123;
+            synchronized(lock) &#123;
+                Calculate();
+            &#125;
+        &#125;
+
+        public void Calculate() &#123;
+            int i &#x3D; 0;
+            while(true) &#123;
+                i++;
+            &#125;
+        &#125;
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>top命令查看各个进程的cpu使用情况，默认按cpu使用率排序</p>
+</blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-web-v1-7688dc9bf7-kr48z:~$ top
+top - 23:06:56 up 302 days,  7:36,  0 users,  load average: 8.21, 8.46, 7.72
+Tasks:   7 total,   1 running,   6 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  6.5 us,  1.8 sy,  0.0 ni, 90.9 id,  0.7 wa,  0.0 hi,  0.2 si,  0.0 st
+KiB Mem : 19706059+total,  5289860 free, 71409256 used, 12036147+buff&#x2F;cache
+KiB Swap:        0 total,        0 free,        0 used. 12377960+avail Mem
+
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
+     47 work      20   0 5003608 332432  16292 S  47.3  0.2   1:24.66 java
+      1 work      20   0    4280    692    628 S   0.0  0.0   0:01.44 sh
+      6 work      20   0   19728   3112   2804 S   0.0  0.0   0:00.00 bootstrap
+     16 work      20   0   19880   3204   2756 S   0.0  0.0   0:00.00 authority-web.j
+   1552 work      20   0   21116   4484   2984 S   0.0  0.0   0:00.02 bash
+   5218 work      20   0   21028   4676   3048 S   0.0  0.0   0:00.01 bash
+   5537 work      20   0   42812   3408   2908 R   0.0  0.0   0:00.01 top<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>从上图中可以看出pid为47的java进程占用了较多的cpu资源；</p>
+<blockquote>
+<p>通过<code>top -Hp 47</code>可以查看该进程下各个线程的cpu使用情况</p>
+</blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-web-v1-7688dc9bf7-kr48z:~$ top -Hp 47
+top - 23:07:51 up 302 days,  7:37,  0 users,  load average: 6.47, 7.91, 7.58
+Threads:  48 total,   1 running,  47 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  5.7 us,  1.3 sy,  0.0 ni, 91.7 id,  1.1 wa,  0.0 hi,  0.2 si,  0.0 st
+KiB Mem : 19706059+total,  4971968 free, 71714896 used, 12037372+buff&#x2F;cache
+KiB Swap:        0 total,        0 free,        0 used. 12350040+avail Mem
+
+    PID USER      PR  NI    VIRT    RES    SHR S %CPU %MEM     TIME+ COMMAND
+   5433 work      20   0 5070172 332464  16292 R 46.8  0.2   0:53.10 pool-4-thread-1
+   1266 work      20   0 5070172 332464  16292 S  0.3  0.2   0:00.17 Abandoned conne
+     47 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.00 java
+     48 work      20   0 5070172 332464  16292 S  0.0  0.2   0:13.52 java
+     49 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.88 java
+     50 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.92 java
+     51 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.08 java
+     52 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.09 java
+     53 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.52 java
+     54 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.37 VM Thread
+     55 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.01 Reference Handl
+     56 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.03 Finalizer
+     57 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.00 Surrogate Locke
+     58 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.00 Signal Dispatch
+     59 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.00 server-timer
+     61 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.03 Thread-2
+     62 work      20   0 5070172 332464  16292 S  0.0  0.2   0:23.11 C2 CompilerThre
+     63 work      20   0 5070172 332464  16292 S  0.0  0.2   0:06.03 C1 CompilerThre
+     64 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.13 Service Thread
+     65 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.41 VM Periodic Tas
+     69 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.00 Log4j2-Log4j2Sc
+     74 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.00 commons-pool-Ev
+     75 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.00 Timer-0
+     76 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.00 ContainerBackgr
+     77 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.00 container-0
+     78 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.00 Thread-6
+     79 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.00 pool-9-thread-1
+     80 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.06 pool-10-thread-
+     81 work      20   0 5070172 332464  16292 S  0.0  0.2   0:03.46 redisMessageLis
+    110 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.03 pool-13-thread-
+    160 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.03 NioBlockingSele
+    170 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.06 http-nio-0.0.0.
+    184 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.03 http-nio-0.0.0.
+    185 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.02 http-nio-0.0.0.
+    186 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.39 http-nio-0.0.0.
+    196 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.16 http-nio-0.0.0.
+    293 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.29 http-nio-0.0.0.
+    388 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.05 http-nio-0.0.0.
+    402 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.06 http-nio-0.0.0.
+    495 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.11 http-nio-0.0.0.
+    612 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.75 http-nio-0.0.0.
+    651 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.12 http-nio-0.0.0.
+    846 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.11 http-nio-0.0.0.
+    973 work      20   0 5070172 332464  16292 S  0.0  0.2   0:00.10 http-nio-0.0.0.<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>上图中可以看出pid为5433的线程占了较多的cpu资源，利用jstack命令可以继续查看该线程当前的堆栈状态。</p>
+<blockquote>
+<p>拿到线程的16进制</p>
+</blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-web-v1-7688dc9bf7-kr48z:~$ printf &quot;%x&quot; 5433
+1539
+work@authority-web-v1-7688dc9bf7-kr48z:~$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>jstack命令生成的thread dump信息包含了JVM中所有存活的线程，为了分析指定线程，必须找出对应线程的调用栈，<strong>应该如何找？</strong></p>
+<p>在top命令中，已经获取到了占用cpu资源较高的线程pid，将该pid转成16进制的值，在thread dump中每个线程都有一个nid，找到对应的nid即可；隔段时间再执行一次stack命令获取thread dump，区分两份dump是否有差别，在nid=0x246c的线程调用栈中，发现该线程一直在执行JstackCase类第33行的calculate方法，得到这个信息，就可以检查对应的代码是否有问题。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-web-v1-7688dc9bf7-kr48z:~$ jstack 47
+2022-04-06 23:11:42
+Full thread dump OpenJDK 64-Bit Server VM (25.222-b10 mixed mode):
+
+&quot;Attach Listener&quot; #7763 daemon prio&#x3D;9 os_prio&#x3D;0 tid&#x3D;0x00007fba44002000 nid&#x3D;0x1ec2 waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+&quot;pool-4-thread-2&quot; #5355 prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fba00016000 nid&#x3D;0x153a waiting for monitor entry [0x00007fb9dbdfc000]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+	at com.rrc.authority.web.controller.HealthController$Task.run(HealthController.java:41)
+	- waiting to lock &lt;0x00000000fbe5dd70&gt; (a java.lang.Object)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;pool-4-thread-1&quot; #5354 prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fba0000b000 nid&#x3D;0x1539 runnable [0x00007fb9db5f6000]
+   java.lang.Thread.State: RUNNABLE
+	at com.rrc.authority.web.controller.HealthController$Task.Calculate(HealthController.java:48)
+	at com.rrc.authority.web.controller.HealthController$Task.run(HealthController.java:41)
+	- locked &lt;0x00000000fbe5dd70&gt; (a java.lang.Object)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;Okio Watchdog&quot; #4584 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fb9c8237800 nid&#x3D;0x1223 in Object.wait() [0x00007fb9db1f4000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Object.wait(Object.java:502)
+	at okio.AsyncTimeout.awaitTimeout(AsyncTimeout.java:338)
+	- locked &lt;0x00000000fa902db0&gt; (a java.lang.Class for okio.AsyncTimeout)
+	at okio.AsyncTimeout$Watchdog.run(AsyncTimeout.java:313)
+
+&quot;Abandoned connection cleanup thread&quot; #1216 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fb9c8134000 nid&#x3D;0x4f2 in Object.wait() [0x00007fb9dbbfa000]
+   java.lang.Thread.State: TIMED_WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:144)
+	- locked &lt;0x00000000fd104958&gt; (a java.lang.ref.ReferenceQueue$Lock)
+	at com.mysql.jdbc.AbandonedConnectionCleanupThread.run(AbandonedConnectionCleanupThread.java:43)
+
+&quot;Tomcat JDBC Pool Cleaner[1112280004:1649256969328]&quot; #1215 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fb9c804d800 nid&#x3D;0x4f1 in Object.wait() [0x00007fb9db9f8000]
+   java.lang.Thread.State: TIMED_WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	at java.util.TimerThread.mainLoop(Timer.java:552)
+	- locked &lt;0x00000000fd104970&gt; (a java.util.TaskQueue)
+	at java.util.TimerThread.run(Timer.java:505)
+
+&quot;http-nio-0.0.0.0-8088-exec-10&quot; #923 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fb9e4018800 nid&#x3D;0x3cd waiting on condition [0x00007fb9dbaf9000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  &lt;0x00000000fd1049a0&gt; (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:103)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:31)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1074)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1134)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;http-nio-0.0.0.0-8088-exec-9&quot; #796 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fb9e4027800 nid&#x3D;0x34e waiting on condition [0x00007fb9dbefd000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  &lt;0x00000000fd1049a0&gt; (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:103)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:31)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1074)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1134)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;http-nio-0.0.0.0-8088-exec-8&quot; #601 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fb9e4026800 nid&#x3D;0x28b waiting on condition [0x00007fba24960000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  &lt;0x00000000fd1049a0&gt; (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:103)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:31)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1074)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1134)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;http-nio-0.0.0.0-8088-exec-7&quot; #562 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fb9e4025800 nid&#x3D;0x264 waiting on condition [0x00007fb9dbcfb000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  &lt;0x00000000fd1049a0&gt; (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:103)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:31)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1074)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1134)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;http-nio-0.0.0.0-8088-exec-6&quot; #445 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fb9e4024800 nid&#x3D;0x1ef waiting on condition [0x00007fb9dbffe000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  &lt;0x00000000fd1049a0&gt; (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:103)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:31)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1074)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1134)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;http-nio-0.0.0.0-8088-exec-5&quot; #352 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fb9e4023800 nid&#x3D;0x192 waiting on condition [0x00007fba24d64000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  &lt;0x00000000fd1049a0&gt; (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:103)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:31)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1074)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1134)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;http-nio-0.0.0.0-8088-exec-4&quot; #338 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fb9e4022800 nid&#x3D;0x184 waiting on condition [0x00007fba24c63000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  &lt;0x00000000fd1049a0&gt; (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:103)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:31)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1074)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1134)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;http-nio-0.0.0.0-8088-exec-3&quot; #243 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fb9e4021800 nid&#x3D;0x125 waiting on condition [0x00007fba2415a000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  &lt;0x00000000fd1049a0&gt; (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:103)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:31)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1074)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1134)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;http-nio-0.0.0.0-8088-exec-2&quot; #146 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fb9e4021000 nid&#x3D;0xc4 waiting on condition [0x00007fba2475e000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  &lt;0x00000000fd1049a0&gt; (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:103)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:31)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1074)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1134)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;DestroyJavaVM&quot; #136 prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fba8400d800 nid&#x3D;0x30 waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+&quot;http-nio-0.0.0.0-8088-exec-1&quot; #135 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fb9e4029000 nid&#x3D;0xba waiting on condition [0x00007fba2425b000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  &lt;0x00000000fd1049a0&gt; (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	at java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:442)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:103)
+	at org.apache.tomcat.util.threads.TaskQueue.take(TaskQueue.java:31)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1074)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1134)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;http-nio-0.0.0.0-8088-AsyncTimeout&quot; #133 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fba855a2800 nid&#x3D;0xb9 waiting on condition [0x00007fba24a61000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at org.apache.coyote.AbstractProtocol$AsyncTimeout.run(AbstractProtocol.java:1137)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;http-nio-0.0.0.0-8088-Acceptor-0&quot; #132 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fba855a2000 nid&#x3D;0xb8 runnable [0x00007fba24b62000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.ServerSocketChannelImpl.accept0(Native Method)
+	at sun.nio.ch.ServerSocketChannelImpl.accept(ServerSocketChannelImpl.java:422)
+	at sun.nio.ch.ServerSocketChannelImpl.accept(ServerSocketChannelImpl.java:250)
+	- locked &lt;0x00000000fd0fd220&gt; (a java.lang.Object)
+	at org.apache.tomcat.util.net.NioEndpoint$Acceptor.run(NioEndpoint.java:456)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;http-nio-0.0.0.0-8088-ClientPoller-0&quot; #118 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fba84fcc800 nid&#x3D;0xaa runnable [0x00007fba2445d000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.EPollArrayWrapper.epollWait(Native Method)
+	at sun.nio.ch.EPollArrayWrapper.poll(EPollArrayWrapper.java:269)
+	at sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:93)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:86)
+	- locked &lt;0x00000000fd0fd088&gt; (a sun.nio.ch.Util$3)
+	- locked &lt;0x00000000fd0fd070&gt; (a java.util.Collections$UnmodifiableSet)
+	- locked &lt;0x00000000fd1380b8&gt; (a sun.nio.ch.EPollSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(SelectorImpl.java:97)
+	at org.apache.tomcat.util.net.NioEndpoint$Poller.run(NioEndpoint.java:790)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;NioBlockingSelector.BlockPoller-1&quot; #108 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fba85611800 nid&#x3D;0xa0 runnable [0x00007fba2435c000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.EPollArrayWrapper.epollWait(Native Method)
+	at sun.nio.ch.EPollArrayWrapper.poll(EPollArrayWrapper.java:269)
+	at sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:93)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:86)
+	- locked &lt;0x00000000fd0fcef0&gt; (a sun.nio.ch.Util$3)
+	- locked &lt;0x00000000fd0fced8&gt; (a java.util.Collections$UnmodifiableSet)
+	- locked &lt;0x00000000fd138148&gt; (a sun.nio.ch.EPollSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(SelectorImpl.java:97)
+	at org.apache.tomcat.util.net.NioBlockingSelector$BlockPoller.run(NioBlockingSelector.java:339)
+
+&quot;pool-13-thread-1&quot; #58 prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fba857a6000 nid&#x3D;0x6e waiting on condition [0x00007fba2485f000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  &lt;0x00000000fd0e8a68&gt; (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:215)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(AbstractQueuedSynchronizer.java:2078)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue.take(ScheduledThreadPoolExecutor.java:1093)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue.take(ScheduledThreadPoolExecutor.java:809)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1074)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1134)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;redisMessageListenerContainer-1&quot; #29 prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fba85612800 nid&#x3D;0x51 runnable [0x00007fba24e65000]
+   java.lang.Thread.State: RUNNABLE
+	at java.net.SocketInputStream.socketRead0(Native Method)
+	at java.net.SocketInputStream.socketRead(SocketInputStream.java:116)
+	at java.net.SocketInputStream.read(SocketInputStream.java:171)
+	at java.net.SocketInputStream.read(SocketInputStream.java:141)
+	at java.net.SocketInputStream.read(SocketInputStream.java:127)
+	at redis.clients.util.RedisInputStream.ensureFill(RedisInputStream.java:195)
+	at redis.clients.util.RedisInputStream.readByte(RedisInputStream.java:40)
+	at redis.clients.jedis.Protocol.process(Protocol.java:141)
+	at redis.clients.jedis.Protocol.read(Protocol.java:205)
+	at redis.clients.jedis.Connection.readProtocolWithCheckingBroken(Connection.java:297)
+	at redis.clients.jedis.Connection.getRawObjectMultiBulkReply(Connection.java:242)
+	at redis.clients.jedis.BinaryJedisPubSub.process(BinaryJedisPubSub.java:87)
+	at redis.clients.jedis.BinaryJedisPubSub.proceedWithPatterns(BinaryJedisPubSub.java:75)
+	at redis.clients.jedis.BinaryJedis.psubscribe(BinaryJedis.java:2989)
+	at org.springframework.data.redis.connection.jedis.JedisConnection.pSubscribe(JedisConnection.java:3050)
+	at org.springframework.data.redis.listener.RedisMessageListenerContainer$SubscriptionTask.eventuallyPerformSubscription(RedisMessageListenerContainer.java:779)
+	at org.springframework.data.redis.listener.RedisMessageListenerContainer$SubscriptionTask.run(RedisMessageListenerContainer.java:746)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;pool-10-thread-1&quot; #28 prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fba85cc4000 nid&#x3D;0x50 waiting on condition [0x00007fba25166000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  &lt;0x00000000fc9a1f00&gt; (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:215)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(AbstractQueuedSynchronizer.java:2078)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue.take(ScheduledThreadPoolExecutor.java:1093)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue.take(ScheduledThreadPoolExecutor.java:809)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1074)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1134)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;pool-9-thread-1&quot; #27 prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fba84ebd000 nid&#x3D;0x4f waiting on condition [0x00007fba483f9000]
+   java.lang.Thread.State: WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  &lt;0x00000000fc8f1d50&gt; (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:175)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2039)
+	at java.util.concurrent.LinkedBlockingDeque.takeFirst(LinkedBlockingDeque.java:492)
+	at java.util.concurrent.LinkedBlockingDeque.take(LinkedBlockingDeque.java:680)
+	at sun.nio.fs.AbstractWatchService.take(AbstractWatchService.java:118)
+	at com.renrenche.config.refresh.LocalMonitor.watchFile(LocalMonitor.java:57)
+	at com.renrenche.config.refresh.LocalMonitor.run(LocalMonitor.java:46)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;Thread-6&quot; #26 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fba85ca9000 nid&#x3D;0x4e runnable [0x00007fba26eea000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.fs.LinuxWatchService.poll(Native Method)
+	at sun.nio.fs.LinuxWatchService.access$600(LinuxWatchService.java:47)
+	at sun.nio.fs.LinuxWatchService$Poller.run(LinuxWatchService.java:314)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;container-0&quot; #25 prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fba84c78800 nid&#x3D;0x4d waiting on condition [0x00007fba268e6000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at org.apache.catalina.core.StandardServer.await(StandardServer.java:427)
+	at org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainer$1.run(TomcatEmbeddedServletContainer.java:166)
+
+&quot;ContainerBackgroundProcessor[StandardEngine[Tomcat]]&quot; #24 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fba84734000 nid&#x3D;0x4c waiting on condition [0x00007fba269e7000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at org.apache.catalina.core.ContainerBase$ContainerBackgroundProcessor.run(ContainerBase.java:1339)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;Timer-0&quot; #23 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fba1c3b5000 nid&#x3D;0x4b in Object.wait() [0x00007fba26de9000]
+   java.lang.Thread.State: TIMED_WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	at java.util.TimerThread.mainLoop(Timer.java:552)
+	- locked &lt;0x00000000fa673d48&gt; (a java.util.TaskQueue)
+	at java.util.TimerThread.run(Timer.java:505)
+
+&quot;commons-pool-EvictionTimer&quot; #22 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fba1c09e000 nid&#x3D;0x4a in Object.wait() [0x00007fba26ce8000]
+   java.lang.Thread.State: TIMED_WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	at java.util.TimerThread.mainLoop(Timer.java:552)
+	- locked &lt;0x00000000fa394b50&gt; (a java.util.TaskQueue)
+	at java.util.TimerThread.run(Timer.java:505)
+
+&quot;Log4j2-Log4j2Scheduled-3&quot; #17 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fba848b3800 nid&#x3D;0x45 waiting on condition [0x00007fba486fa000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  &lt;0x00000000fa48b5e8&gt; (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:215)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(AbstractQueuedSynchronizer.java:2078)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue.take(ScheduledThreadPoolExecutor.java:1093)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue.take(ScheduledThreadPoolExecutor.java:809)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1074)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1134)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;Service Thread&quot; #12 daemon prio&#x3D;9 os_prio&#x3D;0 tid&#x3D;0x00007fba84268000 nid&#x3D;0x40 runnable [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+&quot;C1 CompilerThread1&quot; #11 daemon prio&#x3D;9 os_prio&#x3D;0 tid&#x3D;0x00007fba8425b000 nid&#x3D;0x3f waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+&quot;C2 CompilerThread0&quot; #10 daemon prio&#x3D;9 os_prio&#x3D;0 tid&#x3D;0x00007fba8425a800 nid&#x3D;0x3e waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+&quot;Thread-2&quot; #9 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fba38001000 nid&#x3D;0x3d runnable [0x00007fba6c1d5000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.EPollArrayWrapper.epollWait(Native Method)
+	at sun.nio.ch.EPollArrayWrapper.poll(EPollArrayWrapper.java:269)
+	at sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:93)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:86)
+	- locked &lt;0x00000000f98c50b0&gt; (a sun.nio.ch.Util$3)
+	- locked &lt;0x00000000f98c5098&gt; (a java.util.Collections$UnmodifiableSet)
+	- locked &lt;0x00000000f98c6de0&gt; (a sun.nio.ch.EPollSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(SelectorImpl.java:97)
+	at sun.net.httpserver.ServerImpl$Dispatcher.run(ServerImpl.java:352)
+	at java.lang.Thread.run(Thread.java:748)
+
+&quot;server-timer&quot; #7 daemon prio&#x3D;5 os_prio&#x3D;0 tid&#x3D;0x00007fba84243800 nid&#x3D;0x3b in Object.wait() [0x00007fba6c3d7000]
+   java.lang.Thread.State: TIMED_WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	at java.util.TimerThread.mainLoop(Timer.java:552)
+	- locked &lt;0x00000000f98e5f90&gt; (a java.util.TaskQueue)
+	at java.util.TimerThread.run(Timer.java:505)
+
+&quot;Signal Dispatcher&quot; #5 daemon prio&#x3D;9 os_prio&#x3D;0 tid&#x3D;0x00007fba84126000 nid&#x3D;0x3a runnable [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+&quot;Surrogate Locker Thread (Concurrent GC)&quot; #4 daemon prio&#x3D;9 os_prio&#x3D;0 tid&#x3D;0x00007fba84124800 nid&#x3D;0x39 waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+&quot;Finalizer&quot; #3 daemon prio&#x3D;8 os_prio&#x3D;0 tid&#x3D;0x00007fba840f0800 nid&#x3D;0x38 in Object.wait() [0x00007fba6ceb2000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:144)
+	- locked &lt;0x00000000f9a8b6f8&gt; (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:165)
+	at java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:216)
+
+&quot;Reference Handler&quot; #2 daemon prio&#x3D;10 os_prio&#x3D;0 tid&#x3D;0x00007fba840ee000 nid&#x3D;0x37 in Object.wait() [0x00007fba6cfb3000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	at java.lang.Object.wait(Object.java:502)
+	at java.lang.ref.Reference.tryHandlePending(Reference.java:191)
+	- locked &lt;0x00000000f9a8b728&gt; (a java.lang.ref.Reference$Lock)
+	at java.lang.ref.Reference$ReferenceHandler.run(Reference.java:153)
+
+&quot;VM Thread&quot; os_prio&#x3D;0 tid&#x3D;0x00007fba840e4000 nid&#x3D;0x36 runnable
+
+&quot;Gang worker#0 (Parallel GC Threads)&quot; os_prio&#x3D;0 tid&#x3D;0x00007fba8401e800 nid&#x3D;0x31 runnable
+
+&quot;Gang worker#1 (Parallel GC Threads)&quot; os_prio&#x3D;0 tid&#x3D;0x00007fba84020000 nid&#x3D;0x32 runnable
+
+&quot;Concurrent Mark-Sweep GC Thread&quot; os_prio&#x3D;0 tid&#x3D;0x00007fba84051000 nid&#x3D;0x35 runnable
+
+&quot;Gang worker#0 (Parallel CMS Threads)&quot; os_prio&#x3D;0 tid&#x3D;0x00007fba8404d800 nid&#x3D;0x33 runnable
+
+&quot;Gang worker#1 (Parallel CMS Threads)&quot; os_prio&#x3D;0 tid&#x3D;0x00007fba8404f000 nid&#x3D;0x34 runnable
+
+&quot;VM Periodic Task Thread&quot; os_prio&#x3D;0 tid&#x3D;0x00007fba8426a800 nid&#x3D;0x41 waiting on condition
+
+JNI global references: 351
+
+work@authority-web-v1-7688dc9bf7-kr48z:~$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>很明显：线程1获取到锁，处于RUNNABLE状态，线程2处于BLOCK状态<br>1、<code>locked &lt;0x00000000fbe5dd70&gt;</code>说明线程1对地址为0x00000000fbe5dd70对象进行了加锁；<br>2、<code>waiting to lock &lt;0x00000000fbe5dd70&gt;</code> 说明线程2在等待地址为0x00000000fbe5dd70对象上的锁；<br>3、<code>waiting for monitor entry  [0x00007fb9dbdfc000]</code>说明线程1是通过synchronized关键字进入了监视器的临界区，并处于”Entry Set”队列，等待monitor。</p>
+<p><img src="/2022/04/05/jvm-command-jstack/lock.png" alt="阻塞"></p>
+<blockquote>
+<p>测试代码</p>
+</blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">package com.tudou.util;
+
+import lombok.Synchronized;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
+public class JstackTest &#123;
+
+    public static Executor executor &#x3D; Executors.newFixedThreadPool(5);
+    public static Object lock &#x3D; new Object();
+    public static void main(String[] args) &#123;
+        Task task1 &#x3D; new Task();
+        Task task2 &#x3D; new Task();
+
+        executor.execute(task1);
+        executor.execute(task2);
+    &#125;
+    static class Task implements Runnable &#123;
+        @Override
+        public void run() &#123;
+            synchronized(lock) &#123;
+                &#x2F;&#x2F;Calculate();
+                try &#123;
+                    lock.wait();
+                &#125; catch (InterruptedException e) &#123;
+                    e.printStackTrace();
+                &#125;
+            &#125;
+        &#125;
+
+        public void Calculate() &#123;
+            int i &#x3D; 0;
+            while(true) &#123;
+                i++;
+            &#125;
+        &#125;
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<p>线程1和2都处于WAITING状态<br>1、线程1和2都是先<code>locked &lt;0x000000076bf62500&gt;</code>，再<code>waiting on &lt;0x000000076bf62500&gt;</code>，之所以先锁再等同一个对象，是因为wait方法需要先通过synchronized获得该地址对象的monitor；<br>2、<code>waiting on &lt;0x000000076bf62500&gt;</code>说明线程执行了wait方法之后，释放了monitor，进入到”Wait Set”队列，等待其它线程执行地址为0x000000076bf62500对象的notify方法，并唤醒自己。</p>
+<p><img src="/2022/04/05/jvm-command-jstack/wait.png" alt="等待"></p>
+<p><strong>jstack Dump 日志文件中的线程状态</strong></p>
+<p>dump 文件里，值得关注的线程状态有：</p>
+<ol>
+<li>死锁，<strong>Deadlock（重点关注）</strong> </li>
+<li>执行中，Runnable  </li>
+<li>等待资源，<strong>Waiting on condition（重点关注）</strong> </li>
+<li>等待获取监视器，<strong>Waiting on monitor entry（重点关注）</strong></li>
+<li>暂停，Suspended</li>
+<li>对象等待中，Object.wait() 或 TIMED_WAITING</li>
+<li>阻塞，<strong>Blocked（重点关注）</strong> </li>
+<li>停止，Parked</li>
+</ol>
+<blockquote>
+<p>引用</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/wuchanming/p/7766994.html">如何使用jstack分析线程状态 </a></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzA3MTUzOTcxOQ==&mid=2452966362&idx=1&sn=259bf1e005f3d54b979e8b9454ba9477&from=groupmessage&ascene=1&devicetype=android-28&version=2700043a&nettype=WIFI&abtest_cookie=BQABAAgACgALABIAEwAHAJ6GHgAjlx4AVpkeAM6ZHgDcmR4A9JkeAAOaHgAAAA==&lang=zh_CN&pass_ticket=Y0Jy/dPMQxL5O0S0gFsqeE7Uomly8r+fmggGysGv33oHIqS/ahyiMqVRURatk1Yk&wx_header=1">一次应用 CPU 飙高的血案排查过程</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/justry_deng/article/details/90447410">jstack</a></p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">WangQingLei</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="http://www.yipinxieli.com/2022/04/05/jvm-command-jstack/">http://www.yipinxieli.com/2022/04/05/jvm-command-jstack/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">WangQingLei</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/JVM/">
+                                    <span class="chip bg-color">JVM</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.4rem;
+        line-height: 38px;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
+            <div class="card">
+                <a href="/2022/04/05/jvm-command-jstack/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/20.jpg" class="responsive-img" alt="jvm-command-jstack">
+                        
+                        <span class="card-title">jvm-command-jstack</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            jstack是JDK自带的线程堆栈分析工具，使用该命令可以查看或导出 java 应用程序中线程堆栈信息。
+jstack用于生成java虚拟机当前时刻的线程快照。线程快照是当前java虚拟机内每一条线程正在执行的方法堆栈的集合，生成线程快照的
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-04-05
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/JAVA/" class="post-category">
+                                    JAVA
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/JVM/">
+                        <span class="chip bg-color">JVM</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2022/03/29/jvm-command-jinfo/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/21.jpg" class="responsive-img" alt="JAVA配置信息工具jinfo">
+                        
+                        <span class="card-title">JAVA配置信息工具jinfo</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            jinfo 是 JDK 自带的命令，可以用来查看正在运行的 java 应用程序的扩展参数，包括Java System属性和JVM命令行参数；也可以动态的修改正在运行的 JVM 一些参数。当系统崩溃时，jinfo可以从core文件里面知道崩溃
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-03-29
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/JAVA/" class="post-category">
+                                    JAVA
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/JVM/">
+                        <span class="chip bg-color">JVM</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="1379619299"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2021-2022</span>
+            
+            <span id="year">2021</span>
+            <a href="/about" target="_blank">WangQingLei</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/qinglei1989" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:437423902@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=437423902" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 437423902" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>
