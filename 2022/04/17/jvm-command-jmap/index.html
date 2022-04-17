@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="mysql-isolation-level, JAVA">
+    <meta name="keywords" content="JAVA,JVM,JAVA虚拟机">
     <meta name="description" content="失落时悄悄徘徊，伤感时默默遐想">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>mysql-isolation-level | 山西小魔头技术博客</title>
+    <title>jvm-command-jmap | 山西小魔头技术博客</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/22.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/16.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">mysql-isolation-level</h1>
+                    <h1 class="description center-align post-title">jvm-command-jmap</h1>
                 </div>
             </div>
         </div>
@@ -431,8 +431,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/mysql/">
-                                <span class="chip bg-color">mysql</span>
+                            <a href="/tags/JVM/">
+                                <span class="chip bg-color">JVM</span>
                             </a>
                         
                     </div>
@@ -443,8 +443,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" class="post-category">
-                                数据库
+                            <a href="/categories/JAVA/" class="post-category">
+                                JAVA
                             </a>
                         
                     </div>
@@ -456,7 +456,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2022-03-26
+                    2022-04-17
                 </div>
                 
 
@@ -480,155 +480,228 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>Mysql数据库隔离级别  未完待续</p>
+                <p>jmap（Memory Map for Java）命令用来生成堆转储快照。</p>
+<p>jmap的作用并不仅仅是为了生成堆转储快照文件，还可以查看finalize执行队列、Java堆和方法区的详细信息，比如空间使用率、当前使用的什么垃圾回收器、分代情况等等。</p>
 <span id="more"></span>
 
-<center><h2>MYSQL事务隔离级别</h2></center>
-
-<p>脏读 不可重复读 幻读  这周末搞定</p>
-<p>四种隔离级别</p>
-<blockquote>
-<p>InnoDB解决幻读的方案–LBCC&amp;MVCC</p>
-</blockquote>
-<p><code>InnoDB</code>默认的事务隔离级别是RR，它为了解决该隔离级别下的幻读的并发问题，提出了<code>LBCC</code>和<code>MVCC</code>两种方案。其中<code>LBCC</code>解决的是当前读情况下的幻读，<code>MVCC</code>解决的是普通读（快照读）的幻读。</p>
-<p><strong>知识点</strong></p>
-<p>InnoDB的RR隔离级别并没有完全解决幻读的问题。如果在同一个事务里面，只是总是执行普通的select快照读，是不会产生幻读的。</p>
-<p>但是如果在这个事务里面通过当前读或者先更新然后快照读的形式来读取数据，就会产生幻读。</p>
-<p><strong>测试用表</strong></p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">-- auto-generated definition
-create table test_read
-(
-    id   bigint auto_increment comment &#39;主键&#39;
-        primary key,
-    name varchar(32) default &#39;&#39; null comment &#39;姓名&#39;
-)
-    comment &#39;幻读测试表&#39;;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p><strong>初始化数据</strong></p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">insert into test_read (id, name) values (1, &#39;wang&#39;);
-insert into test_read (id, name) values (2, &#39;zhang&#39;);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<h1><center>Java内存映像工具jmap</center></h1>
 
 <blockquote>
-<p>幻读情形1</p>
-</blockquote>
-<p>打开两个终端，连上mysql，分别启动事务1和事务2。</p>
-<table>
-<thead>
-<tr>
-<th>事务1</th>
-<th>事务2</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>start transaction;</td>
-<td>start transaction;</td>
-</tr>
-<tr>
-<td>insert into test_read (name) values (‘zhao’);</td>
-<td>–</td>
-</tr>
-<tr>
-<td>select * from test_read;</td>
-<td>select * from test_read;</td>
-</tr>
-</tbody></table>
-<p>查询出来的结果如下：</p>
-<p>事务1：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">1,wang
-2,zhang
-3,zhao<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<p>事务2：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">1,wang
-2,zhang<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<p>很明显事务2没有查询到事务1未提交的新插入数据。原因也很简单，因为普通的select语句是快照读，而事务b启动时，它的快照数据就已经被版本锁定了。</p>
-<p>如果事务2进行当前读是否能够读取到事务1未提交的新插入数据呢？</p>
-<p>我们在事务2里面执行如下命令来看看执行结果：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">select * from test_read lock in share mode;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>执行完成之后我们发现事务b此时会block住，原因是事务1的insert语句排它锁住了id为3的新插入数据，而事务2想请求所有行的共享锁，肯定是需要等待的。</p>
-<p>事务1提交之后，事务2依然无法读取到事务a新插入的数据，因为事务b还是读取到的是快照数据，所以不包含事务a提交之后的新数据。</p>
-<h4 id="如果此时事务b使用当前读，能否获取到事务a已提交的新插入数据呢？"><a href="#如果此时事务b使用当前读，能否获取到事务a已提交的新插入数据呢？" class="headerlink" title="如果此时事务b使用当前读，能否获取到事务a已提交的新插入数据呢？"></a>如果此时事务b使用当前读，能否获取到事务a已提交的新插入数据呢？</h4><table>
-<thead>
-<tr>
-<th>事务1</th>
-<th>事务2</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>start transaction;</td>
-<td>start transaction;</td>
-</tr>
-<tr>
-<td>insert into test_read (name) values (‘zhao’);</td>
-<td>–</td>
-</tr>
-<tr>
-<td>select * from test_read;</td>
-<td>select * from test_read;</td>
-</tr>
-<tr>
-<td>commit;</td>
-<td>–</td>
-</tr>
-<tr>
-<td>–</td>
-<td>select * from test_read lock in share mode;</td>
-</tr>
-</tbody></table>
-<p>查询出来的结果如下：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">1,wang
-2,zhang
-3,zhao<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<p><strong>可以查询到事务a已提交的新数据，所以此时使用当前读就产生了幻读</strong>。</p>
+<h4 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h4></blockquote>
+<p><strong>jmap</strong> [ <em>option</em> ] vmid</p>
 <blockquote>
-<p>幻读情形2</p>
+<p>option选项</p>
 </blockquote>
 <table>
 <thead>
 <tr>
-<th>事务1</th>
-<th>事务2</th>
+<th>选项</th>
+<th>作用</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>start transaction;</td>
-<td>start transaction;</td>
+<td>-dump</td>
+<td>生成java堆转储快照，格式为jmap -dump:[live,]format=b,file=<filename> <pid></pid></filename></td>
 </tr>
 <tr>
-<td>insert into test_read (name) values (‘zhao’);</td>
-<td>–</td>
+<td>-finalizerinfo</td>
+<td>显示在F-Queue中等待Finalizer线程执行finalize方法的对象。</td>
 </tr>
 <tr>
-<td>select * from test_read;</td>
-<td>select * from test_read;</td>
+<td>-heap</td>
+<td>显示Java堆详细信息，如使用了那种回收器、参数配置、分代状况等。</td>
 </tr>
 <tr>
-<td>commit;</td>
-<td>–</td>
+<td>-histo</td>
+<td>显示堆中对象统计信息，包括类、实例数量、合计容器</td>
 </tr>
 <tr>
-<td>–</td>
-<td>update test_read set name=’bbb’ where id = 3;</td>
+<td>-permstat</td>
+<td>以ClassLoader为统计口径显示永久代内存状态</td>
 </tr>
 <tr>
-<td>–</td>
-<td>select * from test_read;</td>
+<td>-F</td>
+<td>当虚拟机进程对-dump选项没有响应时，可使用这个选项强制生成dump快照</td>
 </tr>
 </tbody></table>
-<p>第一条命令使用update更新了事务a已提交的新数据，第二条命令通过普通的select语句查看快照数据。</p>
-<p>查询出来的结果如下：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">1,wang
-2,zhang
-3,bbb<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<blockquote>
+<p>使用</p>
+</blockquote>
+<p>jmap命令的可选参数。如果没有指定这个参数，jinfo命令会显示Java虚拟机进程的内存映像信息，如下图：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-web-v1-78f4d45f98-zpnx6:~$ jps
+854586 Jps
+47 authority-web.jar
+work@authority-web-v1-78f4d45f98-zpnx6:~$ jmap 47
+Attaching to process ID 47, please wait...
+Debugger attached successfully.
+Server compiler detected.
+JVM version is 25.222-b10
+0x0000000000400000      8K      &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;bin&#x2F;java
+0x00007fb7079e3000      82K     &#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libresolv-2.24.so
+0x00007fb707bfa000      22K     &#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libnss_dns-2.24.so
+0x00007fb74049a000      90K     &#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libgcc_s.so.1
+0x00007fb7406b1000      260K    &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;amd64&#x2F;libsunec.so
+0x00007fb76c7ca000      92K     &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;amd64&#x2F;libnio.so
+0x00007fb76c9dc000      51K     &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;amd64&#x2F;libmanagement.so
+0x00007fb76cbe6000      114K    &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;amd64&#x2F;libnet.so
+0x00007fb781dd5000      123K    &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;amd64&#x2F;libzip.so
+0x00007fb781ff1000      46K     &#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libnss_files-2.24.so
+0x00007fb782203000      46K     &#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libnss_nis-2.24.so
+0x00007fb78240f000      86K     &#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libnsl-2.24.so
+0x00007fb782627000      30K     &#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libnss_compat-2.24.so
+0x00007fb78282f000      50K     &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;amd64&#x2F;libinstrument.so
+0x00007fb782a3a000      202K    &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;amd64&#x2F;libjava.so
+0x00007fb782c64000      68K     &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;amd64&#x2F;libverify.so
+0x00007fb782e74000      31K     &#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;librt-2.24.so
+0x00007fb78307c000      1038K   &#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libm-2.24.so
+0x00007fb783380000      15953K  &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;jre&#x2F;lib&#x2F;amd64&#x2F;server&#x2F;libjvm.so
+0x00007fb7842e7000      1649K   &#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libc-2.24.so
+0x00007fb784686000      14K     &#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libdl-2.24.so
+0x00007fb78488a000      334K    &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;lib&#x2F;amd64&#x2F;jli&#x2F;libjli.so
+0x00007fb784aa1000      132K    &#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;libpthread-2.24.so
+0x00007fb784cbe000      149K    &#x2F;lib&#x2F;x86_64-linux-gnu&#x2F;ld-2.24.so
+work@authority-web-v1-78f4d45f98-zpnx6:~$
+work@authority-web-v1-78f4d45f98-zpnx6:~$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p><strong>可以看到事务a已提交的新数据被事务b使用update语句更新了，并且通过普通的select语句给查询出来了，很显然，出现了幻读</strong>。</p>
+<blockquote>
+<p><code>-heap</code>显示Java堆的如下信息：</p>
+</blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-web-v1-78f4d45f98-zpnx6:~$ ^C
+work@authority-web-v1-78f4d45f98-zpnx6:~$ jmap -heap 47
+Attaching to process ID 47, please wait...
+Debugger attached successfully.
+Server compiler detected.
+JVM version is 25.222-b10
+
+using parallel threads in the new generation.
+using thread-local object allocation.
+Concurrent Mark-Sweep GC
+
+Heap Configuration:
+   MinHeapFreeRatio         &#x3D; 40
+   MaxHeapFreeRatio         &#x3D; 70
+   MaxHeapSize              &#x3D; 161480704 (154.0MB)
+   NewSize                  &#x3D; 53084160 (50.625MB)
+   MaxNewSize               &#x3D; 53084160 (50.625MB)
+   OldSize                  &#x3D; 108396544 (103.375MB)
+   NewRatio                 &#x3D; 2
+   SurvivorRatio            &#x3D; 8
+   MetaspaceSize            &#x3D; 21807104 (20.796875MB)
+   CompressedClassSpaceSize &#x3D; 1073741824 (1024.0MB)
+   MaxMetaspaceSize         &#x3D; 17592186044415 MB
+   G1HeapRegionSize         &#x3D; 0 (0.0MB)
+
+Heap Usage:
+New Generation (Eden + 1 Survivor Space):
+   capacity &#x3D; 47775744 (45.5625MB)
+   used     &#x3D; 14542552 (13.868858337402344MB)
+   free     &#x3D; 33233192 (31.693641662597656MB)
+   30.439195253557955% used
+Eden Space:
+   capacity &#x3D; 42467328 (40.5MB)
+   used     &#x3D; 14496264 (13.824714660644531MB)
+   free     &#x3D; 27971064 (26.67528533935547MB)
+   34.135097927517364% used
+From Space:
+   capacity &#x3D; 5308416 (5.0625MB)
+   used     &#x3D; 46288 (0.0441436767578125MB)
+   free     &#x3D; 5262128 (5.0183563232421875MB)
+   0.8719738618827161% used
+To Space:
+   capacity &#x3D; 5308416 (5.0625MB)
+   used     &#x3D; 0 (0.0MB)
+   free     &#x3D; 5308416 (5.0625MB)
+   0.0% used
+concurrent mark-sweep generation:
+   capacity &#x3D; 108396544 (103.375MB)
+   used     &#x3D; 69763232 (66.53140258789062MB)
+   free     &#x3D; 38633312 (36.843597412109375MB)
+   64.35927698949516% used
+
+38279 interned Strings occupying 4296008 bytes.
+work@authority-web-v1-78f4d45f98-zpnx6:~$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p><code>-histo[:live]</code>显示Java堆中对象的统计信息，包括：对象数量、占用内存大小(单位：字节)和类的完全限定名</p>
+</blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">
+work@authority-web-v1-78f4d45f98-zpnx6:~$ jmap -histo 47
+
+ num     #instances         #bytes  class name
+----------------------------------------------
+   1:        203570       17317376  [C
+   2:          8015        8330368  [I
+   3:         11785        5102672  [B
+   4:        200710        4817040  java.lang.String
+   5:         54046        4756048  java.lang.reflect.Method
+   6:         52052        3601488  [Ljava.util.Hashtable$Entry;
+   7:         51912        2491776  java.util.Hashtable
+   8:         69610        2227520  java.util.concurrent.ConcurrentHashMap$Node
+   9:         42359        1694360  java.util.LinkedHashMap$Entry
+  10:         14754        1648040  java.lang.Class
+  11:         46595        1491040  java.util.Hashtable$Entry
+  12:         24749        1364792  [Ljava.lang.Object;
+  13:         16400        1307848  [Ljava.util.HashMap$Node;
+  14:         51139        1227336  net.sourceforge.pinyin4j.multipinyin.Trie
+  15:         35509        1136288  java.util.HashMap$Node
+  16:         18233        1021048  java.util.LinkedHashMap
+  17:         43037         938448  [Ljava.lang.Class;
+  18:           652         728768  [Ljava.util.concurrent.ConcurrentHashMap$Node;
+  19:          9540         686880  java.lang.reflect.Field
+  20:         18791         450984  java.util.ArrayList<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-web-v1-78f4d45f98-zpnx6:~$ jmap -histo:live 47
+
+ num     #instances         #bytes  class name
+----------------------------------------------
+   1:        187827       15633816  [C
+   2:        186246        4469904  java.lang.String
+   3:         51818        3547824  [Ljava.util.Hashtable$Entry;
+   4:         37131        3267528  java.lang.reflect.Method
+   5:         51730        2483040  java.util.Hashtable
+   6:         68132        2180224  java.util.concurrent.ConcurrentHashMap$Node
+   7:          7198        1953120  [B
+   8:         14565        1628384  java.lang.Class
+   9:         38624        1544960  java.util.LinkedHashMap$Entry
+  10:         41707        1334624  java.util.Hashtable$Entry
+  11:          6902        1276800  [I
+  12:         21838        1237912  [Ljava.lang.Object;
+  13:         51139        1227336  net.sourceforge.pinyin4j.multipinyin.Trie
+  14:         14954        1096368  [Ljava.util.HashMap$Node;
+  15:         17222         964432  java.util.LinkedHashMap
+  16:         25508         816256  java.util.HashMap$Node
+  17:           558         704480  [Ljava.util.concurrent.ConcurrentHashMap$Node;
+  18:         22133         485168  [Ljava.lang.Class;
+  19:         25426         406816  java.lang.Object
+  20:         16800         403200  java.util.ArrayList<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>生成Java虚拟机的堆转储快照dump文件</p>
+</blockquote>
+<ul>
+<li><code>live</code>参数是可选的，如果指定，则只转储堆中的活动对象；如果没有指定，则转储堆中的所有对象。</li>
+<li><code>format=b</code>表示以hprof二进制格式转储Java堆的内存。</li>
+<li><code>file=&lt;filename&gt;</code>用于指定快照dump文件的文件名。</li>
+</ul>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-web-v1-78f4d45f98-zpnx6:~$ jmap -dump:live,format&#x3D;b,file&#x3D;&#x2F;home&#x2F;work&#x2F;dump  47
+Dumping heap to &#x2F;home&#x2F;work&#x2F;dump ...
+Heap dump file created
+work@authority-web-v1-78f4d45f98-zpnx6:~$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>-clstats 显示Java堆中元空间的类加载器的统计信息</p>
+</blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<blockquote>
+<p>-F 强制模式。如果指定的pid没有响应，可以配合<code>-dump</code>或<code>-histo</code>一起使用。此模式下，不支持live参数。</p>
+</blockquote>
 <blockquote>
 <p>引用</p>
 </blockquote>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/364331468">InnoDB解决幻读的方案–LBCC&amp;MVCC</a></p>
+<p><a target="_blank" rel="noopener" href="https://codingxxm.gitee.io/2020/08/03/%E8%AE%B0%E5%BD%95%E4%B8%80%E6%AC%A1%E7%BA%BF%E4%B8%8AJVM%E8%B0%83%E4%BC%98/">记录一次线上JVM调优</a></p>
 
                 
             </div>
@@ -655,7 +728,7 @@ insert into test_read (id, name) values (2, &#39;zhang&#39;);<span aria-hidden="
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://www.yipinxieli.com/2022/03/26/mysql-isolation-level/">http://www.yipinxieli.com/2022/03/26/mysql-isolation-level/</a>
+                    <a href="http://www.yipinxieli.com/2022/04/17/jvm-command-jmap/">http://www.yipinxieli.com/2022/04/17/jvm-command-jmap/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -693,8 +766,8 @@ insert into test_read (id, name) values (2, &#39;zhang&#39;);<span aria-hidden="
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/mysql/">
-                                    <span class="chip bg-color">mysql</span>
+                                <a href="/tags/JVM/">
+                                    <span class="chip bg-color">JVM</span>
                                 </a>
                             
                         </div>
@@ -866,29 +939,31 @@ insert into test_read (id, name) values (2, &#39;zhang&#39;);<span aria-hidden="
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
-                <a href="/2022/03/28/jvm-command-jstat/">
+                <a href="/2022/04/17/jvm-command-jmap/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/6.jpg" class="responsive-img" alt="Java 虚拟机进程状态工具jstat">
+                        <img src="/medias/featureimages/16.jpg" class="responsive-img" alt="jvm-command-jmap">
                         
-                        <span class="card-title">Java 虚拟机进程状态工具jstat</span>
+                        <span class="card-title">jvm-command-jmap</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            利用JVM内建的指令对Java应用程序的资源和性能进行实时的命令行的监控，包括了对进程的classloader，compiler，gc情况；可以用来监视VM内存内的各种堆和非堆的大小及其内存使用量，以及加载类的数量。
+                            jmap（Memory Map for Java）命令用来生成堆转储快照。
+jmap的作用并不仅仅是为了生成堆转储快照文件，还可以查看finalize执行队列、Java堆和方法区的详细信息，比如空间使用率、当前使用的什么垃圾回收器、分代情况
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2022-03-28
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-04-17
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -901,6 +976,7 @@ insert into test_read (id, name) values (2, &#39;zhang&#39;);<span aria-hidden="
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -919,26 +995,25 @@ insert into test_read (id, name) values (2, &#39;zhang&#39;);<span aria-hidden="
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2022/03/20/java-synchronized/">
+                <a href="/2022/04/05/jvm-command-jstack/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/21.jpg" class="responsive-img" alt="synchronized锁升级与降级">
+                        <img src="/medias/featureimages/20.jpg" class="responsive-img" alt="jvm-command-jstack">
                         
-                        <span class="card-title">synchronized锁升级与降级</span>
+                        <span class="card-title">jvm-command-jstack</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            
-
-针对Synchronized。在Java 5通过引入锁升级的机制来实现高效Synchronized。这三种锁的状态是通过对象监视器在对象头中的字段来表明的。偏向锁是指一段同步代码一直被一个线程所访问，那么该线程会自动获取锁。降低获取锁的
+                            jstack是JDK自带的线程堆栈分析工具，使用该命令可以查看或导出 java 应用程序中线程堆栈信息。
+jstack用于生成java虚拟机当前时刻的线程快照。线程快照是当前java虚拟机内每一条线程正在执行的方法堆栈的集合，生成线程快照的
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-03-20
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-04-05
                             </span>
                         <span class="publish-author">
                             
@@ -955,8 +1030,8 @@ insert into test_read (id, name) values (2, &#39;zhang&#39;);<span aria-hidden="
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/Thread/">
-                        <span class="chip bg-color">Thread</span>
+                    <a href="/tags/JVM/">
+                        <span class="chip bg-color">JVM</span>
                     </a>
                     
                 </div>
