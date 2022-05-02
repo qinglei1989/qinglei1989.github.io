@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="springEL,Spring,SpringBoot,SpringMVC">
+    <meta name="keywords" content="spring,yml,SpringBoot">
     <meta name="description" content="失落时悄悄徘徊，伤感时默默遐想">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>springEL | 山西小魔头技术博客</title>
+    <title>spring-boot-yml | 山西小魔头技术博客</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/20.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/13.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">springEL</h1>
+                    <h1 class="description center-align post-title">spring-boot-yml</h1>
                 </div>
             </div>
         </div>
@@ -431,8 +431,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/springEL/">
-                                <span class="chip bg-color">springEL</span>
+                            <a href="/tags/spring-boot/">
+                                <span class="chip bg-color">spring-boot</span>
                             </a>
                         
                     </div>
@@ -456,7 +456,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2021-07-28
+                    2022-05-02
                 </div>
                 
 
@@ -480,174 +480,172 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>为了更加灵活,Spring 还提供了表达式语言Spring EL 。通过Spring EL 可以拥有更为强大的运算规则来更好地装配Bean。</p>
+                <p>SpringBoot读取properties（yml）文件中配置信息</p>
 <span id="more"></span>
 
-<h3 id="SpringEL表达式"><a href="#SpringEL表达式" class="headerlink" title="SpringEL表达式"></a>SpringEL表达式</h3><p><strong>Spring表达式语言（简称SpEL）</strong>是一个支持查询和操作运行时<strong>对象导航图</strong>功能的强大的表达式语言。不直接依赖于Spring,可独立使用。底层实现：接口<code>ExpressionParser</code>负责解析表达式字符串。</p>
-<h4 id="XML中使用"><a href="#XML中使用" class="headerlink" title="XML中使用"></a>XML中使用</h4><p>相应的实体定义</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">package com.rrc.entity;
+<h1><center>Springboot读取YML配置文件</center></h1>
 
-import lombok.Data;
+<blockquote>
+<h3 id="Value"><a href="#Value" class="headerlink" title="@Value"></a>@Value</h3></blockquote>
+<p>该注解作用的作用是将我们配置文件的属性读出来，有@Value(“${}”)和@Value(“#{}”)两种方式</p>
+<p>① ${ property : default_value }<br>② #{ obj.property? :default_value }</p>
+<p>application-prod.yml配置文件内容如下：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">server:
+  port: 80
+rrc:
+  name: lq
+  birthday: 199009
+admin: menggudashuishen<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-@Data
-public class Customer &#123;
+<p>对应的JAVA代码</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@Value(&quot;$&#123;admin&#125;&quot;)
+private String admin;
+
+@Value(&quot;$&#123;server.port&#125;&quot;)
+private String port;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>#{}是不能以第一种方式来进行取值，否则会报错。#{}里面包含的是obj，所以需要配合bean来使用，现在创建一个UserBean，并且给某个字段加上@Value(“#{}”)注解（按自己的需求任意添加注解）</p>
+<p>定义Bean：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">package com.rrc.dto.base;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+
+&#x2F;**
+ * @author: wangql
+ * @Title: Rrc
+ * @ProjectName: SpringBoot
+ * @Description:
+ * @date: 2022&#x2F;4&#x2F;27 0:40
+ *&#x2F;
+@Component
+@ConfigurationProperties(&quot;rrc&quot;)
+public class Rrc &#123;
+
     private String name;
 
-    private String telephone;
-&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+    private String birthday;
 
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">package com.rrc.config;
-
-import com.rrc.entity.Customer;
-import lombok.Getter;
-import lombok.Setter;
-
-public class ConsumerComponent &#123;
-    @Getter
-    @Setter
-    private Customer customer;
-
-    @Getter
-    @Setter
-    private String custName;
-
-    @Getter
-    @Setter
-    private String telephone;
-&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>XML配置，在resources目录下新建<code>spring-other.xml</code>。</p>
-<pre class="line-numbers language-xml" data-language="xml"><code class="language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>beans</span> <span class="token attr-name">xmlns</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>http://www.springframework.org/schema/beans<span class="token punctuation">"</span></span>
-       <span class="token attr-name"><span class="token namespace">xmlns:</span>xsi</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>http://www.w3.org/2001/XMLSchema-instance<span class="token punctuation">"</span></span>
-       <span class="token attr-name"><span class="token namespace">xsi:</span>schemaLocation</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>http://www.springframework.org/schema/beans
-                        http://www.springframework.org/schema/beans/spring-beans.xsd<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
-
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>bean</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>customer<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>com.rrc.entity.Customer<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
-        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>name<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>张三<span class="token punctuation">"</span></span><span class="token punctuation">/></span></span>
-        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>telephone<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>13666666666<span class="token punctuation">"</span></span><span class="token punctuation">/></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>bean</span><span class="token punctuation">></span></span>
-
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>bean</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>customerDao<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>com.rrc.config.ConsumerComponent<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
-        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>customer<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>#&#123;customer&#125;<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>property</span><span class="token punctuation">></span></span>
-        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>custName<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>#&#123;customer.name&#125;<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>property</span><span class="token punctuation">></span></span>
-        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>telephone<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>#&#123;customer.telephone&#125;<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>property</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>bean</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>beans</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>我们在Application中打印ConsumerComponent类下三个属性的值</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">package com.rrc;
-
-import com.rrc.config.ConsumerComponent;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.ImportResource;
-
-@Slf4j
-@SpringBootApplication
-@ImportResource(locations &#x3D; &quot;classpath:spring-other.xml&quot;)
-public class Application &#123;
-    public static void main(String[] args) &#123;
-        SpringApplication.run(Application.class, args);
-        ApplicationContext ctx
-                &#x3D; new AnnotationConfigApplicationContext(Application.class);
-
-        ConsumerComponent consumerComponent &#x3D; ctx.getBean(ConsumerComponent.class);
-        log.info(&quot;consumerComponent custName &#123;&#125;&quot;, consumerComponent.getCustName());
-        log.info(&quot;consumerComponent telephone &#123;&#125;&quot;, consumerComponent.getTelephone());
-        log.info(&quot;consumerComponent customer &#123;&#125;&quot;, consumerComponent.getCustomer());
-
+    public String getName() &#123;
+        return name;
     &#125;
-&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">2021-07-29 01:02:09.045 [main] INFO  com.rrc.Application 21 main - consumerComponent custName 张三
-2021-07-29 01:02:09.047 [main] INFO  com.rrc.Application 22 main - consumerComponent telephone 13666666666
-2021-07-29 01:02:09.047 [main] INFO  com.rrc.Application 23 main - consumerComponent customer Customer(name&#x3D;张三, telephone&#x3D;13666666666)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+    public void setName(String name) &#123;
+        this.name &#x3D; name;
+    &#125;
 
-<h4 id="JAVA中使用"><a href="#JAVA中使用" class="headerlink" title="JAVA中使用"></a>JAVA中使用</h4><p>我们把在XML中的customerDao的配置从XML移动到JAVA文件中，相应的修改如下。启动项目之后依旧可以打印出相关的信息。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">package com.rrc.config;
+    public String getBirthday() &#123;
+        return birthday;
+    &#125;
 
+    public void setBirthday(String birthday) &#123;
+        this.birthday &#x3D; birthday;
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-import com.rrc.entity.Customer;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
+<p>获取值：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@Value(&quot;#&#123;rrc.birthday&#125;&quot;)
+private String birthday;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>SpringBoot中使用@Value()只能给普通变量注入值，不能直接给静态变量赋值。如果是静态变量那么拿到的属性值则为null。解决办法是给其属性值加上set方法，并且给其类上添加@Component注解</p>
+<blockquote>
+<h3 id="ConfigurationProperties"><a href="#ConfigurationProperties" class="headerlink" title="@ConfigurationProperties"></a>@ConfigurationProperties</h3></blockquote>
+<p>使用<code>@Value</code>注解可以直接读取application.yml配置文件中的配置信息。<br>使用<code>@ConfigurationProperties</code>也可以读取application.yml文件中的配置信息。<br>使用<code>@ConfigurationProperties</code>和<code>@PropertySource</code>可以读取指定properties配置文件中的配置信息。</p>
+<p>@ConfigurationProperties注解提供了我们将多个配置选项注入复杂对象的能力。它要求我们指定配置的共同前缀。支持从驼峰camel-case到短横分隔命名kebab-case的自动转换。</p>
+<p>ini.properties</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">rrc.name-&#x3D;wql11
+rrc.birthday&#x3D;19990510<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>对应的实体类为</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">package com.rrc.dto.base;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
+&#x2F;**
+ * @author: wangql
+ * @Title: Rrc
+ * @ProjectName: SpringBoot
+ * @Description:
+ * @date: 2022&#x2F;4&#x2F;27 0:40
+ *&#x2F;
 @Component
-@Data
-public class ConsumerComponent &#123;
-    @Value(&quot;#&#123;customer&#125;&quot;)
-    private Customer customer;
+@PropertySource(&quot;classpath:ini.properties&quot;)
+@ConfigurationProperties(&quot;rrc&quot;)
+public class Rrc &#123;
 
-    @Value(&quot;#&#123;customer.name&#125;&quot;)
-    private String custName;
+    private String name;
 
-    @Value(&quot;#&#123;customer.telephone&#125;&quot;)
-    private String telephone;
-&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+    private String birthday;
 
-<h4 id="EL使用场景"><a href="#EL使用场景" class="headerlink" title="EL使用场景"></a>EL使用场景</h4><blockquote>
-<p>方法：EL可以调用另一个对象的方法或者属性</p>
-</blockquote>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">@Value(&quot;#&#123;originBean.getELvalue()&#125;&quot;)
-private String telephone;
-
-
-
-package com.rrc.config;
-import org.springframework.stereotype.Component;
-@Component
-public class OriginBean &#123;
-
-    public String getELvalue() &#123;
-        return &quot;EL METHOD&quot;;
+    public String getName() &#123;
+        return name;
     &#125;
-&#125;
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+    public void setName(String name) &#123;
+        this.name &#x3D; name;
+    &#125;
+
+    public String getBirthday() &#123;
+        return birthday;
+    &#125;
+
+    public void setBirthday(String birthday) &#123;
+        this.birthday &#x3D; birthday;
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <blockquote>
-<p>构造：EL可以调用new关键字，实现构造方法调用，实例化出对象来</p>
-</blockquote>
-<p>@Value(“#{new int[]{1,2,3}}”)</p>
-<p>@Value(“#{new 包名.类名()}”)</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">package com.rrc.config;
+<h3 id="多环境配置"><a href="#多环境配置" class="headerlink" title="多环境配置"></a>多环境配置</h3></blockquote>
+<p>自定义配置文件是我们日常开发中经常会使用的资源，而spring只提供了类似application-* 的这中匹配方式，并不支持我们自定义的配置文件名称，例如：customize-dev.properties,但是spring提供了一个注解可以方便加载我们的自定义配置文件，它就是@PropertySource</p>
+<h4 id="自定义配置文件"><a href="#自定义配置文件" class="headerlink" title="自定义配置文件"></a>自定义配置文件</h4><p>ini-dev.properties</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">rrc.name-&#x3D;wql22
+rrc.birthday&#x3D;19990510<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
+<p>对应的实体类</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">package com.rrc.dto.base;
 
-import com.rrc.entity.School;
-import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
+&#x2F;**
+ * @author: wangql
+ * @Title: Rrc
+ * @ProjectName: SpringBoot
+ * @Description:
+ * @date: 2022&#x2F;4&#x2F;27 0:40
+ *&#x2F;
 @Component
-@Data
-public class ConsumerComponent &#123;
+@PropertySource(&quot;classpath:ini-$&#123;customize.profiles.active&#125;.properties&quot;)
+@ConfigurationProperties(prefix &#x3D; &quot;rrc&quot;, ignoreInvalidFields &#x3D; true)
+public class Rrc &#123;
 
-    @Value(&quot;#&#123;originBean.getELvalue()&#125;&quot;)
-    private String telephone;
+    private String name;
 
-    @Value(&quot;#&#123;new int[]&#123;1, 2, 3&#125;&#125;&quot;)
-    private int[] intArray;
+    private String birthday;
 
-    @Value(&quot;#&#123;new com.rrc.entity.School()&#125;&quot;)
-    private School school;
-&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+    public String getName() &#123;
+        return name;
+    &#125;
 
-<blockquote>
-<p>操作符</p>
-</blockquote>
-<ul>
-<li>EL支持大多数的算数运算符，<code>@Value(&quot;#&#123;3+4&#125;&quot;)</code></li>
-<li>关系运算符 <code>@Value(&quot;#&#123;1^1&#125;&quot;)</code></li>
-<li>逻辑运算符 <code>@Value(&quot;#&#123;5&gt;3&#125;&quot;)</code></li>
-<li>三元运算符 <code>@Value(&quot;#&#123;1&gt; 2? 0:1&#125;&quot;)</code></li>
-</ul>
-<p>引用：</p>
-<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/occlive/p/13558522.html">Spring框架——SpringEL</a></p>
+    public void setName(String name) &#123;
+        this.name &#x3D; name;
+    &#125;
+
+    public String getBirthday() &#123;
+        return birthday;
+    &#125;
+
+    public void setBirthday(String birthday) &#123;
+        this.birthday &#x3D; birthday;
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>启动参数：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">-Dcustomize.profiles.active&#x3D;dev<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
 
                 
             </div>
@@ -674,7 +672,7 @@ public class ConsumerComponent &#123;
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://www.yipinxieli.com/2021/07/28/springEL/">http://www.yipinxieli.com/2021/07/28/springEL/</a>
+                    <a href="http://www.yipinxieli.com/2022/05/02/spring-boot-yml/">http://www.yipinxieli.com/2022/05/02/spring-boot-yml/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -712,8 +710,8 @@ public class ConsumerComponent &#123;
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/springEL/">
-                                    <span class="chip bg-color">springEL</span>
+                                <a href="/tags/spring-boot/">
+                                    <span class="chip bg-color">spring-boot</span>
                                 </a>
                             
                         </div>
@@ -885,29 +883,30 @@ public class ConsumerComponent &#123;
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
-                <a href="/2021/08/01/spring-boot-redis/">
+                <a href="/2022/05/02/spring-boot-yml/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/16.jpg" class="responsive-img" alt="spring-boot-redis">
+                        <img src="/medias/featureimages/13.jpg" class="responsive-img" alt="spring-boot-yml">
                         
-                        <span class="card-title">spring-boot-redis</span>
+                        <span class="card-title">spring-boot-yml</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            记录Springboot整合redis中遇到的问题。
+                            SpringBoot读取properties（yml）文件中配置信息
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2021-08-01
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-05-02
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -920,6 +919,7 @@ public class ConsumerComponent &#123;
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -938,31 +938,32 @@ public class ConsumerComponent &#123;
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2021/07/20/tools-2/">
+                <a href="/2022/04/17/jvm-command-jmap/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/18.jpg" class="responsive-img" alt="Excel常用操作">
+                        <img src="/medias/featureimages/16.jpg" class="responsive-img" alt="jvm-command-jmap">
                         
-                        <span class="card-title">Excel常用操作</span>
+                        <span class="card-title">jvm-command-jmap</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            分享常用的Excel常用操作，提高开发效率。因为老有业务人员让我帮忙导出数据，第一步就是拼SQL，批量操作文件。
+                            jmap（Memory Map for Java）命令用来生成堆转储快照。
+jmap的作用并不仅仅是为了生成堆转储快照文件，还可以查看finalize执行队列、Java堆和方法区的详细信息，比如空间使用率、当前使用的什么垃圾回收器、分代情况
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2021-07-20
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-04-17
                             </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/%E5%BC%80%E5%8F%91%E6%8A%80%E5%B7%A7/" class="post-category">
-                                    开发技巧
+                            <a href="/categories/JAVA/" class="post-category">
+                                    JAVA
                                 </a>
                             
                             
@@ -972,8 +973,8 @@ public class ConsumerComponent &#123;
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/%E5%AE%9E%E7%94%A8%E5%B7%A5%E5%85%B7/">
-                        <span class="chip bg-color">实用工具</span>
+                    <a href="/tags/JVM/">
+                        <span class="chip bg-color">JVM</span>
                     </a>
                     
                 </div>
