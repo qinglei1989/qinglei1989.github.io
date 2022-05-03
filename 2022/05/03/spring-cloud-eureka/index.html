@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="spring,yml,SpringBoot">
+    <meta name="keywords" content="spring,spring-cloud,SpringBoot">
     <meta name="description" content="失落时悄悄徘徊，伤感时默默遐想">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>spring-boot-yml | 山西小魔头技术博客</title>
+    <title>spring-cloud-eureka | 山西小魔头技术博客</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/13.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/17.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">spring-boot-yml</h1>
+                    <h1 class="description center-align post-title">spring-cloud-eureka</h1>
                 </div>
             </div>
         </div>
@@ -431,8 +431,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/spring-boot/">
-                                <span class="chip bg-color">spring-boot</span>
+                            <a href="/tags/spring-cloud/">
+                                <span class="chip bg-color">spring-cloud</span>
                             </a>
                         
                     </div>
@@ -443,8 +443,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/Spring/" class="post-category">
-                                Spring
+                            <a href="/categories/spring-cloud/" class="post-category">
+                                spring-cloud
                             </a>
                         
                     </div>
@@ -456,7 +456,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2022-05-02
+                    2022-05-03
                 </div>
                 
 
@@ -480,172 +480,200 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>SpringBoot读取properties（yml）文件中配置信息</p>
-<span id="more"></span>
-
-<h1><center>Springboot读取YML配置文件</center></h1>
+                <h1><center>Eureka注册中心</center></h1>
 
 <blockquote>
-<h3 id="Value"><a href="#Value" class="headerlink" title="@Value"></a>@Value</h3></blockquote>
-<p>该注解作用的作用是将我们配置文件的属性读出来，有@Value(“${}”)和@Value(“#{}”)两种方式</p>
-<p>① ${ property : default_value }<br>② #{ obj.property? :default_value }</p>
-<p>application-prod.yml配置文件内容如下：</p>
+<h3 id="搭建服务注册中心"><a href="#搭建服务注册中心" class="headerlink" title="搭建服务注册中心"></a>搭建服务注册中心</h3></blockquote>
+<p>application.yml</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">server:
+   # 应用端口号
+   port: 8888
+
+eureka:
+   instance:
+	   # 应用所在的主机名
+       hostname: localhost
+   client:
+	   # 本身为注册中心, 不向注册中心注册自己
+       registerWithEureka: false
+       # 注册中心的职责是维护服务实例，它并不需要去检索服务，所以设置为false
+       fetchRegistry: false
+       serviceUrl:
+           defaultZone: http:&#x2F;&#x2F;$&#123;eureka.instance.hostname&#125;:$&#123;server.port&#125;&#x2F;eureka&#x2F;
+spring:
+  application:
+	# 应用名称
+    name: eureka-server<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>主类<code>EurekaServerApplication</code>：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">package com.wql;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+
+&#x2F;**
+ * @author Zhouzc
+ * @description TODO
+ * @className com.wql.EurekaServerApplication
+ * @date 2019&#x2F;10&#x2F;21
+ * @Version
+ **&#x2F;
+
+&#x2F;&#x2F; 通过@EnableEurekaServer注解启动一个服务注册中心提供给其他应用
+@EnableEurekaServer
+@SpringBootApplication
+public class EurekaServerApplication &#123;
+
+    public static void main(String[] args) &#123;
+        SpringApplication.run(EurekaServerApplication.class, args);
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/2022/05/03/spring-cloud-eureka/eureka-server.png" alt="Eureka信息面板"></p>
+<blockquote>
+<h3 id="注册服务提供者"><a href="#注册服务提供者" class="headerlink" title="注册服务提供者"></a>注册服务提供者</h3></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">eureka:
+  client:
+    serviceUrl:
+	  # 指定服务注册中心地址
+      defaultZone: http:&#x2F;&#x2F;localhost:8888&#x2F;eureka&#x2F;
+server:
   port: 80
-rrc:
-  name: lq
-  birthday: 199009
-admin: menggudashuishen<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p>对应的JAVA代码</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">@Value(&quot;$&#123;admin&#125;&quot;)
-private String admin;
+spring:
+  application:
+	# 应用名称
+    name: hello-service<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-@Value(&quot;$&#123;server.port&#125;&quot;)
-private String port;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>主类<code>HelloServiceApplication</code></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">package com.wql;
 
-<p>#{}是不能以第一种方式来进行取值，否则会报错。#{}里面包含的是obj，所以需要配合bean来使用，现在创建一个UserBean，并且给某个字段加上@Value(“#{}”)注解（按自己的需求任意添加注解）</p>
-<p>定义Bean：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">package com.rrc.dto.base;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 &#x2F;**
- * @author: wangql
- * @Title: Rrc
- * @ProjectName: SpringBoot
- * @Description:
- * @date: 2022&#x2F;4&#x2F;27 0:40
- *&#x2F;
-@Component
-@ConfigurationProperties(&quot;rrc&quot;)
-public class Rrc &#123;
-
-    private String name;
-
-    private String birthday;
-
-    public String getName() &#123;
-        return name;
+ * @author Zhouzc
+ * @description 配置中心服务
+ * @className ConfigServerApplication
+ * @date 2019&#x2F;10&#x2F;22
+ * @Version
+ **&#x2F;
+&#x2F;&#x2F; @EnableDiscoveryClient和@EnableEurekaClient共同点就是：都是能够让注册中心能够发现，扫描到改服务。@EnableEurekaClient只适用于Eureka作为注册中心，@EnableDiscoveryClient 可以是其他注册中心。
+@EnableDiscoveryClient
+@SpringBootApplication
+public class HelloServiceApplication &#123;
+    public static void main(String[] args) &#123;
+        SpringApplication.run(HelloServiceApplication.class, args);
     &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-    public void setName(String name) &#123;
-        this.name &#x3D; name;
-    &#125;
+<p>启动注册中心与hello-service服务后</p>
+<p>hello-service日志信息：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">2022-05-03 01:07:21.088  INFO 2368 --- [           main] com.netflix.discovery.DiscoveryClient    : The response status is 200
+2022-05-03 01:07:21.088  INFO 2368 --- [           main] com.netflix.discovery.DiscoveryClient    : Starting heartbeat executor: renew interval is: 30
+2022-05-03 01:07:21.090  INFO 2368 --- [           main] c.n.discovery.InstanceInfoReplicator     : InstanceInfoReplicator onDemand update allowed rate per min is 4
+2022-05-03 01:07:21.093  INFO 2368 --- [           main] com.netflix.discovery.DiscoveryClient    : Discovery Client initialized at timestamp 1651511241093 with initial instances count: 0
+2022-05-03 01:07:21.112  INFO 2368 --- [           main] o.s.c.n.e.s.EurekaServiceRegistry        : Registering application hello-service with eureka with status UP
+2022-05-03 01:07:21.113  INFO 2368 --- [           main] com.netflix.discovery.DiscoveryClient    : Saw local status change event StatusChangeEvent [timestamp&#x3D;1651511241113, current&#x3D;UP, previous&#x3D;STARTING]
+2022-05-03 01:07:21.114  INFO 2368 --- [nfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_HELLO-SERVICE&#x2F;LAPTOP-CNEAHR20:hello-service:80: registering service...
+2022-05-03 01:07:21.251  INFO 2368 --- [           main] s.b.c.e.t.TomcatEmbeddedServletContainer : Tomcat started on port(s): 80 (http)
+2022-05-03 01:07:21.252  INFO 2368 --- [           main] .s.c.n.e.s.EurekaAutoServiceRegistration : Updating port to 80
+2022-05-03 01:07:21.254  INFO 2368 --- [nfoReplicator-0] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_HELLO-SERVICE&#x2F;LAPTOP-CNEAHR20:hello-service:80 - registration status: 204
+2022-05-03 01:07:21.256  INFO 2368 --- [           main] com.wql.HelloServiceApplication          : Started HelloServiceApplication in 10.054 seconds (JVM running for 12.462)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-    public String getBirthday() &#123;
-        return birthday;
-    &#125;
+<p>注册中心控制台：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">2022-05-03 01:33:32.697  INFO 28780 --- [io-8888-exec-10] c.n.e.registry.AbstractInstanceRegistry  : Registered instance HELLO-SERVICE&#x2F;LAPTOP-CNEAHR20:hello-service:80 with status DOWN (replication&#x3D;false)
+2022-05-03 01:34:03.478  INFO 28780 --- [nio-8888-exec-9] c.n.e.registry.AbstractInstanceRegistry  : Registered instance HELLO-SERVICE&#x2F;LAPTOP-CNEAHR20:hello-service:80 with status UP (replication&#x3D;false)
+2022-05-03 01:34:19.425  INFO 28780 --- [a-EvictionTimer] c.n.e.registry.AbstractInstanceRegistry  : Running the evict task with compensationTime 13ms
+2022-05-03 01:35:19.425  INFO 28780 --- [a-EvictionTimer] c.n.e.registry.AbstractInstanceRegistry  : Running the evict task with compensationTime 0ms
+2022-05-03 01:36:18.232  INFO 28780 --- [hresholdUpdater] c.n.e.r.PeerAwareInstanceRegistryImpl    : Current renewal threshold is : 3<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-    public void setBirthday(String birthday) &#123;
-        this.birthday &#x3D; birthday;
-    &#125;
-&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>获取值：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">@Value(&quot;#&#123;rrc.birthday&#125;&quot;)
-private String birthday;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<p>SpringBoot中使用@Value()只能给普通变量注入值，不能直接给静态变量赋值。如果是静态变量那么拿到的属性值则为null。解决办法是给其属性值加上set方法，并且给其类上添加@Component注解</p>
+<p><img src="/2022/05/03/spring-cloud-eureka/hexoBlog\source_posts\spring-cloud-eureka\eureka-server-hello.png" alt="Eureka面板"></p>
 <blockquote>
-<h3 id="ConfigurationProperties"><a href="#ConfigurationProperties" class="headerlink" title="@ConfigurationProperties"></a>@ConfigurationProperties</h3></blockquote>
-<p>使用<code>@Value</code>注解可以直接读取application.yml配置文件中的配置信息。<br>使用<code>@ConfigurationProperties</code>也可以读取application.yml文件中的配置信息。<br>使用<code>@ConfigurationProperties</code>和<code>@PropertySource</code>可以读取指定properties配置文件中的配置信息。</p>
-<p>@ConfigurationProperties注解提供了我们将多个配置选项注入复杂对象的能力。它要求我们指定配置的共同前缀。支持从驼峰camel-case到短横分隔命名kebab-case的自动转换。</p>
-<p>ini.properties</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">rrc.name-&#x3D;wql11
-rrc.birthday&#x3D;19990510<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<h3 id="高可用注册中心"><a href="#高可用注册中心" class="headerlink" title="高可用注册中心"></a>高可用注册中心</h3></blockquote>
+<p>Eureka Server的高可用实际上就是将自己作为服务向其他服务注册中心注册自己，这样就可以形成一组互相注册的服务注册中心，以实现服务清单的互相同步，达到高可用的效果。</p>
+<p>application-peer1.yml</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">server:
+   port: 1111
 
-<p>对应的实体类为</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">package com.rrc.dto.base;
+eureka:
+   instance:
+       hostname: localhost
+   client:
+       registerWithEureka: true
+       fetchRegistry: true
+       serviceUrl:
+           defaultZone: http:&#x2F;&#x2F;peer2:1112&#x2F;eureka&#x2F;
+spring:
+ application:
+   name: eureka-server<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.stereotype.Component;
+<p>application-peer2.yml</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">server:
+   port: 1112
+eureka:
+   instance:
+       hostname: localhost
+   client:
+       registerWithEureka: true
+       fetchRegistry: true
+       serviceUrl:
+           defaultZone: http:&#x2F;&#x2F;peer1:1111&#x2F;eureka&#x2F;
+spring:
+  application:
+    name: eureka-server<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-&#x2F;**
- * @author: wangql
- * @Title: Rrc
- * @ProjectName: SpringBoot
- * @Description:
- * @date: 2022&#x2F;4&#x2F;27 0:40
- *&#x2F;
-@Component
-@PropertySource(&quot;classpath:ini.properties&quot;)
-@ConfigurationProperties(&quot;rrc&quot;)
-public class Rrc &#123;
+<p>设置IDEA并行运行</p>
+<p><img src="/2022/05/03/spring-cloud-eureka/hexoBlog\source_posts\spring-cloud-eureka\idea-parallel.png" alt="IDEA并发运行设置"></p>
+<p>设置启动参数：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">--spring.profiles.active&#x3D;peer1
+--spring.profiles.active&#x3D;peer2<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
-    private String name;
+<p><img src="/2022/05/03/spring-cloud-eureka/eureka-server-availability.png" alt="高可用集群"></p>
+<p>Eureka高可用部署，启动多个注册中心后，节点均出现在unavailable-replicas。具体的解决方案如下：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/76582106">Eureka集群搭建，unavailable-replicas服务节点不可用</a></p>
+<p><strong>同一主机上配置多个节点，则各节点的eureka.instance.hostname（实例的主机名）不能一样</strong>。为各节点配置不同的hostname，然后修改主机的hosts文件，增加映射。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">127.0.0.1 peer1
+127.0.0.1 peer2<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
-    private String birthday;
+<p><img src="/2022/05/03/spring-cloud-eureka/eureka-server-availability-ok.png" alt="正确的高可用集群"></p>
+<p>在设置了多节点的服务注册中心之后，服务提供方还需要做一些简单的配置才能将服务注册到 Eureka Server集群中。我们以hello-service为例，修改<br>application.properties 配置文件，如下所示:</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">eureka.client.serviceUrl.defaultZone&#x3D;http:&#x2F;&#x2F;peer1:11l1&#x2F;eureka&#x2F;, http:&#x2F;&#x2F;peer2:1112&#x2F;eureka&#x2F;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
-    public String getName() &#123;
-        return name;
-    &#125;
-
-    public void setName(String name) &#123;
-        this.name &#x3D; name;
-    &#125;
-
-    public String getBirthday() &#123;
-        return birthday;
-    &#125;
-
-    public void setBirthday(String birthday) &#123;
-        this.birthday &#x3D; birthday;
-    &#125;
-&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<p>如我们不想使用主机名来定义注册中心的地址，也可以使用IP地址的形式，但是需要在配置文件中增加配置参数</p>
+<p>eureka.instance.prefer-ip-address=true，该值默认为false。</p>
 <blockquote>
-<h3 id="多环境配置"><a href="#多环境配置" class="headerlink" title="多环境配置"></a>多环境配置</h3></blockquote>
-<p>自定义配置文件是我们日常开发中经常会使用的资源，而spring只提供了类似application-* 的这中匹配方式，并不支持我们自定义的配置文件名称，例如：customize-dev.properties,但是spring提供了一个注解可以方便加载我们的自定义配置文件，它就是@PropertySource</p>
-<h4 id="自定义配置文件"><a href="#自定义配置文件" class="headerlink" title="自定义配置文件"></a>自定义配置文件</h4><p>ini-dev.properties</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">rrc.name-&#x3D;wql22
-rrc.birthday&#x3D;19990510<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>服务发现与消费</p>
+</blockquote>
+<p>主类ConsumerApplication</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">package com.didispace;
 
-<p>对应的实体类</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">package com.rrc.dto.base;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.stereotype.Component;
+@EnableCircuitBreaker
+@EnableDiscoveryClient
+@SpringBootApplication
+public class ConsumerApplication &#123;
 
-&#x2F;**
- * @author: wangql
- * @Title: Rrc
- * @ProjectName: SpringBoot
- * @Description:
- * @date: 2022&#x2F;4&#x2F;27 0:40
- *&#x2F;
-@Component
-@PropertySource(&quot;classpath:ini-$&#123;customize.profiles.active&#125;.properties&quot;)
-@ConfigurationProperties(prefix &#x3D; &quot;rrc&quot;, ignoreInvalidFields &#x3D; true)
-public class Rrc &#123;
+	@Bean
+	@LoadBalanced
+	RestTemplate restTemplate() &#123;
+		return new RestTemplate();
+	&#125;
+	public static void main(String[] args) &#123;
+		SpringApplication.run(ConsumerApplication.class, args);
+	&#125;
 
-    private String name;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-    private String birthday;
-
-    public String getName() &#123;
-        return name;
-    &#125;
-
-    public void setName(String name) &#123;
-        this.name &#x3D; name;
-    &#125;
-
-    public String getBirthday() &#123;
-        return birthday;
-    &#125;
-
-    public void setBirthday(String birthday) &#123;
-        this.birthday &#x3D; birthday;
-    &#125;
-&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>启动参数：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">-Dcustomize.profiles.active&#x3D;dev<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
+<p><img src="/2022/05/03/spring-cloud-eureka/hexoBlog\source_posts\spring-cloud-eureka\consumer.png" alt="服务注册与发现"></p>
 
                 
             </div>
@@ -672,7 +700,7 @@ public class Rrc &#123;
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://www.yipinxieli.com/2022/05/02/spring-boot-yml/">http://www.yipinxieli.com/2022/05/02/spring-boot-yml/</a>
+                    <a href="http://www.yipinxieli.com/2022/05/03/spring-cloud-eureka/">http://www.yipinxieli.com/2022/05/03/spring-cloud-eureka/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -710,8 +738,8 @@ public class Rrc &#123;
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/spring-boot/">
-                                    <span class="chip bg-color">spring-boot</span>
+                                <a href="/tags/spring-cloud/">
+                                    <span class="chip bg-color">spring-cloud</span>
                                 </a>
                             
                         </div>
@@ -883,9 +911,10 @@ public class Rrc &#123;
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/2022/05/03/spring-cloud-eureka/">
                     <div class="card-image">
@@ -903,9 +932,9 @@ public class Rrc &#123;
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2022-05-03
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-05-03
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -918,6 +947,7 @@ public class Rrc &#123;
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -936,32 +966,31 @@ public class Rrc &#123;
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2022/04/17/jvm-command-jmap/">
+                <a href="/2022/05/02/spring-boot-yml/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/16.jpg" class="responsive-img" alt="jvm-command-jmap">
+                        <img src="/medias/featureimages/13.jpg" class="responsive-img" alt="spring-boot-yml">
                         
-                        <span class="card-title">jvm-command-jmap</span>
+                        <span class="card-title">spring-boot-yml</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            jmap（Memory Map for Java）命令用来生成堆转储快照。
-jmap的作用并不仅仅是为了生成堆转储快照文件，还可以查看finalize执行队列、Java堆和方法区的详细信息，比如空间使用率、当前使用的什么垃圾回收器、分代情况
+                            SpringBoot读取properties（yml）文件中配置信息
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-04-17
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-05-02
                             </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/JAVA/" class="post-category">
-                                    JAVA
+                            <a href="/categories/Spring/" class="post-category">
+                                    Spring
                                 </a>
                             
                             
@@ -971,8 +1000,8 @@ jmap的作用并不仅仅是为了生成堆转储快照文件，还可以查看f
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/JVM/">
-                        <span class="chip bg-color">JVM</span>
+                    <a href="/tags/spring-boot/">
+                        <span class="chip bg-color">spring-boot</span>
                     </a>
                     
                 </div>
