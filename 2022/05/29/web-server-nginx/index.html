@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="spring,spring-cloud,SpringBoot">
+    <meta name="keywords" content="nginx">
     <meta name="description" content="失落时悄悄徘徊，伤感时默默遐想">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>Spring Cloud Hystrix | 山西小魔头技术博客</title>
+    <title>nginx服务器 | 山西小魔头技术博客</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/17.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/14.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">Spring Cloud Hystrix</h1>
+                    <h1 class="description center-align post-title">nginx服务器</h1>
                 </div>
             </div>
         </div>
@@ -431,8 +431,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/spring-cloud/">
-                                <span class="chip bg-color">spring-cloud</span>
+                            <a href="/tags/nginx/">
+                                <span class="chip bg-color">nginx</span>
                             </a>
                         
                     </div>
@@ -443,8 +443,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/spring-cloud/" class="post-category">
-                                spring-cloud
+                            <a href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8/" class="post-category">
+                                服务器
                             </a>
                         
                     </div>
@@ -456,7 +456,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2022-05-04
+                    2022-05-29
                 </div>
                 
 
@@ -480,48 +480,211 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>服务容错保护Spring Cloud Hystrix实现了断路器、线程隔离等一系列服务保护功能。它也是基于Netflix 的开源框架 Hystrix实现的，该框架的目标在于通过控制那些访问远程系统、服务和第三方库的节点，从而对延迟和故障提供更强大的容错能力。Hystrix具备服务降级、服务熔断、线程和信号隔离、请求缓存、请求合并以及服务监控等强大功能。</p>
-<span id="more"></span>
-
-<h1><center>Spring Cloud Hystrix</center></h1>
+                <p>Nginx (engine x) 是一个高性能的HTTP和反向代理服务器，也是一个IMAP/POP3/SMTP服务器。它也是一种轻量级的Web服务器，可以作为独立的服务器部署网站（类似Tomcat）。它高性能和低消耗内存的结构受到很多大公司青睐，如淘宝网站架设。</p>
+<h1><center>nginx服务器</center></h1>
 
 <blockquote>
-<h3 id="雪崩效应"><a href="#雪崩效应" class="headerlink" title="雪崩效应"></a>雪崩效应</h3></blockquote>
-<p>微服务架构的应用系统通常包含多个服务层。微服务之间通过网络进行通信，从而支撑起整个应用系统，因此，微服务之间难免存在依赖关系。我们知道，任何微服务都并非100%可用,网络往往也很脆弱，因此难免有些请求会失败。<br>我们常把“基础服务故障”导致“级联故障”的现象称为雪崩效应。雪崩效应描述的是提供者不可用导致消费者不可用，并将不可用逐渐放大的过程。</p>
-<p><img src="/2022/05/04/spring-cloud-hystrix/hexoBlog\source_posts\spring-cloud-hystrix\xuebeng.png" alt="雪崩效应形成过程"></p>
-<p>可以看到, 当 C 服务挂掉时, B 服务还在不断地调用 C 服务期望获得结果, 结果在 B 服务内部产生了大量的调用等待和重试调用的线程, 随着新的请求不断地往这条调用链路上跑, 那么 B 服务的资源就会被这些线程耗尽, 从而导致 B 服务也不可用。同理, 当 B 服务也挂掉时, A 服务挂掉也只是时间的问题了。</p>
-<p>在一个复杂的分布式系统中通常会有很多的依赖，如果我们不能对来自依赖的故障进行隔离，那么应用本身就会处于分险之中。在一个高流量的网站中，某一后端出现延迟，将会在数秒之内导致所有资源耗尽。</p>
-<p><strong><code>如何容错</code></strong></p>
-<p>要想防止雪崩效应，必须有一个强大的容错机制。该容错机制需实现以下两点。</p>
-<p><strong>必须为网络请求设置超时</strong><br>正常情况下，一个远程调用一般在几十毫秒内就能得到响应了。如果依赖的服务不可用或者网络有问题，那么响应时间就会变得很长（几十秒)。而一次远程调用对应着一个线程/进程。如果响应太慢，这个线程/进程就得不到释放。而线程/进程又对应着系统资源，如果得不到释放的线程/进程越积越多，资源就会逐渐被耗尽，最终导致服务的不可用。<br>因此，必须为每个网络请求设置超时，让资源尽快释放。</p>
-<p><strong>使用断路器模式</strong><br>如果对某个微服务的请求有大量超时（常常说明该微服务不可用)，再去让新的请求访问该服务已经没有任何意义，只会消耗资源。例加设詈了超时时间为1秒，如果短时间内有大量的请求无法在1秒内得到响应，就没有必要再去请求依赖的服务了。</p>
-<p>断路器可理解为对容易导致错误的操作的代理。这种代理能够统计一段时间内调用失败的次数，并决定是正常请求依赖的服务还是直接返回。断路器可以实现快速失败,如果它在一段时间内检测到许多类似的错误（例如超时)，就会在之后的一段时间内，强迫对该服务的调用快速失败，即不再请求所依赖的服务。这样，应用程序就无须再浪费CPU时间去等待长时间的超时<br>断路器也可自动诊断依赖的服务是否已经恢复正常。如果发现依赖的服务已经恢复正常，那么就会恢复请求该服务。使用这种方式，就可以实现微服务的“自我修复”——当依赖的服务不正常时打开断路器时快速失败，从而防止雪崩效应;当发现依赖的服务恢复正常时,又会恢复请求。<br><img src="/2022/05/04/spring-cloud-hystrix/transfer.png" alt="断路器状态转换图"></p>
+<h2 id="windows下安装nginx"><a href="#windows下安装nginx" class="headerlink" title="windows下安装nginx"></a>windows下安装nginx</h2></blockquote>
+<p>下载地址：<a target="_blank" rel="noopener" href="http://nginx.org/en/download.html">nginx官网</a> </p>
+<p>下载之后，解压到指定的目录，就可以看到以下的目录</p>
+<p><img src="/2022/05/29/web-server-nginx/location.png" alt="下载解压"></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">D:\Program Files\nginx-1.8.1&gt;start nginx
+
+D:\Program Files\nginx-1.8.1&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/2022/05/29/web-server-nginx/start.png" alt="启动画面"></p>
+<p><img src="/2022/05/29/web-server-nginx/start-image.png" alt="启动html位置"></p>
+<p>nginx命令</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">start nginx 开启nginx服务
+nginx.exe -s stop 关闭nginx服务，快速停止nginx，可能并不保存相关信息
+nginx.exe -s quit 关闭nginx服务，完整有序的停止nginx，并保存相关信息
+nginx.exe -s reload 重载nginx服务，当你改变了nginx配置信息并需要重新载入这些配置时可以使用此命令重载nginx<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>nginx的配置文件是conf目录下的nginx.conf，默认配置的nginx监听的端口为80</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">
+#user  nobody;
+worker_processes  1;
+
+#error_log  logs&#x2F;error.log;
+#error_log  logs&#x2F;error.log  notice;
+#error_log  logs&#x2F;error.log  info;
+
+#pid        logs&#x2F;nginx.pid;
+
+
+events &#123;
+    worker_connections  1024;
+&#125;
+
+
+http &#123;
+    include       mime.types;
+    default_type  application&#x2F;octet-stream;
+
+    #log_format  main  &#39;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &#39;
+    #                  &#39;$status $body_bytes_sent &quot;$http_referer&quot; &#39;
+    #                  &#39;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&#39;;
+
+    #access_log  logs&#x2F;access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    #keepalive_timeout  0;
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    server &#123;
+        listen       80;
+        server_name  localhost;
+
+        #charset koi8-r;
+
+        #access_log  logs&#x2F;host.access.log  main;
+
+        location &#x2F; &#123;
+            root   html;
+            index  index.html index.htm;
+        &#125;
+
+        #error_page  404              &#x2F;404.html;
+
+        # redirect server error pages to the static page &#x2F;50x.html
+        #
+        error_page   500 502 503 504  &#x2F;50x.html;
+        location &#x3D; &#x2F;50x.html &#123;
+            root   html;
+        &#125;
+
+        # proxy the PHP scripts to Apache listening on 127.0.0.1:80
+        #
+        #location ~ \.php$ &#123;
+        #    proxy_pass   http:&#x2F;&#x2F;127.0.0.1;
+        #&#125;
+
+        # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+        #
+        #location ~ \.php$ &#123;
+        #    root           html;
+        #    fastcgi_pass   127.0.0.1:9000;
+        #    fastcgi_index  index.php;
+        #    fastcgi_param  SCRIPT_FILENAME  &#x2F;scripts$fastcgi_script_name;
+        #    include        fastcgi_params;
+        #&#125;
+
+        # deny access to .htaccess files, if Apache&#39;s document root
+        # concurs with nginx&#39;s one
+        #
+        #location ~ &#x2F;\.ht &#123;
+        #    deny  all;
+        #&#125;
+    &#125;
+
+
+    # another virtual host using mix of IP-, name-, and port-based configuration
+    #
+    #server &#123;
+    #    listen       8000;
+    #    listen       somename:8080;
+    #    server_name  somename  alias  another.alias;
+
+    #    location &#x2F; &#123;
+    #        root   html;
+    #        index  index.html index.htm;
+    #    &#125;
+    #&#125;
+
+
+    # HTTPS server
+    #
+    #server &#123;
+    #    listen       443 ssl;
+    #    server_name  localhost;
+
+    #    ssl_certificate      cert.pem;
+    #    ssl_certificate_key  cert.key;
+
+    #    ssl_session_cache    shared:SSL:1m;
+    #    ssl_session_timeout  5m;
+
+    #    ssl_ciphers  HIGH:!aNULL:!MD5;
+    #    ssl_prefer_server_ciphers  on;
+
+    #    location &#x2F; &#123;
+    #        root   html;
+    #        index  index.html index.htm;
+    #    &#125;
+    #&#125;
+
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>当我们修改了nginx的配置文件nginx.conf 时，不需要关闭nginx后重新启动nginx，只需要执行命令 nginx -s reload 即可让改动生效</p>
 <blockquote>
-<h3 id="初探Hystrix"><a href="#初探Hystrix" class="headerlink" title="初探Hystrix"></a>初探Hystrix</h3></blockquote>
-<p>Hystrix官方代码托管在：https:github.com/Netflix/Hystrix。</p>
-<p>Hystrix是由Netflix开源的一个延迟和容错库，旨在隔离远程系统、服务和第三方库，阻止级联故障，从而提升系统的可用性与容错性。Hystrix主要通过以下几点实现延迟和容错。</p>
-<p>包裹请求:</p>
-<p>使用HystrixCommand (或HystrixObservableCommand)包裹对依赖的调用逻辑，每个命令在独立线程中执行。这使用到了设计模式中的“命令模式”。。跳闸机制:当某服务的错误率超过一定阈值时，Hystrix可以自动或者手动跳闸，停止请求该服务一段时间。<br>资源隔离:</p>
-<p> Hystrix为每个依赖都维护了一个小型的线程池（或者信号量)。如果该线程池已满，发往该依赖的请求就被立即拒绝，而不是排队等候，从而加速失败判定。</p>
-<p>。监控:Hystrix可以近乎实时地监控运行指标和配置的变化，例如成功、失败、超时、以及被拒绝的请求等。<br>。回退机制:当请求失败、超时、被拒绝，或当断路器打开时，执行回退逻辑。回退逻辑可由开发人员自行提供，例如返回一个缺省值。<br>。自我修复:断路器打开一段时间后，会自动进入“半开”状态。断路器打开、关闭、半开的逻辑转换，前面已经详细探讨过了，本节不再赘述。</p>
+<h3 id="在Nginx服务器上安装证书"><a href="#在Nginx服务器上安装证书" class="headerlink" title="在Nginx服务器上安装证书"></a>在Nginx服务器上安装证书</h3></blockquote>
+<p><img src="/2022/05/29/web-server-nginx/ssl.png" alt="阿里云免费证书申请"></p>
 <blockquote>
-<h3 id="Hystrix入门"><a href="#Hystrix入门" class="headerlink" title="Hystrix入门"></a>Hystrix入门</h3></blockquote>
-<p><img src="/2022/05/04/spring-cloud-hystrix/call-relation.png" alt="服务调用关系"></p>
-<p><img src="/2022/05/04/spring-cloud-hystrix/Hystrix.png" alt="Hystrix流程图"></p>
-<p>关窗户</p>
-<blockquote>
-<p>引用</p>
+<p>在Nginx独立服务器上安装证书</p>
 </blockquote>
-<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/0a93fd0e608a">Hystrix原理与实战</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.136.la/jingpin/show-107253.html">https://www.136.la/jingpin/show-107253.html</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qiongjingpang9161/article/details/113872056">https://blog.csdn.net/qiongjingpang9161/article/details/113872056</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/theludlows/article/details/82904263?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_title~default-0.pc_relevant_default&amp;spm=1001.2101.3001.4242.1&amp;utm_relevant_index=3">https://blog.csdn.net/theludlows/article/details/82904263?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_title~default-0.pc_relevant_default&amp;spm=1001.2101.3001.4242.1&amp;utm_relevant_index=3</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1di4y14765?p=94">https://www.bilibili.com/video/BV1di4y14765?p=94</a></p>
-<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/jsaG_w4ICkIK72UlZgw0qQ">https://mp.weixin.qq.com/s/jsaG_w4ICkIK72UlZgw0qQ</a></p>
-<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/paZmZJ5MmcsuiJ65RHqirg">https://mp.weixin.qq.com/s/paZmZJ5MmcsuiJ65RHqirg</a></p>
-<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/gK0iQHOaBy8Cx-3sqS4OuA">https://mp.weixin.qq.com/s/gK0iQHOaBy8Cx-3sqS4OuA</a></p>
-<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/2ziyu-HvtfPxw8ktYNSNAA">https://mp.weixin.qq.com/s/2ziyu-HvtfPxw8ktYNSNAA</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/dabenxiang/p/13764076.html">https://www.cnblogs.com/dabenxiang/p/13764076.html</a></p>
+<p>下载证书，存放证书</p>
+<p><img src="/2022/05/29/web-server-nginx/cert.png" alt="证书存放位置"></p>
+<p>配置nginx.conf</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">server &#123;
+    listen       443 ssl;
+    server_name  m.yipinxieli.com;
+
+    ssl_certificate      cert&#x2F;m.yipinxieli.com.pem;
+    ssl_certificate_key  cert&#x2F;m.yipinxieli.com.key;
+
+    ssl_session_cache    shared:SSL:1m;
+    ssl_session_timeout  5m;
+
+    ssl_ciphers  HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers  on;
+
+    location &#x2F; &#123;
+        root   html;
+        index  index.html index.htm;
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>设置HTTP请求自动跳转HTTPS</p>
+</blockquote>
+<p>Nginx 老版本的写法</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">server &#123;
+		listen 80;
+		server_name www.yipinxieli.com; #需要将yourdomain替换成证书绑定的域名。
+		rewrite ^(.*)$ https:&#x2F;&#x2F;$host$1; #将所有HTTP请求通过rewrite指令重定向到HTTPS。
+		location &#x2F; &#123;
+			index index.html index.htm;
+		&#125;
+	&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>新版本推荐</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">return 301 https:&#x2F;&#x2F;$server_name$request_uri; #http跳转https<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<blockquote>
+<h3 id="Nginx负载均衡"><a href="#Nginx负载均衡" class="headerlink" title="Nginx负载均衡"></a>Nginx负载均衡</h3></blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/zkwarrior/p/14916790.html">https://www.cnblogs.com/zkwarrior/p/14916790.html</a></p>
+<blockquote>
+<h3 id="正向代理与反向带来"><a href="#正向代理与反向带来" class="headerlink" title="正向代理与反向带来"></a>正向代理与反向带来</h3></blockquote>
+<p><img src="/2022/05/29/web-server-nginx/agent.jpg" alt="正向代理与反向代理"></p>
+<blockquote>
+<p>正向代理</p>
+</blockquote>
+<p>对目标服务器隐藏客户端（用户）。客户端（用户）知道目标服务器（github）,但是访问不到，可以通过代理（VPN）访问目标服务器，目标服务器只知道代理访问了自己，不知道客户端是谁。</p>
+<p><img src="/2022/05/29/web-server-nginx/zhengxiang.png" alt="正向代理"></p>
+<blockquote>
+<p>反向代理</p>
+</blockquote>
+<p>对客户端（用户）隐藏目标服务器。客户端只知道代理，不知道目标服务器，但通过代理客户端实际访问的是目标服务器，目标服务器知道客户端是谁。</p>
+<p><img src="/2022/05/29/web-server-nginx/fanxinag.png" alt="反向代理"></p>
+<blockquote>
+<h3 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h3></blockquote>
+<p><a target="_blank" rel="noopener" href="https://help.aliyun.com/document_detail/98728.html?spm=5176.b657008.0.0.7b14799dhcfoI0">在Nginx（或Tengine）服务器上安装证书</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jb51.net/article/94483.htm">Windows nginx安装教程及简单实践</a></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/_ms6aR-bG1d-jUQD49CLdg">web中间件应用系列：正向代理和反向代理的区别</a></p>
 
                 
             </div>
@@ -548,7 +711,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://www.yipinxieli.com/2022/05/04/spring-cloud-hystrix/">http://www.yipinxieli.com/2022/05/04/spring-cloud-hystrix/</a>
+                    <a href="http://www.yipinxieli.com/2022/05/29/web-server-nginx/">http://www.yipinxieli.com/2022/05/29/web-server-nginx/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -586,8 +749,8 @@
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/spring-cloud/">
-                                    <span class="chip bg-color">spring-cloud</span>
+                                <a href="/tags/nginx/">
+                                    <span class="chip bg-color">nginx</span>
                                 </a>
                             
                         </div>
@@ -759,9 +922,10 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/2022/05/29/web-server-nginx/">
                     <div class="card-image">
@@ -779,9 +943,9 @@
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2022-05-29
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-05-29
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -794,6 +958,7 @@
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -812,24 +977,24 @@
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2022/05/03/spring-cloud-eureka/">
+                <a href="/2022/05/04/spring-cloud-hystrix/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/17.jpg" class="responsive-img" alt="spring-cloud-eureka">
+                        <img src="/medias/featureimages/17.jpg" class="responsive-img" alt="Spring Cloud Hystrix">
                         
-                        <span class="card-title">spring-cloud-eureka</span>
+                        <span class="card-title">Spring Cloud Hystrix</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            
+                            服务容错保护Spring Cloud Hystrix实现了断路器、线程隔离等一系列服务保护功能。它也是基于Netflix 的开源框架 Hystrix实现的，该框架的目标在于通过控制那些访问远程系统、服务和第三方库的节点，从而对延迟和故障提供
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-05-03
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-05-04
                             </span>
                         <span class="publish-author">
                             
