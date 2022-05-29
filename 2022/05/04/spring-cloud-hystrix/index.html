@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="office,Excel">
+    <meta name="keywords" content="spring,spring-cloud,SpringBoot">
     <meta name="description" content="失落时悄悄徘徊，伤感时默默遐想">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>Excel常用操作 | 山西小魔头技术博客</title>
+    <title>Spring Cloud Hystrix | 山西小魔头技术博客</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/18.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/17.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">Excel常用操作</h1>
+                    <h1 class="description center-align post-title">Spring Cloud Hystrix</h1>
                 </div>
             </div>
         </div>
@@ -431,8 +431,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/%E5%AE%9E%E7%94%A8%E5%B7%A5%E5%85%B7/">
-                                <span class="chip bg-color">实用工具</span>
+                            <a href="/tags/spring-cloud/">
+                                <span class="chip bg-color">spring-cloud</span>
                             </a>
                         
                     </div>
@@ -443,8 +443,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/%E5%BC%80%E5%8F%91%E6%8A%80%E5%B7%A7/" class="post-category">
-                                开发技巧
+                            <a href="/categories/spring-cloud/" class="post-category">
+                                spring-cloud
                             </a>
                         
                     </div>
@@ -456,7 +456,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2021-07-20
+                    2022-05-04
                 </div>
                 
 
@@ -480,20 +480,48 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>分享常用的Excel常用操作，提高开发效率。因为老有业务人员让我帮忙导出数据，第一步就是拼SQL，批量操作文件。</p>
+                <p>服务容错保护Spring Cloud Hystrix实现了断路器、线程隔离等一系列服务保护功能。它也是基于Netflix 的开源框架 Hystrix实现的，该框架的目标在于通过控制那些访问远程系统、服务和第三方库的节点，从而对延迟和故障提供更强大的容错能力。Hystrix具备服务降级、服务熔断、线程和信号隔离、请求缓存、请求合并以及服务监控等强大功能。</p>
 <span id="more"></span>
 
-<h3 id="Excel常用操作快捷键"><a href="#Excel常用操作快捷键" class="headerlink" title="Excel常用操作快捷键"></a><strong>Excel常用操作快捷键</strong></h3><h4 id="EXCEL行列互转"><a href="#EXCEL行列互转" class="headerlink" title="EXCEL行列互转"></a>EXCEL行列互转</h4><p>复制源数据–右键–选择性粘贴–勾“转置”，确定。</p>
-<h4 id="删除单元格内多余的空格和换行符"><a href="#删除单元格内多余的空格和换行符" class="headerlink" title="删除单元格内多余的空格和换行符"></a>删除单元格内多余的空格和换行符</h4><p>假设数据在A列，在B列输入=TRIM(CLEAN(A1))，然后下拉公式即可</p>
-<h4 id="常用快捷键"><a href="#常用快捷键" class="headerlink" title="常用快捷键"></a>常用快捷键</h4><p>CTRL+SHIFT+↑        快速定位到行首</p>
-<p>CTRL+SHIFT+↓        快速定位到行尾</p>
-<h4 id="SUBSTITUTE函数：指定字符串替换"><a href="#SUBSTITUTE函数：指定字符串替换" class="headerlink" title="SUBSTITUTE函数：指定字符串替换"></a>SUBSTITUTE函数：指定字符串替换</h4><p>=substitute(text,old_text,new_text,[instance_num])</p>
-<p>=SUBSTITUTE（需要替换的文本，旧文本，新文本，第N个旧文本）</p>
-<p>参数Instance_num 可省略，这表示用 new_text（新文本）替换掉所有的old_text（旧文本）</p>
-<h4 id="快速填充"><a href="#快速填充" class="headerlink" title="快速填充"></a>快速填充</h4><p><img src="/2021/07/20/tools-2/quick_start.png" alt="image-20210914184208839"></p>
-<h4 id="找出重复项并提取"><a href="#找出重复项并提取" class="headerlink" title="找出重复项并提取"></a>找出重复项并提取</h4><p><img src="/2021/07/20/tools-2/multi-value.png" alt="定位重复值"></p>
-<h4 id="多行堆叠成一行"><a href="#多行堆叠成一行" class="headerlink" title="多行堆叠成一行"></a>多行堆叠成一行</h4><p>使用公式：=TEXTJOIN(“,”,TRUE,A1:A32)</p>
-<p><img src="/2021/07/20/tools-2/row.png" alt="多行转一行"></p>
+<h1><center>Spring Cloud Hystrix</center></h1>
+
+<blockquote>
+<h3 id="雪崩效应"><a href="#雪崩效应" class="headerlink" title="雪崩效应"></a>雪崩效应</h3></blockquote>
+<p>微服务架构的应用系统通常包含多个服务层。微服务之间通过网络进行通信，从而支撑起整个应用系统，因此，微服务之间难免存在依赖关系。我们知道，任何微服务都并非100%可用,网络往往也很脆弱，因此难免有些请求会失败。<br>我们常把“基础服务故障”导致“级联故障”的现象称为雪崩效应。雪崩效应描述的是提供者不可用导致消费者不可用，并将不可用逐渐放大的过程。</p>
+<p><img src="/2022/05/04/spring-cloud-hystrix/hexoBlog\source_posts\spring-cloud-hystrix\xuebeng.png" alt="雪崩效应形成过程"></p>
+<p>可以看到, 当 C 服务挂掉时, B 服务还在不断地调用 C 服务期望获得结果, 结果在 B 服务内部产生了大量的调用等待和重试调用的线程, 随着新的请求不断地往这条调用链路上跑, 那么 B 服务的资源就会被这些线程耗尽, 从而导致 B 服务也不可用。同理, 当 B 服务也挂掉时, A 服务挂掉也只是时间的问题了。</p>
+<p>在一个复杂的分布式系统中通常会有很多的依赖，如果我们不能对来自依赖的故障进行隔离，那么应用本身就会处于分险之中。在一个高流量的网站中，某一后端出现延迟，将会在数秒之内导致所有资源耗尽。</p>
+<p><strong><code>如何容错</code></strong></p>
+<p>要想防止雪崩效应，必须有一个强大的容错机制。该容错机制需实现以下两点。</p>
+<p><strong>必须为网络请求设置超时</strong><br>正常情况下，一个远程调用一般在几十毫秒内就能得到响应了。如果依赖的服务不可用或者网络有问题，那么响应时间就会变得很长（几十秒)。而一次远程调用对应着一个线程/进程。如果响应太慢，这个线程/进程就得不到释放。而线程/进程又对应着系统资源，如果得不到释放的线程/进程越积越多，资源就会逐渐被耗尽，最终导致服务的不可用。<br>因此，必须为每个网络请求设置超时，让资源尽快释放。</p>
+<p><strong>使用断路器模式</strong><br>如果对某个微服务的请求有大量超时（常常说明该微服务不可用)，再去让新的请求访问该服务已经没有任何意义，只会消耗资源。例加设詈了超时时间为1秒，如果短时间内有大量的请求无法在1秒内得到响应，就没有必要再去请求依赖的服务了。</p>
+<p>断路器可理解为对容易导致错误的操作的代理。这种代理能够统计一段时间内调用失败的次数，并决定是正常请求依赖的服务还是直接返回。断路器可以实现快速失败,如果它在一段时间内检测到许多类似的错误（例如超时)，就会在之后的一段时间内，强迫对该服务的调用快速失败，即不再请求所依赖的服务。这样，应用程序就无须再浪费CPU时间去等待长时间的超时<br>断路器也可自动诊断依赖的服务是否已经恢复正常。如果发现依赖的服务已经恢复正常，那么就会恢复请求该服务。使用这种方式，就可以实现微服务的“自我修复”——当依赖的服务不正常时打开断路器时快速失败，从而防止雪崩效应;当发现依赖的服务恢复正常时,又会恢复请求。<br><img src="/2022/05/04/spring-cloud-hystrix/transfer.png" alt="断路器状态转换图"></p>
+<blockquote>
+<h3 id="初探Hystrix"><a href="#初探Hystrix" class="headerlink" title="初探Hystrix"></a>初探Hystrix</h3></blockquote>
+<p>Hystrix官方代码托管在：https:github.com/Netflix/Hystrix。</p>
+<p>Hystrix是由Netflix开源的一个延迟和容错库，旨在隔离远程系统、服务和第三方库，阻止级联故障，从而提升系统的可用性与容错性。Hystrix主要通过以下几点实现延迟和容错。</p>
+<p>包裹请求:</p>
+<p>使用HystrixCommand (或HystrixObservableCommand)包裹对依赖的调用逻辑，每个命令在独立线程中执行。这使用到了设计模式中的“命令模式”。。跳闸机制:当某服务的错误率超过一定阈值时，Hystrix可以自动或者手动跳闸，停止请求该服务一段时间。<br>资源隔离:</p>
+<p> Hystrix为每个依赖都维护了一个小型的线程池（或者信号量)。如果该线程池已满，发往该依赖的请求就被立即拒绝，而不是排队等候，从而加速失败判定。</p>
+<p>。监控:Hystrix可以近乎实时地监控运行指标和配置的变化，例如成功、失败、超时、以及被拒绝的请求等。<br>。回退机制:当请求失败、超时、被拒绝，或当断路器打开时，执行回退逻辑。回退逻辑可由开发人员自行提供，例如返回一个缺省值。<br>。自我修复:断路器打开一段时间后，会自动进入“半开”状态。断路器打开、关闭、半开的逻辑转换，前面已经详细探讨过了，本节不再赘述。</p>
+<blockquote>
+<h3 id="Hystrix入门"><a href="#Hystrix入门" class="headerlink" title="Hystrix入门"></a>Hystrix入门</h3></blockquote>
+<p><img src="/2022/05/04/spring-cloud-hystrix/call-relation.png" alt="服务调用关系"></p>
+<p><img src="/2022/05/04/spring-cloud-hystrix/Hystrix.png" alt="Hystrix流程图"></p>
+<p>关窗户</p>
+<blockquote>
+<p>引用</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/0a93fd0e608a">Hystrix原理与实战</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.136.la/jingpin/show-107253.html">https://www.136.la/jingpin/show-107253.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qiongjingpang9161/article/details/113872056">https://blog.csdn.net/qiongjingpang9161/article/details/113872056</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/theludlows/article/details/82904263?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_title~default-0.pc_relevant_default&amp;spm=1001.2101.3001.4242.1&amp;utm_relevant_index=3">https://blog.csdn.net/theludlows/article/details/82904263?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_title~default-0.pc_relevant_default&amp;spm=1001.2101.3001.4242.1&amp;utm_relevant_index=3</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1di4y14765?p=94">https://www.bilibili.com/video/BV1di4y14765?p=94</a></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/jsaG_w4ICkIK72UlZgw0qQ">https://mp.weixin.qq.com/s/jsaG_w4ICkIK72UlZgw0qQ</a></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/paZmZJ5MmcsuiJ65RHqirg">https://mp.weixin.qq.com/s/paZmZJ5MmcsuiJ65RHqirg</a></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/gK0iQHOaBy8Cx-3sqS4OuA">https://mp.weixin.qq.com/s/gK0iQHOaBy8Cx-3sqS4OuA</a></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/2ziyu-HvtfPxw8ktYNSNAA">https://mp.weixin.qq.com/s/2ziyu-HvtfPxw8ktYNSNAA</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/dabenxiang/p/13764076.html">https://www.cnblogs.com/dabenxiang/p/13764076.html</a></p>
 
                 
             </div>
@@ -520,7 +548,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://www.yipinxieli.com/2021/07/20/tools-2/">http://www.yipinxieli.com/2021/07/20/tools-2/</a>
+                    <a href="http://www.yipinxieli.com/2022/05/04/spring-cloud-hystrix/">http://www.yipinxieli.com/2022/05/04/spring-cloud-hystrix/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -558,8 +586,8 @@
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/%E5%AE%9E%E7%94%A8%E5%B7%A5%E5%85%B7/">
-                                    <span class="chip bg-color">实用工具</span>
+                                <a href="/tags/spring-cloud/">
+                                    <span class="chip bg-color">spring-cloud</span>
                                 </a>
                             
                         </div>
@@ -731,46 +759,48 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
-                <a href="/2021/07/28/springEL/">
+                <a href="/2022/05/04/spring-cloud-hystrix/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/20.jpg" class="responsive-img" alt="springEL">
+                        <img src="/medias/featureimages/17.jpg" class="responsive-img" alt="Spring Cloud Hystrix">
                         
-                        <span class="card-title">springEL</span>
+                        <span class="card-title">Spring Cloud Hystrix</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            为了更加灵活,Spring 还提供了表达式语言Spring EL 。通过Spring EL 可以拥有更为强大的运算规则来更好地装配Bean。
+                            服务容错保护Spring Cloud Hystrix实现了断路器、线程隔离等一系列服务保护功能。它也是基于Netflix 的开源框架 Hystrix实现的，该框架的目标在于通过控制那些访问远程系统、服务和第三方库的节点，从而对延迟和故障提供
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2021-07-28
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-05-04
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/Spring/" class="post-category">
-                                    Spring
+                            <a href="/categories/spring-cloud/" class="post-category">
+                                    spring-cloud
                                 </a>
                             
                             
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/springEL/">
-                        <span class="chip bg-color">springEL</span>
+                    <a href="/tags/spring-cloud/">
+                        <span class="chip bg-color">spring-cloud</span>
                     </a>
                     
                 </div>
@@ -784,13 +814,13 @@
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2021/07/19/hello-world/">
+                <a href="/2022/05/03/spring-cloud-eureka/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/12.jpg" class="responsive-img" alt="Hello World">
+                        <img src="/medias/featureimages/17.jpg" class="responsive-img" alt="spring-cloud-eureka">
                         
-                        <span class="card-title">Hello World</span>
+                        <span class="card-title">spring-cloud-eureka</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
@@ -801,15 +831,27 @@
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2021-07-19
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-05-03
                             </span>
                         <span class="publish-author">
                             
-                            <i class="fas fa-user fa-fw"></i>
-                            WangQingLei
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/spring-cloud/" class="post-category">
+                                    spring-cloud
+                                </a>
+                            
                             
                         </span>
                     </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/spring-cloud/">
+                        <span class="chip bg-color">spring-cloud</span>
+                    </a>
+                    
                 </div>
                 
             </div>

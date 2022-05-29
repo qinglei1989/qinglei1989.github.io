@@ -679,6 +679,8 @@ public class ConsumerApplication &#123;
 <p>![服务治理](service governance.png)</p>
 <p><strong>服务提供者</strong></p>
 <p>服务注册</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">eureka.client.register-with-eureka&#x3D;true<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
 <p>服务同步</p>
 <p>服务续约</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"># 服务续约任务的调用时间间隔，默认30s
@@ -688,7 +690,9 @@ eureka.instance.lease-expiration-duration-in-seconds&#x3D;90<span aria-hidden="t
 
 <p><strong>服务消费者</strong></p>
 <p>获取服务</p>
-<p>为了性能考虑，Eureka Server 会维护一份只读的服务清单来返回给客户端，同时该缓存清单会每隔30秒更新一次。<br>若希望修改缓存清单的更新时间，可以通过eureka.client.reaistry-fetch-interval-seconds=30 参数进行修改，该参数默认值为30s。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"># Eureka Server 会维护一份只读的服务清单来返回给客户端，同时该缓存清单会每隔30秒更新一次。若希望修改缓存清单的更新时间，可以通过参数进行修改，该参数默认值为30s。
+eureka.client.reaistry-fetch-interval-seconds&#x3D;30<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
 <p>服务调用</p>
 <p><strong>注册中心</strong></p>
 <p>失效剔除</p>
@@ -700,8 +704,19 @@ eureka.instance.lease-expiration-duration-in-seconds&#x3D;90<span aria-hidden="t
 <p>源码分析</p>
 </blockquote>
 <p>@EnableDiscoveryClient注解用来开启DiscoveryClient实例</p>
+<p>DiscoveryClient类用于帮助与 Eureka Server互相协作。</p>
+<p>Eureka Client负责下面的任务:</p>
+<p>​        向Eureka Server注册服务实例</p>
+<p>​        向Eureka Server服务租约</p>
+<p>​        当服务关闭期间，向Eureka Server取消租约</p>
+<p>​        查询Eureka Server中的服务实例列表</p>
+<p>Eureka Client 还需要配置一个Eureka Server的URL 列表。</p>
 <p><strong>SpringCloud</strong> 中的<strong>Eureka</strong>默认使用的<code>Region</code>为<strong>us-east-1</strong>。</p>
 <p>Eureka的缓存机制/三级缓存</p>
+<p><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000011668299">https://segmentfault.com/a/1190000011668299</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_34680763/article/details/123736997">https://blog.csdn.net/qq_34680763/article/details/123736997</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_41947378/category_10361937.html">https://blog.csdn.net/weixin_41947378/category_10361937.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Xm4y1D75K?spm_id_from=333.337.search-card.all.click">https://www.bilibili.com/video/BV1Xm4y1D75K?spm_id_from=333.337.search-card.all.click</a></p>
 
                 
             </div>
@@ -939,30 +954,29 @@ eureka.instance.lease-expiration-duration-in-seconds&#x3D;90<span aria-hidden="t
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="far fa-dot-circle"></i>&nbsp;本篇
-            </div>
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2022/05/03/spring-cloud-eureka/">
+                <a href="/2022/05/04/spring-cloud-hystrix/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/17.jpg" class="responsive-img" alt="spring-cloud-eureka">
+                        <img src="/medias/featureimages/17.jpg" class="responsive-img" alt="Spring Cloud Hystrix">
                         
-                        <span class="card-title">spring-cloud-eureka</span>
+                        <span class="card-title">Spring Cloud Hystrix</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            
+                            服务容错保护Spring Cloud Hystrix实现了断路器、线程隔离等一系列服务保护功能。它也是基于Netflix 的开源框架 Hystrix实现的，该框架的目标在于通过控制那些访问远程系统、服务和第三方库的节点，从而对延迟和故障提供
                         
                     </div>
                     <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-05-03
-                            </span>
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-05-04
+                        </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -975,7 +989,6 @@ eureka.instance.lease-expiration-duration-in-seconds&#x3D;90<span aria-hidden="t
                         </span>
                     </div>
                 </div>
-
                 
                 <div class="card-action article-tags">
                     
