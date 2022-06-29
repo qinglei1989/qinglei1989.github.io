@@ -483,6 +483,9 @@
                 <h1><center>Eureka注册中心</center></h1>
 
 <blockquote>
+<h3 id="Eureka体系结构"><a href="#Eureka体系结构" class="headerlink" title="Eureka体系结构"></a>Eureka体系结构</h3></blockquote>
+<p><img src="/2022/05/03/spring-cloud-eureka/Eureka.png" alt="Eureka体系结构"></p>
+<blockquote>
 <h3 id="搭建服务注册中心"><a href="#搭建服务注册中心" class="headerlink" title="搭建服务注册中心"></a>搭建服务注册中心</h3></blockquote>
 <p>application.yml</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">server:
@@ -493,6 +496,10 @@ eureka:
    instance:
 	   # 应用所在的主机名
        hostname: localhost
+   # 关闭自我保护机制，默认为true代表启动
+   enable-self-preservation: false
+   # 指定自我保护机制的开启阈值，默认0.85
+   # renewal-percent-threshold: 0.7
    client:
 	   # 本身为注册中心, 不向注册中心注册自己
        registerWithEureka: false
@@ -503,7 +510,7 @@ eureka:
 spring:
   application:
 	# 应用名称
-    name: eureka-server<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+    name: eureka-server<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>主类<code>EurekaServerApplication</code>：</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">package com.wql;
@@ -538,13 +545,18 @@ public class EurekaServerApplication &#123;
     serviceUrl:
 	  # 指定服务注册中心地址
       defaultZone: http:&#x2F;&#x2F;localhost:8888&#x2F;eureka&#x2F;
+  instance:
+    prefer-ip-address: true
+    # 自定义 Eureka 的 InstanceID 主机名：服务名称：服务端口
+    instance-id: $&#123;spring.application.name&#125;:$&#123;spring.cloud.client.ipAddress&#125;:$&#123;server.port&#125;
+    status-page-url:www.wql.com
 server:
   port: 80
 
 spring:
   application:
 	# 应用名称
-    name: hello-service<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+    name: hello-service<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>主类<code>HelloServiceApplication</code></p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">package com.wql;
@@ -560,7 +572,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * @date 2019&#x2F;10&#x2F;22
  * @Version
  **&#x2F;
-&#x2F;&#x2F; @EnableDiscoveryClient和@EnableEurekaClient共同点就是：都是能够让注册中心能够发现，扫描到改服务。@EnableEurekaClient只适用于Eureka作为注册中心，@EnableDiscoveryClient 可以是其他注册中心。
+&#x2F;&#x2F; @EnableDiscoveryClient和@EnableEurekaClient共同点就是：都是能够让注册中心能够发现，扫描到改服务。@EnableEurekaClient只适用于Eureka作为注册中心，@EnableDiscoveryClient 可以是其他注册中心,通用性更强。
 @EnableDiscoveryClient
 @SpringBootApplication
 public class HelloServiceApplication &#123;
@@ -591,6 +603,7 @@ public class HelloServiceApplication &#123;
 2022-05-03 01:36:18.232  INFO 28780 --- [hresholdUpdater] c.n.e.r.PeerAwareInstanceRegistryImpl    : Current renewal threshold is : 3<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p><img src="/2022/05/03/spring-cloud-eureka/eureka-server-hello.png" alt="Eureka面板"></p>
+<p><img src="/2022/05/03/spring-cloud-eureka/rest-api.png" alt="Eureka REST API接口列表"></p>
 <blockquote>
 <h3 id="高可用注册中心"><a href="#高可用注册中心" class="headerlink" title="高可用注册中心"></a>高可用注册中心</h3></blockquote>
 <p>Eureka Server的高可用实际上就是将自己作为服务向其他服务注册中心注册自己，这样就可以形成一组互相注册的服务注册中心，以实现服务清单的互相同步，达到高可用的效果。</p>
@@ -675,6 +688,13 @@ public class ConsumerApplication &#123;
 
 <p><img src="/2022/05/03/spring-cloud-eureka/consumer.png" alt="服务注册与发现"></p>
 <blockquote>
+<h3 id="自我保护机制"><a href="#自我保护机制" class="headerlink" title="自我保护机制"></a>自我保护机制</h3></blockquote>
+<p>在 Eureka 服务页面中看到如下红色字体内容，表示当前 EurekaServer 启动了自我保护机制，进入了自我保护模式。</p>
+<p>默认情况下，EurekaServer 在 90 秒内没有收到到服务列表中某微服务续约心跳，则会自动将该微服务从服务列表中删除。</p>
+<p>Eureka服务端会检查最近15分钟内所有Eureka 实例正常心跳占比，如果低于85%就会触发自我保护机制。触发了保护机制，Eureka将暂时把这些失效的服务保护起来，不让其过期，但这些服务也并不是永远不会过期。Eureka在启动完成后，每隔60秒会检查一次服务健康状态，如果这些被保护起来失效的服务过一段时间后（默认90秒）还是没有恢复，就会把这些服务剔除。如果在此期间服务恢复了并且实例心跳占比高于85%时，就会自动关闭自我保护机制。</p>
+<p>实践是：自我保护状态一旦开启，除非客户端恢复导致退出自我保护状态，否则实例永不删除。</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_35976271/article/details/102314965">https://blog.csdn.net/qq_35976271/article/details/102314965</a></p>
+<blockquote>
 <h3 id="eureka详情"><a href="#eureka详情" class="headerlink" title="eureka详情"></a>eureka详情</h3></blockquote>
 <p>![服务治理](service governance.png)</p>
 <p><strong>服务提供者</strong></p>
@@ -716,7 +736,6 @@ eureka.client.reaistry-fetch-interval-seconds&#x3D;30<span aria-hidden="true" cl
 <p><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000011668299">https://segmentfault.com/a/1190000011668299</a></p>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_34680763/article/details/123736997">https://blog.csdn.net/qq_34680763/article/details/123736997</a></p>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_41947378/category_10361937.html">https://blog.csdn.net/weixin_41947378/category_10361937.html</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Xm4y1D75K?spm_id_from=333.337.search-card.all.click">https://www.bilibili.com/video/BV1Xm4y1D75K?spm_id_from=333.337.search-card.all.click</a></p>
 
                 
             </div>

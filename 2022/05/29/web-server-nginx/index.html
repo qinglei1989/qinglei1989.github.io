@@ -666,9 +666,22 @@ http &#123;
 
 <blockquote>
 <h3 id="Nginx负载均衡"><a href="#Nginx负载均衡" class="headerlink" title="Nginx负载均衡"></a>Nginx负载均衡</h3></blockquote>
-<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/zkwarrior/p/14916790.html">https://www.cnblogs.com/zkwarrior/p/14916790.html</a></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">#设定负载均衡的服务器列表
+upstream load_balance_server &#123;
+    #weigth参数表示权值，权值越高被分配到的几率越大
+    server 172.20.241.141:80  weight&#x3D;5;
+    server 172.20.241.151:80  weight&#x3D;1;
+&#125;
+
+location &#x2F; &#123;
+    proxy_pass http:&#x2F;&#x2F;load_balance_server ;#请求转向load_balance_server 定义的服务器列表
+
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>负载均衡中的健康检查：<a target="_blank" rel="noopener" href="http://t.zoukankan.com/larry-luo-p-10620263.html">http://t.zoukankan.com/larry-luo-p-10620263.html</a></p>
 <blockquote>
-<h3 id="正向代理与反向带来"><a href="#正向代理与反向带来" class="headerlink" title="正向代理与反向带来"></a>正向代理与反向带来</h3></blockquote>
+<p>正向代理与反向代理</p>
+</blockquote>
 <p><img src="/2022/05/29/web-server-nginx/agent.jpg" alt="正向代理与反向代理"></p>
 <blockquote>
 <p>正向代理</p>
@@ -922,48 +935,46 @@ http &#123;
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="far fa-dot-circle"></i>&nbsp;本篇
-            </div>
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2022/05/29/web-server-nginx/">
+                <a href="/2022/05/30/spring-boot-exception/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/14.jpg" class="responsive-img" alt="nginx服务器">
+                        <img src="/medias/featureimages/6.jpg" class="responsive-img" alt="异常处理的思考">
                         
-                        <span class="card-title">nginx服务器</span>
+                        <span class="card-title">异常处理的思考</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            
+                            业务代码不显式地对异常进行捕获、处理，而异常肯定还是处理的，不然系统岂不是动不动就崩溃了，所以必须得有其他地方捕获并处理这些异常。
                         
                     </div>
                     <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-05-29
-                            </span>
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-05-30
+                        </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8/" class="post-category">
-                                    服务器
+                            <a href="/categories/Spring/" class="post-category">
+                                    Spring
                                 </a>
                             
                             
                         </span>
                     </div>
                 </div>
-
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/nginx/">
-                        <span class="chip bg-color">nginx</span>
+                    <a href="/tags/spring-boot/">
+                        <span class="chip bg-color">spring-boot</span>
                     </a>
                     
                 </div>
