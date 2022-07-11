@@ -485,7 +485,7 @@
 <h1><center>服务调用的组件OpenFeign介绍</center></h1>
 
 <blockquote>
-<h2 id="服务调用"><a href="#服务调用" class="headerlink" title="服务调用"></a>服务调用</h2></blockquote>
+<h2 id="服务调用历史"><a href="#服务调用历史" class="headerlink" title="服务调用历史"></a>服务调用历史</h2></blockquote>
 <p>实现服务进程之间的调用方法有很多，在Feign之前常用如下：</p>
 <ul>
 <li>HttpClient提供高效的、最新的、功能丰富的支持 HTTP 协议的客户端编程工具包。</li>
@@ -579,6 +579,7 @@ public class RestTemplateController &#123;
     &#125;
 &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
+<p><img src="/2022/06/26/spring-cloud-openFeign/RestTemplate.png" alt="RestTemplate接口"></p>
 <p>RestTemplate的底层实现仍然是HttpClient或HttpUrlConnection或OkHttp（三者可选），只是对它进行了封装，从而降低编码复杂度。</p>
 <p>但是不论是HttpClient还是RestTemplate也存在一定的缺点：</p>
 <ul>
@@ -665,18 +666,31 @@ public interface AuthServiceFeignClient &#123;
     AuthUserDto queryAuthUserById(@Param(&quot;user_id&quot;) Integer userId);
 &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-
-
 <blockquote>
 <h2 id="OpenFeign的核心设计原理"><a href="#OpenFeign的核心设计原理" class="headerlink" title="OpenFeign的核心设计原理"></a>OpenFeign的核心设计原理</h2></blockquote>
-<p><img src="/2022/06/26/spring-cloud-openFeign/feign-principle.png" alt="img"></p>
+<p><img src="/2022/06/26/spring-cloud-openFeign/feign-principle.png" alt="OpenFeign的核心设计原理"></p>
+<ol>
+<li><p>基于面向接口的动态代理方式生成实现类</p>
+</li>
+<li><p>根据Contract协议规则，解析接口类的注解信息，解析成内部表现</p>
+</li>
+<li><p>基于 RequestBean，动态生成Request</p>
+</li>
+<li><p>使用Encoder 将Bean转换成 Http报文正文（消息解析和转码逻辑）</p>
+</li>
+<li><p>拦截器负责对请求和返回进行装饰处理</p>
+</li>
+<li><p>日志记录</p>
+</li>
+<li><p>发送HTTP请求</p>
+</li>
+</ol>
 <blockquote>
 <h3 id="Feign的大体机制"><a href="#Feign的大体机制" class="headerlink" title="Feign的大体机制"></a>Feign的大体机制</h3></blockquote>
 <p>通过在启动类上标记 @EnableFeignClients 注解来开启feign的功能，服务启动后会扫描 @FeignClient 注解标记的接口，然后根据扫描的注解信息为每个接口类生成feign客户端请求，同时解析接口方法中的Spring MVC的相关注解，通过专门的注解解析器识别这些注解信息，以便后面可以正确的组装请求参数，使用 Ribbon 和 Eureka 获取到请求服务的真实地址等信息，最后使用 http 相关组件进行执行调用。其大致流程图如下：</p>
 <p><img src="/2022/06/26/spring-cloud-openFeign/relation.png" alt="调用关系"></p>
 <blockquote>
-<p>@EnableFeignClients注解</p>
-</blockquote>
+<h3 id="代码入口-EnableFeignClients注解"><a href="#代码入口-EnableFeignClients注解" class="headerlink" title="代码入口@EnableFeignClients注解"></a>代码入口@EnableFeignClients注解</h3></blockquote>
 <p>在EnableFeignClients 注解类中有一个 @Import(FeignClientsRegistrar.class)的配置</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
@@ -698,6 +712,8 @@ public @interface EnableFeignClients &#123;
 <p>日常代码写法：</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">@EnableFeignClients(defaultConfiguration &#x3D; FeignClientConfig.class, basePackages &#x3D; &quot;com.rrc.authority.core.feign&quot;)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
+<blockquote>
+<h3 id="核心类FeignClientsRegistrar"><a href="#核心类FeignClientsRegistrar" class="headerlink" title="核心类FeignClientsRegistrar"></a>核心类FeignClientsRegistrar</h3></blockquote>
 <p>追踪代码进入到FeignClientsRegistrar类中，会发现FeignClientsRegistrar 类实现了ImportBeanDefinitionRegistrar接口，因此项目启动时会调用registerBeanDefinitions方法，该方法中会扫描 EnableFeignClients 和 FeignClient 注解信息并设置相关信息。</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">&#x2F;**
  * spring boot 启动时会自动调用 ImportBeanDefinitionRegistrar 入口方法
@@ -705,9 +721,9 @@ public @interface EnableFeignClients &#123;
 @Override
 public void registerBeanDefinitions(AnnotationMetadata metadata,
                                     BeanDefinitionRegistry registry) &#123;
-    &#x2F;&#x2F; 读取 @EnableFeignClients 注解中信息 5个属性的值
+    &#x2F;&#x2F; 读取 @EnableFeignClients 注解中信息 5个属性的值 注册了一个FeignClientSpecification类
     registerDefaultConfiguration(metadata, registry);
-    &#x2F;&#x2F; 扫描所有@FeignClient注解的类
+    &#x2F;&#x2F; 扫描所有@FeignClient注解的类 解析属性，最后注册到IoC容器中
     registerFeignClients(metadata, registry);
 &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
@@ -722,9 +738,233 @@ public void registerBeanDefinitions(AnnotationMetadata metadata,
 <p><img src="https://img.jbzj.com/file_images/article/202106/202167172914174.png?202157172923" alt="img"></p>
 <p>registerFeignClient()方法中在构建bean的时候，实际构建的是FeignClientFactoryBean。</p>
 <blockquote>
+<h3 id="FeignClientFactoryBean"><a href="#FeignClientFactoryBean" class="headerlink" title="FeignClientFactoryBean"></a>FeignClientFactoryBean</h3></blockquote>
+<p>注入到容器的是一个FactoryBean， 则真正生成Bean 是FactoryBean的getObject 方法，而且是FactoryBean的创建是在IoC容器过程中创建的。SpringIoC创建完对象会先反射创建对象，然后属性注入，属性注入过程中会根据BeanDefinition对象的propertyValues 给反射的对象进行属性注入。</p>
+<p>　　FactoryBean.getObject方法生成对象会在第一次使用bean时创建, 而不是在容器启动过程中就创建(也就是如果只声明不使用FactoryBean生成的对象不会进行创建)。</p>
+<p>　　我们需要的target对象是一个接口，所以是需要用到JDK的动态代理来生成代理对象然后服务于业务。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">class FeignClientFactoryBean
+		implements FactoryBean&lt;Object&gt;, InitializingBean, ApplicationContextAware &#123;
+    @Override
+	public Object getObject() throws Exception &#123;
+		return getTarget();
+	&#125;
+
+	&#x2F;**
+	 * @param &lt;T&gt; the target type of the Feign client
+	 * @return a &#123;@link Feign&#125; client created with the specified data and the context
+	 * information
+	 *&#x2F;
+	&lt;T&gt; T getTarget() &#123;
+		FeignContext context &#x3D; this.applicationContext.getBean(FeignContext.class);
+		Feign.Builder builder &#x3D; feign(context);
+
+		if (!StringUtils.hasText(this.url)) &#123;
+			if (!this.name.startsWith(&quot;http&quot;)) &#123;
+				this.url &#x3D; &quot;http:&#x2F;&#x2F;&quot; + this.name;
+			&#125;
+			else &#123;
+				this.url &#x3D; this.name;
+			&#125;
+			this.url +&#x3D; cleanPath();
+			return (T) loadBalance(builder, context,
+					new HardCodedTarget&lt;&gt;(this.type, this.name, this.url));
+		&#125;
+		if (StringUtils.hasText(this.url) &amp;&amp; !this.url.startsWith(&quot;http&quot;)) &#123;
+			this.url &#x3D; &quot;http:&#x2F;&#x2F;&quot; + this.url;
+		&#125;
+		String url &#x3D; this.url + cleanPath();
+		Client client &#x3D; getOptional(context, Client.class);
+		if (client !&#x3D; null) &#123;
+			if (client instanceof LoadBalancerFeignClient) &#123;
+				&#x2F;&#x2F; not load balancing because we have a url,
+				&#x2F;&#x2F; but ribbon is on the classpath, so unwrap
+				client &#x3D; ((LoadBalancerFeignClient) client).getDelegate();
+			&#125;
+			if (client instanceof FeignBlockingLoadBalancerClient) &#123;
+				&#x2F;&#x2F; not load balancing because we have a url,
+				&#x2F;&#x2F; but Spring Cloud LoadBalancer is on the classpath, so unwrap
+				client &#x3D; ((FeignBlockingLoadBalancerClient) client).getDelegate();
+			&#125;
+			builder.client(client);
+		&#125;
+		Targeter targeter &#x3D; get(context, Targeter.class);
+		return (T) targeter.target(this, builder, context,
+				new HardCodedTarget&lt;&gt;(this.type, this.name, url));
+	&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<h3 id="ReflectiveFeign"><a href="#ReflectiveFeign" class="headerlink" title="ReflectiveFeign"></a>ReflectiveFeign</h3></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">public &lt;T&gt; T newInstance(Target&lt;T&gt; target) &#123;
+  &#x2F;&#x2F;根据接口类和Contract协议解析方式，解析接口类上的方法和注解，转换成内部的MethodHandler处理方式
+  Map&lt;String, MethodHandler&gt; nameToHandler &#x3D; targetToHandlersByName.apply(target);
+  Map&lt;Method, MethodHandler&gt; methodToHandler &#x3D; new LinkedHashMap&lt;Method, MethodHandler&gt;();
+  List&lt;DefaultMethodHandler&gt; defaultMethodHandlers &#x3D; new LinkedList&lt;DefaultMethodHandler&gt;();
+
+  for (Method method : target.type().getMethods()) &#123;
+    if (method.getDeclaringClass() &#x3D;&#x3D; Object.class) &#123;
+      continue;
+    &#125; else if (Util.isDefault(method)) &#123;
+      DefaultMethodHandler handler &#x3D; new DefaultMethodHandler(method);
+      defaultMethodHandlers.add(handler);
+      methodToHandler.put(method, handler);
+    &#125; else &#123;
+      methodToHandler.put(method, nameToHandler.get(Feign.configKey(target.type(), method)));
+    &#125;
+  &#125;
+  &#x2F;&#x2F; 基于Proxy.newProxyInstance 为接口类创建动态实现，将所有的请求转换给InvocationHandler 处理。
+  InvocationHandler handler &#x3D; factory.create(target, methodToHandler);
+  T proxy &#x3D; (T) Proxy.newProxyInstance(target.type().getClassLoader(),
+      new Class&lt;?&gt;[] &#123;target.type()&#125;, handler);
+
+  for (DefaultMethodHandler defaultMethodHandler : defaultMethodHandlers) &#123;
+    defaultMethodHandler.bindTo(proxy);
+  &#125;
+  return proxy;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/2022/06/26/spring-cloud-openFeign/ReflectiveFeign.png" alt="newInstance方法"></p>
+<p>对应的FeignClient源码为：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@FeignClient(value &#x3D; &quot;openFeign-provider&quot;, configuration &#x3D; OpenFeignConfig.class)
+public interface OpenFeignService &#123;
+
+    @GetMapping(&quot;&#x2F;openfeign&#x2F;provider&#x2F;test&#x2F;&#123;id&#125;&quot;)
+    String get(@PathVariable(&quot;id&quot;)Integer id);
+    &#x2F;**
+     * 参数默认是@RequestBody标注的，如果通过POJO表单传参的，使用@SpringQueryMap标注
+     *&#x2F;
+    @PostMapping(&quot;&#x2F;openfeign&#x2F;provider&#x2F;order1&quot;)
+    Order createOrder1(@SpringQueryMap Order order);
+
+    &#x2F;**
+     * 参数默认是@RequestBody标注的，这里的@RequestBody可以不填
+     * 方法名称任意
+     *&#x2F;
+    @PostMapping(&quot;&#x2F;openfeign&#x2F;provider&#x2F;order2&quot;)
+    Order createOrder2(@RequestBody Order order);
+
+    &#x2F;**
+     * 必须要@RequestParam注解标注，且value属性必须填上参数名
+     * 方法参数名可以任意，但是@RequestParam注解中的value属性必须和provider中的参数名相同
+     *&#x2F;
+    @PostMapping(&quot;&#x2F;openfeign&#x2F;provider&#x2F;test2&quot;)
+    String test(@RequestParam(&quot;id&quot;) String arg1, @RequestParam(&quot;name&quot;) String arg2);
+
+    @PostMapping(&quot;&#x2F;openfeign&#x2F;provider&#x2F;order3&quot;)
+    String batchOrder(List&lt;Order&gt; orders);
+
+    @PostMapping(&quot;&#x2F;openfeign&#x2F;provider&#x2F;header&quot;)
+    String header();
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<h3 id="SynchronousMethodHandler（同步方法调用处理器）"><a href="#SynchronousMethodHandler（同步方法调用处理器）" class="headerlink" title="SynchronousMethodHandler（同步方法调用处理器）"></a>SynchronousMethodHandler（同步方法调用处理器）</h3></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">final class SynchronousMethodHandler implements MethodHandler &#123;
+    private static final long MAX_RESPONSE_BUFFER_SIZE &#x3D; 8192L;
+    &#x2F;&#x2F; 方法元信息
+    private final MethodMetadata metadata;
+    &#x2F;&#x2F; 目标  也就是最终真正构建Http请求Request的实例 一般为HardCodedTarget
+    private final Target&lt;?&gt; target;
+    &#x2F;&#x2F; 负责最终请求的发送 -&gt; 默认传进来的是基于JDK源生的，效率很低，不建议直接使用
+    private final Client client;
+    &#x2F;&#x2F; 负责重试 --&gt;默认传进来的是Default，是有重试机制的哦，生产上使用请务必注意
+    private final Retryer retryer;
+    &#x2F;&#x2F; 请求拦截器，它会在target.apply(template); 也就是模版 -&gt; 请求的转换之前完成拦截
+	&#x2F;&#x2F; 说明：并不是发送请求之前那一刻哦，请务必注意啦
+	&#x2F;&#x2F; 它的作用只能是对请求模版做定制，而不能再对Request做定制了
+	&#x2F;&#x2F; 内置仅有一个实现：BasicAuthRequestInterceptor 用于鉴权
+    private final List&lt;RequestInterceptor&gt; requestInterceptors;
+    private final Logger logger;
+    &#x2F;&#x2F; 若你想在控制台看到feign的请求日志，改变此日志级别为info吧（因为一般只有info才会输出到日志文件）
+    private final Level logLevel;
+    private final feign.RequestTemplate.Factory buildTemplateFromArgs;
+    &#x2F;&#x2F; 请求参数：比如链接超时时间、请求超时时间等
+    private final Options options;
+    private final Decoder decoder;
+    &#x2F;&#x2F; 发生错误&#x2F;异常时的解码器
+    private final ErrorDecoder errorDecoder;
+    &#x2F;&#x2F; 是否解码404状态码？默认是不解码的
+    private final boolean decode404;
+    
+    public Object invoke(Object[] argv) throws Throwable &#123;
+        &#x2F;&#x2F; 根据方法入参，结合工厂构建出一个请求模版
+        RequestTemplate template &#x3D; this.buildTemplateFromArgs.create(argv);
+        Retryer retryer &#x3D; this.retryer.clone();
+
+        while(true) &#123;
+            try &#123;
+                return this.executeAndDecode(template);
+            &#125; catch (RetryableException var5) &#123;
+                &#x2F;&#x2F; 该逻辑是：判断是否需要重试如果不重试了，该异常会继续抛出
+                retryer.continueOrPropagate(var5);
+                if (this.logLevel !&#x3D; Level.NONE) &#123;
+                    this.logger.logRetry(this.metadata.configKey(), this.logLevel);
+                &#125;
+            &#125;
+        &#125;
+    &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>Feign在默认情况下使用的是JDK原生的<strong>URLConnection</strong>发送HTTP请求，没有连接池，但是对每个地址会保持一个长连接，即利用HTTP的persistence connection。</p>
+<p>在生产环境中，通常不使用默认的http client，通常有如下两种选择：</p>
+<ul>
+<li>使用<strong>ApacheHttpClient</strong></li>
+<li>使用<strong>OkHttp</strong></li>
+</ul>
+<p>在openFeign接口服务的pom文件添加如下依赖：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">&lt;!--使用Apache HttpClient替换Feign原生httpclient--&gt;
+   &lt;dependency&gt;
+     &lt;groupId&gt;org.apache.httpcomponents&lt;&#x2F;groupId&gt;
+     &lt;artifactId&gt;httpclient&lt;&#x2F;artifactId&gt;
+   &lt;&#x2F;dependency&gt;
+    
+   &lt;dependency&gt;
+     &lt;groupId&gt;io.github.openfeign&lt;&#x2F;groupId&gt;
+     &lt;artifactId&gt;feign-httpclient&lt;&#x2F;artifactId&gt;
+   &lt;&#x2F;dependency&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="httpClient.png" alt="httpClient客户端替换"></p>
+<p><code>@ConditionalOnClass(ApacheHttpClient.class)</code>，必须要有<code>ApacheHttpClient</code>这个类才会生效，并且<code>feign.httpclient.enabled</code>这个配置要设置为<code>true</code>。</p>
+<p><img src="/2022/06/26/spring-cloud-openFeign/execute.png" alt="httpClient客户端替换验证"></p>
+<blockquote>
+<p>RequestInterceptor</p>
+</blockquote>
+<p>令牌在openFeign调用过程中是不能自动中继的，因此必须手动的将令牌信息传递下去。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@Component
+public class FeignRequestInterceptor implements RequestInterceptor &#123;
+    @Override
+    public void apply(RequestTemplate template) &#123;
+        &#x2F;&#x2F;从RequestContextHolder中获取HttpServletRequest
+        HttpServletRequest httpServletRequest &#x3D; RequestContextUtils.getRequest();
+        &#x2F;&#x2F;获取RequestContextHolder中的信息
+        Map&lt;String, String&gt; headers &#x3D; getHeaders(httpServletRequest);
+        &#x2F;&#x2F;放入feign的RequestTemplate中
+        for (Map.Entry&lt;String, String&gt; entry : headers.entrySet()) &#123;
+            template.header(entry.getKey(), entry.getValue());
+        &#125;
+    &#125;
+ 
+    &#x2F;**
+     * 获取原请求头
+     *&#x2F;
+    private Map&lt;String, String&gt; getHeaders(HttpServletRequest request) &#123;
+        Map&lt;String, String&gt; map &#x3D; new LinkedHashMap&lt;&gt;();
+        Enumeration&lt;String&gt; enumeration &#x3D; request.getHeaderNames();
+        if (enumeration !&#x3D; null) &#123;
+            while (enumeration.hasMoreElements()) &#123;
+                String key &#x3D; enumeration.nextElement();
+                String value &#x3D; request.getHeader(key);
+                map.put(key, value);
+            &#125;
+        &#125;
+        return map;
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="/2022/06/26/spring-cloud-openFeign/token.png" alt="令牌中继"></p>
+<blockquote>
 <p>引用</p>
 </blockquote>
 <p><a target="_blank" rel="noopener" href="https://www.jb51.net/article/214395.htm#_label1">Spring Cloud Feign原理详解</a></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzU3MDAzNDg1MA==&action=getalbum&album_id=2042874937312346114&scene=173&from_msgid=2247493854&from_itemidx=1&count=3&nolastread=1#wechat_redirect">Spring Cloud 进阶</a></p>
 
                 
             </div>
