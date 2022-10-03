@@ -548,6 +548,7 @@ public class Rrc &#123;
 private String birthday;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
 <p>SpringBoot中使用@Value()只能给普通变量注入值，不能直接给静态变量赋值。如果是静态变量那么拿到的属性值则为null。解决办法是给其属性值加上set方法，并且给其类上添加@Component注解</p>
+<p><code>@Value</code>这个注解估计很熟悉了，Spring中从属性取值的注解，支持<code>SPEL</code>表达式，不支持复杂的数据类型，比如<code>List</code>。</p>
 <blockquote>
 <h3 id="ConfigurationProperties"><a href="#ConfigurationProperties" class="headerlink" title="@ConfigurationProperties"></a>@ConfigurationProperties</h3></blockquote>
 <p>使用<code>@Value</code>注解可以直接读取application.yml配置文件中的配置信息。<br>使用<code>@ConfigurationProperties</code>也可以读取application.yml文件中的配置信息。<br>使用<code>@ConfigurationProperties</code>和<code>@PropertySource</code>可以读取指定properties配置文件中的配置信息。</p>
@@ -596,6 +597,14 @@ public class Rrc &#123;
     &#125;
 &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
+<p><code>@ConfigurationProperties</code>注解能够很轻松的从配置文件中取值，优点如下：</p>
+<ol>
+<li>支持批量的注入属性，只需要指定一个前缀<code>prefix</code></li>
+<li>支持复杂的数据类型，比如<code>List</code>、<code>Map</code></li>
+<li>对属性名匹配的要求较低，比如<code>user-name</code>，<code>user_name</code>，<code>userName</code>，<code>USER_NAME</code>都可以取值</li>
+<li>支持JAVA的JSR303数据校验</li>
+</ol>
+<p><strong>注意：<code>@ConfigurationProperties</code>这个注解仅仅是支持从Spring Boot的默认配置文件中取值，比如<code>application.properties</code>、<code>application.yml</code></strong></p>
 <blockquote>
 <h3 id="多环境配置"><a href="#多环境配置" class="headerlink" title="多环境配置"></a>多环境配置</h3></blockquote>
 <p>自定义配置文件是我们日常开发中经常会使用的资源，而spring只提供了类似application-* 的这中匹配方式，并不支持我们自定义的配置文件名称，例如：customize-dev.properties,但是spring提供了一个注解可以方便加载我们的自定义配置文件，它就是@PropertySource</p>
@@ -646,6 +655,10 @@ public class Rrc &#123;
 <p>启动参数：</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">-Dcustomize.profiles.active&#x3D;dev<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
+<blockquote>
+<h3 id="自定义配置文件获取值"><a href="#自定义配置文件获取值" class="headerlink" title="自定义配置文件获取值"></a>自定义配置文件获取值</h3></blockquote>
+<p>Spring Boot在启动的时候会自动加载<code>application.xxx</code>和<code>bootsrap.xxx</code>，但是为了区分，有时候需要自定义一个配置文件，那么如何从自定义的配置文件中取值呢？此时就需要配合<code>@PropertySource</code>这个注解使用了。</p>
+<p>只需要在配置类上标注<code>@PropertySource</code>并指定你自定义的配置文件即可完成。如下</p>
 
                 
             </div>

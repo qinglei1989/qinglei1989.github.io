@@ -635,7 +635,7 @@ public class RedisConfig &#123;
         return redisTemplate;
     &#125;
 
-    &#x2F;&#x2F;redis键序列化使用StrngRedisSerializer
+    &#x2F;&#x2F;redis键序列化使用StringRedisSerializer
     private RedisSerializer&lt;String&gt; keySerializer() &#123;
         return new StringRedisSerializer();
     &#125;
@@ -724,6 +724,50 @@ public class RedisConfig &#123;
 Caused by: io.lettuce.core.RedisCommandExecutionException: ERR invalid password
 	at io.lettuce.core.internal.ExceptionFactory.createExecutionException(ExceptionFactory.java:137)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
+<h4 id="RedisTemplate-和-StringRedisTemplate"><a href="#RedisTemplate-和-StringRedisTemplate" class="headerlink" title="RedisTemplate 和 StringRedisTemplate"></a>RedisTemplate 和 StringRedisTemplate</h4><p><strong>RedisTemplate</strong></p>
+<p>Springboot2后在Lettuce的redis客户端基础上进一步封装，于是就形成了RedisTemplate</p>
+<p><img src="/2021/08/01/spring-boot-redis/serialization.png" alt="默认使用JDK序列化策略"></p>
+<p><strong>StringRedisTemplate</strong></p>
+<p>StringRedisTemplate介绍</p>
+<p>1、StringRedisTemplate继承RedisTemplate，是springboot中针对操作字符串类型数据推出的redis客户端工具 。</p>
+<p>2、只能用于操作String类型。</p>
+<p>3、StringRedisTemplate操作字符串数据结构的对象：</p>
+<p>  ValueOperations = stringRedisTemplate.opsForValue() 。</p>
+<p>4、使用String序列化策略。</p>
+<p><img src="/2021/08/01/spring-boot-redis/string.png" alt="StringRedisSerializer"></p>
+<p><img src="/2021/08/01/spring-boot-redis/hexoBlog\source_posts\spring-boot-redis\string-1.png" alt="image-20221002225716460"></p>
+<p><strong>RedisTemplate和StringRedisTemplate数据不互通的根本原因是两者的序列化方式不一致。</strong></p>
+<p>分布式锁：</p>
+<p><a target="_blank" rel="noopener" href="https://www.sevenyuan.cn/2020/04/04/redis/2020-04-04-annotation-redis-lock/#more">https://www.sevenyuan.cn/2020/04/04/redis/2020-04-04-annotation-redis-lock/#more</a></p>
+<h4 id="redis客户端连接，最大连接数查询与设置"><a href="#redis客户端连接，最大连接数查询与设置" class="headerlink" title="redis客户端连接，最大连接数查询与设置"></a>redis客户端连接，最大连接数查询与设置</h4><p>info clients可以查看当前的redis连接数</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">Redis&gt;info clients
+&#123;
+    &quot;client_recent_max_output_buffer&quot;: 0, 
+    &quot;blocked_clients&quot;: 0, 
+    &quot;connected_clients&quot;: 134, &#x2F;&#x2F;说明:客户端连接数
+    &quot;client_recent_max_input_buffer&quot;: 2
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>config get maxclients 可以查询redis允许的最大连接数</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">127.0.0.1:6379&gt; config get maxclients
+1) &quot;maxclients&quot;
+2) &quot;10000&quot;
+127.0.0.1:6379&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-none"><code class="language-none">1. 在2.6之后版本，可以修改最大连接数配置，默认10000，可以在redis.conf配置文件中修改
+# maxclients 10000
+2.config set maxclients num 可以设置redis允许的最大连接数
+127.0.0.1:6379&gt; CONFIG set maxclients 10
+OK
+127.0.0.1:6379&gt;
+3.启动redis.service服务时加参数--maxclients 100000来设置最大连接数限制
+redis-server --maxclients 100000 -f &#x2F;etc&#x2F;redis.conf<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>查看明细</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">127.0.0.1:6379&gt; client list
+id&#x3D;22 addr&#x3D;127.0.0.1:1311 fd&#x3D;12 name&#x3D; age&#x3D;56813 idle&#x3D;0 flags&#x3D;N db&#x3D;0 sub&#x3D;0 psub&#x3D;0 multi&#x3D;-1 qbuf&#x3D;26 qbuf-free&#x3D;32742 obl&#x3D;0 oll&#x3D;0 omem&#x3D;0 events&#x3D;r cmd&#x3D;client<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>每个字段含义：<br>addr:客户端的地址和端口<br>fd:套接字所使用的文件描述符<br>idle:以秒计算的空闲时长<br>flags:客户端 flag<br>db:该客户端正在使用的数据库 ID<br>sub:已订阅频道的数量<br>psub:已订阅模式的数量<br>multi:在事务中被执行的命令数量<br>qbuf:查询缓冲区的长度（字节为单位， 0 表示没有分配查询缓冲区）<br>qbuf-free:查询缓冲区剩余空间的长度（字节为单位， 0 表示没有剩余空间）<br>obl:输出缓冲区的长度（字节为单位， 0 表示没有分配输出缓冲区）<br>oll:输出列表包含的对象数量（当输出缓冲区没有剩余空间时，命令回复会以字符串对象的形式被入队到这个队列里）<br>omem:输出缓冲区和输出列表占用的内存总量<br>events:文件描述符事件<br>cmd:最近一次执行的命令</p>
 
                 
             </div>
