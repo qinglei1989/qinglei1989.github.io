@@ -704,6 +704,43 @@ public class RedisConfig &#123;
 
 &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
+<h4 id="发布订阅"><a href="#发布订阅" class="headerlink" title="发布订阅"></a>发布订阅</h4><p>消息发送</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">redisTemplate.convertAndSend(entry.getKey(), JSON.toJSONString(message));<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>Redis发布订阅频道信息获取</p>
+<p>Redis原生命令获取发布订阅频道信息为：<code>pubsub channels [pattern]</code>。但是我在开发的时候使用的客户端是redisTemplate。不支持上述命令。最后使用曲线救国的方式。因为我连接池使用的是jedis，而jedis支持该命令，所以写了个工具类进行转换。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">public class RedisChannelUtil &#123;
+    private RedisChannelUtil() &#123;
+
+    &#125;
+    &#x2F;**
+     * @Author Wangql
+     * @Description 获取Redis中的发布订阅频道名称 redisTemplate不支持此命令 使用底层jedis来执行
+     * @Date 18:47 2021&#x2F;7&#x2F;1
+     * @Param [redisTemplate]
+     * @return java.util.List&lt;java.lang.String&gt;
+     **&#x2F;
+    public static List&lt;String&gt; getPushRedisChannels(RedisTemplate redisTemplate) &#123;
+        RedisConnectionFactory connection &#x3D; redisTemplate.getConnectionFactory();
+        Jedis jedis &#x3D; null;
+        try &#123;
+
+            jedis &#x3D; (Jedis) connection.getConnection().getNativeConnection();
+			&#x2F;&#x2F; 使用的带前缀的模糊匹配
+            return jedis.pubsubChannels(PushConstant.REDIS_SERVICE_CHANNEL + &quot;*&quot;);
+
+        &#125; finally &#123;
+            if (jedis !&#x3D; null) &#123;
+                jedis.close();
+            &#125;
+        &#125;
+
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><em><strong>注意点：</strong></em></p>
+<p>org.springframework.data.redis.listener.ChannelTopic：一个确定的字符串<br>org.springframework.data.redis.listener.PatternTopic：基于模式匹配</p>
+<p>在使用ChannelTopic时可以使用pubsub channels [pattern]获取到对应的频道，但是在使用PatternTopic时使用pubsub channels [pattern]就存在获取不到相应频道的情况。使用时一定要注意！！！</p>
 <h4 id="踩坑记录"><a href="#踩坑记录" class="headerlink" title="踩坑记录"></a>踩坑记录</h4><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;SpringBoot 服务启动完毕&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
 2021-08-01 02:16:15.116 [main] INFO  org.springframework.boot.availability.ApplicationAvailabilityBean 75 logStateChange - Application availability state ReadinessState changed to ACCEPTING_TRAFFIC
 2021-08-01 02:16:15.813 [container-2] ERROR org.springframework.data.redis.listener.RedisMessageListenerContainer 651 handleSubscriptionException - Connection failure occurred. Restarting subscription task after 5000 ms

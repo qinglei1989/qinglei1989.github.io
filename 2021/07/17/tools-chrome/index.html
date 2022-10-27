@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="redis,缓存中间件,jedis,redis发布订阅,pubsub channels">
+    <meta name="keywords" content="google插件,Momentum,FeHelper">
     <meta name="description" content="失落时悄悄徘徊，伤感时默默遐想">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>redis -- 发布订阅 | 山西小魔头技术博客</title>
+    <title>Google常用插件 | 山西小魔头技术博客</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/8.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/13.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">redis -- 发布订阅</h1>
+                    <h1 class="description center-align post-title">Google常用插件</h1>
                 </div>
             </div>
         </div>
@@ -431,8 +431,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/redis/">
-                                <span class="chip bg-color">redis</span>
+                            <a href="/tags/%E5%AE%9E%E7%94%A8%E5%B7%A5%E5%85%B7/">
+                                <span class="chip bg-color">实用工具</span>
                             </a>
                         
                     </div>
@@ -443,8 +443,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/%E7%BC%93%E5%AD%98%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="post-category">
-                                缓存中间件
+                            <a href="/categories/%E5%BC%80%E5%8F%91%E6%8A%80%E5%B7%A7/" class="post-category">
+                                开发技巧
                             </a>
                         
                     </div>
@@ -456,7 +456,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2021-06-25
+                    2021-07-17
                 </div>
                 
 
@@ -480,132 +480,36 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>最近在工作中做一个实时推送的需求（消息不需要持久化，允许少量丢失），便使用了Redis的发布订阅模式来开发。顺带温习了一下Redis的相关操作。</p>
+                <p>分享常用的Google插件，提高开发效率。</p>
 <span id="more"></span>
 
-<h2 id="redis-–-发布订阅"><a href="#redis-–-发布订阅" class="headerlink" title="redis – 发布订阅"></a>redis – 发布订阅</h2><h3 id="RedisConfig配置"><a href="#RedisConfig配置" class="headerlink" title="RedisConfig配置"></a>RedisConfig配置</h3><pre class="line-numbers language-java" data-language="java"><code class="language-java">@Slf4j
-@Configuration
-public class RedisConfig &#123;
-
-    @Bean(name &#x3D; &quot;redisTemplate&quot;)
-    public RedisTemplate&lt;String,Object&gt; redisTemplate(RedisConnectionFactory redisConnectionFactory)&#123;
-        &#x2F;&#x2F;序列化配置
-        Jackson2JsonRedisSerializer&lt;Object&gt; jackson2JsonRedisSerializer &#x3D; new Jackson2JsonRedisSerializer&lt;Object&gt;(Object.class);
-        ObjectMapper objectMapper &#x3D; new ObjectMapper();
-        objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        jackson2JsonRedisSerializer.setObjectMapper(objectMapper);
-
-        StringRedisSerializer stringRedisSerializer &#x3D; new StringRedisSerializer();
-
-        RedisTemplate&lt;String,Object&gt; redisTemplate &#x3D; new RedisTemplate&lt;&gt;();
-        redisTemplate.setConnectionFactory(redisConnectionFactory);
-        redisTemplate.setKeySerializer(stringRedisSerializer);
-        redisTemplate.setHashKeySerializer(stringRedisSerializer);
-        redisTemplate.setValueSerializer(jackson2JsonRedisSerializer);
-        redisTemplate.setHashValueSerializer(jackson2JsonRedisSerializer);
-
-        log.info(&quot;[推送服务WS]自定义RedisTemplate加载完成&quot;);
-
-        return redisTemplate;
-    &#125;
-    
-    @Bean
-    RedisMessageListenerContainer container(RedisConnectionFactory redisConnectionFactory, MessageListenerAdapter listenerAdapter) &#123;
-        RedisMessageListenerContainer container &#x3D; new RedisMessageListenerContainer();
-        container.setConnectionFactory(redisConnectionFactory);
-
-        &#x2F;&#x2F; 以下为修改默认的序列化方式，网上大多数消息发布订阅都是String类型,但是实际中数据类型肯定不止String类型
-        Jackson2JsonRedisSerializer&lt;Object&gt; jackson2JsonRedisSerializer &#x3D; new Jackson2JsonRedisSerializer&lt;&gt;(Object.class);
-        ObjectMapper objectMapper &#x3D; new ObjectMapper();
-        objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        jackson2JsonRedisSerializer.setObjectMapper(objectMapper);
-
-        &#x2F;&#x2F; 收藏主题并绑定消息订阅处理器
-        listenerAdapter.setSerializer(jackson2JsonRedisSerializer);
-        container.addMessageListener(listenerAdapter, new ChannelTopic(PushConfig.PUSH_WS_CHANNEL));
-
-        return container;
-    &#125;
-
-    @Bean
-    MessageListenerAdapter commentListenerAdapter(ChannelReceiverService receiver) &#123;
-
-        return new MessageListenerAdapter(receiver);
-    &#125;
-&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h3 id="ChannelReceiverService消息接收类"><a href="#ChannelReceiverService消息接收类" class="headerlink" title="ChannelReceiverService消息接收类"></a>ChannelReceiverService消息接收类</h3><pre class="line-numbers language-java" data-language="java"><code class="language-java">@Slf4j
-@Service
-public class ChannelReceiverService implements MessageListener &#123;
-
-    @Override
-    public void onMessage(org.springframework.data.redis.connection.Message message, byte[] bytes) &#123;
-        String messageBody &#x3D; new String(message.getBody());
-        String channel &#x3D; new String(message.getChannel());
-        log.info(&quot;[推送服务WS][消息订阅] Redis Channel 接收到的消息为:[message &#123;&#125; channel &#123;&#125;]&quot;, messageBody, channel);
-        &#x2F;&#x2F; 通过JSON.parseObject将messageBody反序列化为Message对象
-        Message channelMsg &#x3D; JSON.parseObject((String) JSON.parse(messageBody), new TypeReference&lt;Message&gt;() &#123;&#125;);
-    &#125;
-&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h3 id="消息发送"><a href="#消息发送" class="headerlink" title="消息发送"></a>消息发送</h3><pre class="line-numbers language-java" data-language="java"><code class="language-java">redisTemplate.convertAndSend(entry.getKey(), JSON.toJSONString(message));<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<h3 id="Redis发布订阅频道信息获取"><a href="#Redis发布订阅频道信息获取" class="headerlink" title="Redis发布订阅频道信息获取"></a>Redis发布订阅频道信息获取</h3><p>Redis原生命令获取发布订阅频道信息为：<code>pubsub channels [pattern]</code>。但是我在开发的时候使用的客户端是redisTemplate。不支持上述命令。最后使用曲线救国的方式。因为我连接池使用的是jedis，而jedis支持该命令，所以写了个工具类进行转换。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">public class RedisChannelUtil &#123;
-    private RedisChannelUtil() &#123;
-
-    &#125;
-    &#x2F;**
-     * @Author Wangql
-     * @Description 获取Redis中的发布订阅频道名称 redisTemplate不支持此命令 使用底层jedis来执行
-     * @Date 18:47 2021&#x2F;7&#x2F;1
-     * @Param [redisTemplate]
-     * @return java.util.List&lt;java.lang.String&gt;
-     **&#x2F;
-    public static List&lt;String&gt; getPushRedisChannels(RedisTemplate redisTemplate) &#123;
-        RedisConnectionFactory connection &#x3D; redisTemplate.getConnectionFactory();
-        Jedis jedis &#x3D; null;
-        try &#123;
-
-            jedis &#x3D; (Jedis) connection.getConnection().getNativeConnection();
-			&#x2F;&#x2F; 使用的带前缀的模糊匹配
-            return jedis.pubsubChannels(PushConstant.REDIS_SERVICE_CHANNEL + &quot;*&quot;);
-
-        &#125; finally &#123;
-            if (jedis !&#x3D; null) &#123;
-                jedis.close();
-            &#125;
-        &#125;
-
-    &#125;
-&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p><em><strong>注意点：</strong></em></p>
-<p>org.springframework.data.redis.listener.ChannelTopic：一个确定的字符串<br>org.springframework.data.redis.listener.PatternTopic：基于模式匹配</p>
-<p>在使用ChannelTopic时可以使用pubsub channels [pattern]获取到对应的频道，但是在使用PatternTopic时使用pubsub channels [pattern]就存在获取不到相应频道的情况。使用时一定要注意！！！</p>
-<h3 id="获取Redis服务端信息命令"><a href="#获取Redis服务端信息命令" class="headerlink" title="获取Redis服务端信息命令"></a>获取Redis服务端信息命令</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">redis:0&gt;info server
-&quot;# Server
-redis_version:5.0.10 &#x2F;&#x2F;版本号
-redis_git_sha1:1c047b68
-redis_git_dirty:0
-redis_build_id:76de97c74f6945e9
-redis_mode:standalone
-os:Windows  
-arch_bits:64
-multiplexing_api:WinSock_IOCP
-atomicvar_api:pthread-mutex
-process_id:5496
-run_id:8365b19fdb796f8dc521652e8149a0d5a4f0eab7
-tcp_port:6888
-uptime_in_seconds:111990
-uptime_in_days:1
-hz:10
-configured_hz:10
-lru_clock:14721105
-executable:D:\Program Files\Redis\&quot;d:\program files\redis\redis-server.exe&quot;
-config_file:D:\Program Files\Redis\redis.windows-service.conf
-&quot;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<h3 id="Google常用插件"><a href="#Google常用插件" class="headerlink" title="Google常用插件"></a><strong>Google常用插件</strong></h3><blockquote>
+<h4 id="Momentum插件"><a href="#Momentum插件" class="headerlink" title="Momentum插件"></a>Momentum插件</h4></blockquote>
+<p>一个精美而简单的起始页空间，有助于提升我们的工作效率的</p>
+<ul>
+<li>每天一碗励志鸡汤</li>
+<li>设定每日目标/重点/意图</li>
+<li>待办事项列表跟踪任务</li>
+<li>查看天气预报</li>
+<li>标签页中显示书签栏</li>
+</ul>
+<p>从应用商店查找插件，添加到浏览器</p>
+<p><img src="/2021/07/17/tools-chrome/momentum.jpg" alt="添加到Chrome浏览器"></p>
+<p>首次安装输入昵称</p>
+<p><img src="/2021/07/17/tools-chrome/name.jpg" alt="输入姓名"></p>
+<p>输入邮箱</p>
+<p><img src="/2021/07/17/tools-chrome/email.jpg" alt="输入邮箱"></p>
+<p>输入密码</p>
+<p><img src="/2021/07/17/tools-chrome/password.jpg" alt="输入密码"></p>
+<p>设置每日目标/重点/意图</p>
+<p><img src="/2021/07/17/tools-chrome/target.jpg" alt="每日目标"></p>
+<p>现在我们就可以实用Momentum插件了，具体的设置都比较简单。</p>
+<p><img src="/2021/07/17/tools-chrome/install.png" alt="安装完成"></p>
+<blockquote>
+<h4 id="FeHelper前端插件"><a href="#FeHelper前端插件" class="headerlink" title="FeHelper前端插件"></a>FeHelper前端插件</h4></blockquote>
+<p><img src="/2021/07/17/tools-chrome/fehelper.png" alt="前端插件"></p>
+<p>大家可以根据自己的实际情况添加相应的功能，上图中我只添加了JSON美化和网页截屏。网页截屏我是为了使用其中的滚动截屏工具。</p>
+<p><img src="/2021/07/17/tools-chrome/rollup.png" alt="滚动截屏"></p>
 
                 
             </div>
@@ -632,7 +536,7 @@ config_file:D:\Program Files\Redis\redis.windows-service.conf
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://www.yipinxieli.com/2021/06/25/redis/">http://www.yipinxieli.com/2021/06/25/redis/</a>
+                    <a href="http://www.yipinxieli.com/2021/07/17/tools-chrome/">http://www.yipinxieli.com/2021/07/17/tools-chrome/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -670,8 +574,8 @@ config_file:D:\Program Files\Redis\redis.windows-service.conf
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/redis/">
-                                    <span class="chip bg-color">redis</span>
+                                <a href="/tags/%E5%AE%9E%E7%94%A8%E5%B7%A5%E5%85%B7/">
+                                    <span class="chip bg-color">实用工具</span>
                                 </a>
                             
                         </div>
@@ -847,44 +751,32 @@ config_file:D:\Program Files\Redis\redis.windows-service.conf
             <div class="article-badge left-badge text-color">
                 <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2021/06/29/git3/">
+                <a href="/2021/07/19/hello-world/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="Git(4) -- branch分支管理">
+                        <img src="/medias/featureimages/12.jpg" class="responsive-img" alt="Hello World">
                         
-                        <span class="card-title">Git(4) -- branch分支管理</span>
+                        <span class="card-title">Hello World</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            每一种版本控制系统都以某种形式支持分支。使用分支意味着你可以从开发主线上分离开来，然后在不影响主线的同时继续工作。
+                            
                         
                     </div>
                     <div class="publish-info">
                         <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2021-06-29
+                            <i class="far fa-clock fa-fw icon-date"></i>2021-07-19
                         </span>
                         <span class="publish-author">
                             
-                            <i class="fas fa-bookmark fa-fw icon-category"></i>
-                            
-                            <a href="/categories/%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/" class="post-category">
-                                    版本控制
-                                </a>
-                            
+                            <i class="fas fa-user fa-fw"></i>
+                            WangQingLei
                             
                         </span>
                     </div>
-                </div>
-                
-                <div class="card-action article-tags">
-                    
-                    <a href="/tags/git/">
-                        <span class="chip bg-color">git</span>
-                    </a>
-                    
                 </div>
                 
             </div>
@@ -896,28 +788,24 @@ config_file:D:\Program Files\Redis\redis.windows-service.conf
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2021/06/16/git2/">
+                <a href="/2021/07/12/git6/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/6.jpg" class="responsive-img" alt="Git(3) -- 查看提交历史">
+                        <img src="/medias/featureimages/0.jpg" class="responsive-img" alt="Git(7) -- git restore">
                         
-                        <span class="card-title">Git(3) -- 查看提交历史</span>
+                        <span class="card-title">Git(7) -- git restore</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            Git 提交历史一般常用两个命令：
-
-git log - 查看历史提交记录。
-git blame  - 以列表形式查看指定文件的历史修改记录。
-
+                            
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2021-06-16
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-07-12
                             </span>
                         <span class="publish-author">
                             

@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="Notepad++数据批量处理技巧, JAVA">
+    <meta name="keywords" content="spring,mybatisPlus,SpringBoot,spring-boot-starter-data-redis">
     <meta name="description" content="失落时悄悄徘徊，伤感时默默遐想">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>Notepad++数据批量处理技巧 | 山西小魔头技术博客</title>
+    <title>spring-boot-mybatis-plus | 山西小魔头技术博客</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/18.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/15.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">Notepad++数据批量处理技巧</h1>
+                    <h1 class="description center-align post-title">spring-boot-mybatis-plus</h1>
                 </div>
             </div>
         </div>
@@ -431,8 +431,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/%E5%AE%9E%E7%94%A8%E5%B7%A5%E5%85%B7/">
-                                <span class="chip bg-color">实用工具</span>
+                            <a href="/tags/spring-boot/">
+                                <span class="chip bg-color">spring-boot</span>
                             </a>
                         
                     </div>
@@ -443,8 +443,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/%E5%BC%80%E5%8F%91%E6%8A%80%E5%B7%A7/" class="post-category">
-                                开发技巧
+                            <a href="/categories/Spring/" class="post-category">
+                                Spring
                             </a>
                         
                     </div>
@@ -456,7 +456,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2021-06-04
+                    2022-10-04
                 </div>
                 
 
@@ -480,71 +480,69 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>Notepad++是Windows下一款很好用的文本编辑器。对于大量文本内容的查找和批量处理很高效。</p>
+                <p>记录Springboot整合mybatis-plus中遇到的问题。</p>
 <span id="more"></span>
 
-<center><h2>Notepad++实用技巧</h2></center>
+<h3 id="Springboot整合mybatis-plus"><a href="#Springboot整合mybatis-plus" class="headerlink" title="Springboot整合mybatis-plus"></a>Springboot整合mybatis-plus</h3><blockquote>
+<h4 id="引入Maven依赖"><a href="#引入Maven依赖" class="headerlink" title="引入Maven依赖"></a>引入Maven依赖</h4></blockquote>
+<p>POM文件</p>
+<pre class="line-numbers language-xml" data-language="xml"><code class="language-xml"><span class="token comment">&lt;!--添加父工程依赖--></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>parent</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>org.springframework.boot<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>spring-boot-starter-parent<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>2.5.0<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>relativePath</span><span class="token punctuation">/></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>parent</span><span class="token punctuation">></span></span>
 
-<h4 id="查找操作技巧"><a href="#查找操作技巧" class="headerlink" title="查找操作技巧"></a>查找操作技巧</h4><p>在软件开发过程中，如果我们的代码出现异常，有时候我们需要从日志中提取相应的信息，进行异常补偿。此时我们就可以使用NodePad++的批量操作来快速定位相应的关键信息（比如数据ID等)。</p>
-<p>如下例使用Nodepad++打开日志文件，我们在日志文件中使用Ctrl+F查找关键字”axb录音发送延迟队列成功”，然后点击在当前文件中查找按钮进行快速查找。<br><img src="/2021/06/04/notepad/image-20210604233935233.png" alt="image-20210604233935233"></p>
-<p>相应的搜索结果及匹配次数就会显示在Notepad++下方的搜索结果里，如果我们需要进一步的根据搜索结果拿到全部匹配日志中的uniqueId列，我们需要将搜索结果中的记录集复制到一个新文档中继续批量操作<br><img src="/2021/06/04/notepad/image-20210604234541851.png" alt="image-20210604234541851"></p>
-<p>在新文档中，由于日志基本上都是按固定格式排列的，此时我们就可以通过批量操作快速找到我们需要使用的数据。我们依然通过快速获取全部的uniqueId列来进行举例。<br><img src="/2021/06/04/notepad/image-20210604235550959.png" alt="image-20210604235550959"></p>
-<h3 id="批量操作技巧"><a href="#批量操作技巧" class="headerlink" title="批量操作技巧"></a>批量操作技巧</h3><p>首先我们将光标定位在uniqueId列等号后，此时将文档下拉到尾部，在最后一行的uniqueId列等号后，按住Alt+Shift，再次点击鼠标，此时会有一条闪烁的直线在所有的uniqueId列等号后（说明操作块行选择完成），此时依然按住Alt+Shift，再次将光标定位到uniqueId列，前边完成块的选择，此时文档块为灰色选中状态。<br><img src="/2021/06/04/notepad/image-20210605000626855.png" alt="image-20210605000626855"></p>
-<p>再次按下Ctrl+C复制当前的选中块，在文档中进行黏贴，就完成了全部uniqueId的统计了。</p>
-<p><img src="/2021/06/04/notepad/image-20210605000758427.png" alt="image-20210605000758427"></p>
-<p>有的时候我们需要根据这些ID来进行SQL的拼接，Nodepad++比较适合少量简单数据的SQL拼接工作，十分方便。我们将光标定位在第一行行首。在最后一行行首按住Alt+Shift，再次点击鼠标。此时会有一条闪烁的直线在所有行行首，我们直接输入语句（INSERT INTO TABLE VALUES (），它会填充到每个行。</p>
-<p><img src="/2021/06/04/notepad/image-20210605001631622.png" alt="image-20210605001631622"></p>
-<p>至此Nodepad++批量操作的技巧就介绍完毕了。</p>
+
+<span class="token comment">&lt;!--添加mybatis-plus相关依赖--></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>com.baomidou<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>mybatis-plus-boot-starter<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>3.3.2<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>application.yml</p>
+<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml">mybatis-plus:
+  mapper-locations: classpath:&#x2F;mapper&#x2F;*.xml
+  # 支持统配符 * 或者 ; 分割
+  typeEnumsPackage: com.wql.enums
+  configuration:
+    # 是否将sql打印到控制面板(该配置会将sql语句和查询的结果都打印到控制台)
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: delFlag  # 全局逻辑删除的实体字段名(since 3.3.0,配置后可以忽略不配置步骤2)
+      logic-delete-value: 0 # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 1 # 逻辑未删除值(默认为 0)
+      id-type: auto<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>属性说明：</p>
+<p>map-underscore-to-camel-case为true来开启驼峰功能，在mybatis-plus默认为开启状态</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">package com.baomidou.mybatisplus.core;
+
+&#x2F;**
+ * replace default Configuration class
+ * &lt;p&gt;Caratacus 2016&#x2F;9&#x2F;25 replace mapperRegistry&lt;&#x2F;p&gt;
+ *
+ * @author hubin
+ * @since 2016-01-23
+ *&#x2F;
+public class MybatisConfiguration extends Configuration &#123;
+
+    &#x2F;**
+     * 初始化调用
+     *&#x2F;
+    public MybatisConfiguration() &#123;
+        super();
+        this.mapUnderscoreToCamelCase &#x3D; true;
+        languageRegistry.setDefaultDriverClass(MybatisXMLLanguageDriver.class);
+    &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>db-column-underline为true来开启驼峰功能。<br>只要设置db-column-underline与map-underscore-to-camel-case任意一个参数为true，实体类的字段都会自动转下划线的格式。</p>
+<p><strong>map-underscore-to-camel-case &gt; db-column-underline 为了歧义新版去掉 db-column-underline</strong></p>
 <blockquote>
-<p><strong>切记：</strong></p>
-</blockquote>
-<p>先定位行，再定义列，就完成了块的选择操作</p>
-<p>先定位行就可以完成批量插入操作</p>
-<h3 id="去除不必要的换行和空格"><a href="#去除不必要的换行和空格" class="headerlink" title="去除不必要的换行和空格"></a>去除不必要的换行和空格</h3><p>有时候我们需要将多行数据转换到一行，可以通过如下操作来实现，如下，我们要将这个SQL转成一行，在Navicat中可以通过简化SQL来实现，在Notepad++中，则通过<code>移除非必需的空白和EOL</code>来实现。</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">SELECT
-    temp.city as &#39;城市&#39;,
-    users.&#96;name&#96; AS &#39;子账号姓名&#39;,
-    users.mobile as &#39;子账号联系方式&#39;,
-    users.created_at as &#39;账号创建时间&#39;,
-  CASE when   users.user_status &#x3D; 2 then &#39;禁用&#39;
-        when   users.user_status &#x3D; 3 then &#39;离职&#39;
-        when   users.user_status &#x3D; 0 then &#39;正常&#39;
-        when   users.user_status &#x3D; 1 then &#39;未激活&#39; end as &#39;账号状态&#39;,
-    temp.group_leader_name AS &#39;主账号姓名&#39;,
-    temp.mobile AS &#39;主账号联系方式&#39;
-FROM
-    users
-JOIN (
-    SELECT
-        gu.user_id,
-        uc.group_leader_id,
-        group_leader_name,
-        uc.city, u.mobile
-    FROM
-        group_user gu
-    JOIN user_city_area_group uc ON gu.group_id &#x3D; uc.id join users u on uc.group_leader_id &#x3D; u.id
-    AND uc.city IN (&#39;长沙&#39;, &#39;广州&#39;)
-) temp ON users.user_id &#x3D; temp.user_id<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p><img src="/2021/06/04/notepad/space.png" alt="移除非必需的空白和EOL"></p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">SELECT     temp.city as &#39;城市&#39;,     users.&#96;name&#96; AS &#39;子账号姓名&#39;,     users.mobile as &#39;子账号联系方式&#39;,     users.created_at as &#39;账号创建时间&#39;,   CASE when   users.user_status &#x3D; 2 then &#39;禁用&#39;         when   users.user_status &#x3D; 3 then &#39;离职&#39;         when   users.user_status &#x3D; 0 then &#39;正常&#39;         when   users.user_status &#x3D; 1 then &#39;未激活&#39; end as &#39;账号状态&#39;,     temp.group_leader_name AS &#39;主账号姓名&#39;,     temp.mobile AS &#39;主账号联系方式&#39; FROM     users JOIN (     SELECT         gu.user_id,         uc.group_leader_id,         group_leader_name,         uc.city, u.mobile     FROM         group_user gu     JOIN user_city_area_group uc ON gu.group_id &#x3D; uc.id join users u on uc.group_leader_id &#x3D; u.id     AND uc.city IN (&#39;长沙&#39;, &#39;广州&#39;) ) temp ON users.user_id &#x3D; temp.user_id<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<h3 id="行列转换"><a href="#行列转换" class="headerlink" title="行列转换"></a>行列转换</h3><blockquote>
-<p>行转列</p>
-</blockquote>
-<p>Ctrl + F  选择替换</p>
-<p>　　查找目标：填写指定的内容</p>
-<p>　　替换为：\r\n</p>
-<p>　　查找模式：正则表达式</p>
-<p>单击替换或全部替换按钮</p>
-<blockquote>
-<p>列转行</p>
-</blockquote>
-<p>Ctrl + F  选择替换</p>
-<p>　　查找目标：\r\n</p>
-<p>　　替换为：不填写或填写指定的内容</p>
-<p>　　查找模式：正则表达式</p>
-<p>单击替换或全部替换按钮</p>
+<h4 id="动态数据源"><a href="#动态数据源" class="headerlink" title="动态数据源"></a>动态数据源</h4></blockquote>
 
                 
             </div>
@@ -571,7 +569,7 @@ JOIN (
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://www.yipinxieli.com/2021/06/04/notepad/">http://www.yipinxieli.com/2021/06/04/notepad/</a>
+                    <a href="http://www.yipinxieli.com/2022/10/04/spring-boot-mybatis-plus/">http://www.yipinxieli.com/2022/10/04/spring-boot-mybatis-plus/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -609,8 +607,8 @@ JOIN (
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/%E5%AE%9E%E7%94%A8%E5%B7%A5%E5%85%B7/">
-                                    <span class="chip bg-color">实用工具</span>
+                                <a href="/tags/spring-boot/">
+                                    <span class="chip bg-color">spring-boot</span>
                                 </a>
                             
                         </div>
@@ -786,44 +784,32 @@ JOIN (
             <div class="article-badge left-badge text-color">
                 <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2021/06/09/MybatisPlus1/">
+                <a href="/2022/10/25/docker-rabbitmq/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/15.jpg" class="responsive-img" alt="MyBatis-Plus学习(2)">
+                        <img src="/medias/featureimages/3.jpg" class="responsive-img" alt="docker-rabbitmq">
                         
-                        <span class="card-title">MyBatis-Plus学习(2)</span>
+                        <span class="card-title">docker-rabbitmq</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            MybatisPlus常用操作的熟悉了解。快速迭代开发技巧熟悉，相关知识点总结记录。后续加入复杂查询及分页等。
+                            
                         
                     </div>
                     <div class="publish-info">
                         <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2021-06-09
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-10-25
                         </span>
                         <span class="publish-author">
                             
-                            <i class="fas fa-bookmark fa-fw icon-category"></i>
-                            
-                            <a href="/categories/%E6%8C%81%E4%B9%85%E5%B1%82/" class="post-category">
-                                    持久层
-                                </a>
-                            
+                            <i class="fas fa-user fa-fw"></i>
+                            WangQingLei
                             
                         </span>
                     </div>
-                </div>
-                
-                <div class="card-action article-tags">
-                    
-                    <a href="/tags/MyBatis-Plus/">
-                        <span class="chip bg-color">MyBatis-Plus</span>
-                    </a>
-                    
                 </div>
                 
             </div>
@@ -835,31 +821,31 @@ JOIN (
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2021/06/04/MybatisPlus0/">
+                <a href="/2022/10/04/spring-boot-tomcat/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/22.jpg" class="responsive-img" alt="MyBatis-Plus学习(1)">
+                        <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="spring-boot-tomcat">
                         
-                        <span class="card-title">MyBatis-Plus学习(1)</span>
+                        <span class="card-title">spring-boot-tomcat</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            一个Mybatis的增强工具，在 MyBatis 的基础上只做增强不做改变，为简化开发、提高效率而生。
+                            最近在工作中做一个实时推送的需求（消息不需要持久化，允许少量丢失），便使用了Redis的发布订阅模式来开发。顺带温习了一下Redis的相关操作。
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2021-06-04
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-10-04
                             </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/%E6%8C%81%E4%B9%85%E5%B1%82/" class="post-category">
-                                    持久层
+                            <a href="/categories/Spring/" class="post-category">
+                                    Spring
                                 </a>
                             
                             
@@ -869,8 +855,8 @@ JOIN (
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/MyBatis-Plus/">
-                        <span class="chip bg-color">MyBatis-Plus</span>
+                    <a href="/tags/spring-boot/">
+                        <span class="chip bg-color">spring-boot</span>
                     </a>
                     
                 </div>
