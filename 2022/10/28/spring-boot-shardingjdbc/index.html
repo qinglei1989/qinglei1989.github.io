@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="spring-boot-shardingjdbc, JAVA">
+    <meta name="keywords" content="spring,mysql,SpringBoot,sharding-jdbc-spring-boot-starter">
     <meta name="description" content="失落时悄悄徘徊，伤感时默默遐想">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -429,12 +429,25 @@
             <div class="row tag-cate">
                 <div class="col s7">
                     
-                          <div class="article-tag">
-                            <span class="chip bg-color">无标签</span>
-                          </div>
+                    <div class="article-tag">
+                        
+                            <a href="/tags/spring-boot/">
+                                <span class="chip bg-color">spring-boot</span>
+                            </a>
+                        
+                    </div>
                     
                 </div>
                 <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/Spring/" class="post-category">
+                                Spring
+                            </a>
+                        
+                    </div>
                     
                 </div>
             </div>
@@ -467,10 +480,654 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>记录Springboot整合redis中遇到的问题。</p>
+                <p>Mysql数据库架构演进从单机到主从到分库分表在数据量及访问压力不是特别大的情况，首先考虑缓存、读写分离、索引技术等方案</p>
+<ul>
+<li>如果数据量极大，且业务持续增长快，再考虑分库分表方案</li>
+</ul>
 <span id="more"></span>
 
-<h3 id="Springboot整合redis"><a href="#Springboot整合redis" class="headerlink" title="Springboot整合redis"></a>Springboot整合redis</h3><h4 id="相关配置"><a href="#相关配置" class="headerlink" title="相关配置"></a>相关配置</h4>
+<h1 id="Sharding-JDBC学习"><a href="#Sharding-JDBC学习" class="headerlink" title="Sharding-JDBC学习"></a>Sharding-JDBC学习</h1><blockquote>
+<h3 id="Mysql数据库架构演变历史"><a href="#Mysql数据库架构演变历史" class="headerlink" title="Mysql数据库架构演变历史"></a>Mysql数据库架构演变历史</h3></blockquote>
+<ul>
+<li><p>单机</p>
+<p>请求量大查询慢</p>
+<p>单机故障导致业务不可用</p>
+</li>
+<li><p>主从</p>
+<p>数据库主从同步，从库可以水平扩展，满足更大读需求</p>
+<p>但单服务器TPS，内存，IO都是有限的</p>
+</li>
+</ul>
+<ul>
+<li><p>分库分表</p>
+<p>解决数据库本身瓶颈，包括连接数过多等。分库可以解决单台数据库的并发访问压力问题。分表可以解决单表海量数据的查询性能问题</p>
+<p>解决系统本身IO、CPU瓶颈</p>
+</li>
+</ul>
+<blockquote>
+<h3 id="分库分表"><a href="#分库分表" class="headerlink" title="分库分表"></a>分库分表</h3></blockquote>
+<h4 id="垂直分表"><a href="#垂直分表" class="headerlink" title="垂直分表"></a>垂直分表</h4><p>“大表拆小表”，基于列字段进行的。</p>
+<ul>
+<li>拆分原则一般是表中的字段较多，将不常用的或者数据较大，长度较长的拆分到“扩展表 如text类型字段</li>
+<li>访问频次低、字段大的商品描述信息单独存放在一张表中，访问频次较高的商品基本信息单独放在一张表中</li>
+</ul>
+<h4 id="垂直分库"><a href="#垂直分库" class="headerlink" title="垂直分库"></a>垂直分库</h4><ul>
+<li>垂直分库能够突破IO、连接数及单机硬件资源的瓶颈。垂直分库可以更好解决业务层面的耦合，业务清晰，且方便管理和维护</li>
+<li>一般从单体项目根据不同业务进行拆分改造为微服务项目，就是垂直分库</li>
+<li>垂直分库分表可以提高并发，但是依然没有解决单表数据量过大的问题</li>
+</ul>
+<h4 id="水平分表"><a href="#水平分表" class="headerlink" title="水平分表"></a>水平分表</h4><ul>
+<li>把一张大表拆分成N个小表，表结构一样，但数据不一样，每张表只有部分数据，全部表的数据合起来就是全部数据</li>
+<li>但是这些表还是在同一个库中，所以单数据库操作还是有IO瓶颈，主要是解决单表数据量过大的问题</li>
+</ul>
+<h4 id="水平分库"><a href="#水平分库" class="headerlink" title="水平分库"></a>水平分库</h4><ul>
+<li>把同个表的数据按照一定规则分到不同的数据库中，数据库在不同的服务器上</li>
+<li>每个库的结构都一样,但每个库的数据都不一样，没有交集，所有库的并集就是全量数据</li>
+<li>水平分库的粒度，比水平分表更大</li>
+</ul>
+<p><strong>常规开发里面单表建议1千万内，推荐是百万级别单表存储，常规sql和索引优化先行，然后结合缓存+异步+nosql+mq</strong></p>
+<blockquote>
+<h3 id="水平分库分表常见策略讲解"><a href="#水平分库分表常见策略讲解" class="headerlink" title="水平分库分表常见策略讲解"></a>水平分库分表常见策略讲解</h3></blockquote>
+<h4 id="range"><a href="#range" class="headerlink" title="range"></a>range</h4><p>方案一：自增id，根据ID范围进行分表（左闭右开）</p>
+<p>优点是id是自增长，可以无限增长。扩容不用迁移数据，容易理解和维护</p>
+<p>缺点是大部分读和写都访会问新的数据，有IO瓶颈，整体资源利用率低。数据倾斜严重，热点数据过于集中，部分节点有瓶颈</p>
+<h4 id="range延伸"><a href="#range延伸" class="headerlink" title="range延伸"></a>range延伸</h4><p>时间：年、月、日范围，比如按照月份生成 库或表 pay_log_2022_01、pay_log_2022_02</p>
+<p>空间：地理位置：省份、区域（华东、华北、华南）比如按照 省份 生成 库或表</p>
+<h4 id="Hash取模"><a href="#Hash取模" class="headerlink" title="Hash取模"></a>Hash取模</h4><p>Hash分库分表是最普遍的方案。保证数据较均匀的分散落在不同的库、表中，可以有效的避免热点数据集中问题。缺点是扩容不是很方便，需要数据迁移</p>
+<blockquote>
+<h3 id="分库分表常见中间件介绍"><a href="#分库分表常见中间件介绍" class="headerlink" title="分库分表常见中间件介绍"></a>分库分表常见中间件介绍</h3></blockquote>
+<p><strong>Mycat</strong></p>
+<ul>
+<li>地址 <a target="_blank" rel="noopener" href="http://www.mycat.org.cn/">http://www.mycat.org.cn/</a></li>
+<li>Java语言编写的MySQL数据库网络协议的开源中间件，前身 Cobar</li>
+<li>遵守Mysql原生协议，跨语言，跨平台，跨数据库的通用中间件代理</li>
+<li>是基于 Proxy，它复写了 MySQL 协议，将 Mycat Server 伪装成一个 MySQL 数据库</li>
+<li>和ShardingShere下的Sharding-Proxy作用类似，需要单独部署</li>
+</ul>
+<p><img src="/2022/10/28/spring-boot-shardingjdbc/mycat.png" alt="Mycat"></p>
+<p><strong>ShardingSphere 下的Sharding-JDBC</strong></p>
+<ul>
+<li>地址：<a target="_blank" rel="noopener" href="https://shardingsphere.apache.org/">https://shardingsphere.apache.org/</a></li>
+<li>Apache ShardingSphere 是一套开源的分布式数据库中间件解决方案组成的生态圈<ul>
+<li>它由 Sharding-JDBC、Sharding-Proxy 和 Sharding-Sidecar 3个独立产品组合</li>
+</ul>
+</li>
+<li>Sharding-JDBC<ul>
+<li>基于jdbc驱动，不用额外的proxy，支持任意实现 JDBC 规范的数据库</li>
+<li>它使用客户端直连数据库，以 jar 包形式提供服务，无需额外部署和依赖</li>
+<li>可理解为加强版的 JDBC 驱动，兼容 JDBC 和各类 ORM 框架</li>
+</ul>
+</li>
+</ul>
+<p><img src="/2022/10/28/spring-boot-shardingjdbc/sharding-jdbc.png" alt="sharding-jdbc.png"></p>
+<p>二者之间的区别：</p>
+<ul>
+<li>两者设计理念相同，主流程都是SQL解析–&gt;SQL路由–&gt;SQL改写–&gt;结果归并</li>
+<li>sharding-jdbc<ul>
+<li>基于jdbc驱动，不用额外的proxy，在本地应用层重写Jdbc原生的方法，实现数据库分片形式</li>
+<li>是基于 JDBC 接口的扩展，是以 jar 包的形式提供轻量级服务的，性能高</li>
+<li>代码有侵入性</li>
+</ul>
+</li>
+<li>Mycat<ul>
+<li>是基于 Proxy，它复写了 MySQL 协议，将 Mycat Server 伪装成一个 MySQL 数据库</li>
+<li>客户端所有的jdbc请求都必须要先交给MyCat，再有MyCat转发到具体的真实服务器</li>
+<li>缺点是效率偏低，中间包装了一层</li>
+<li>代码无侵入性</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<h3 id="分库分表基础概念"><a href="#分库分表基础概念" class="headerlink" title="分库分表基础概念"></a>分库分表基础概念</h3></blockquote>
+<ul>
+<li>数据节点Node<ul>
+<li>数据分片的最小单元，由数据源名称和数据表组成<code>ds_0.product_order_0</code></li>
+</ul>
+</li>
+<li>真实表<ul>
+<li>在分片的数据库中真实存在的物理表,比如订单表 product_order_0、product_order_1、product_order_2</li>
+</ul>
+</li>
+<li>逻辑表<ul>
+<li>水平拆分的数据库（表）的相同逻辑和数据结构表的总称,比如订单表 product_order_{0..1}逻辑表就是product_order</li>
+</ul>
+</li>
+<li>绑定表<ul>
+<li>指分片规则一致的主表和子表</li>
+<li>比如product_order表和product_order_item表，均按照order_id分片，则此两张表互为绑定表关系</li>
+<li>绑定表之间的多表关联查询不会出现笛卡尔积关联，关联查询效率将大大提升</li>
+</ul>
+</li>
+<li>广播表<ul>
+<li>指所有的分片数据源中都存在的表，表结构和表中的数据在每个数据库中均完全一致</li>
+<li>适用于数据量不大且需要与海量数据的表进行关联查询的场景</li>
+<li>例如：字典表、配置表</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<h3 id="分库分表和Sharding-Jdbc常见分片算法讲解"><a href="#分库分表和Sharding-Jdbc常见分片算法讲解" class="headerlink" title="分库分表和Sharding-Jdbc常见分片算法讲解"></a>分库分表和Sharding-Jdbc常见分片算法讲解</h3></blockquote>
+<p>数据库表分片（水平库、表）,包含分片键和分片策略</p>
+<ul>
+<li><p>分片键 (PartitionKey)</p>
+<ul>
+<li>用于分片的数据库字段，是将数据库(表)水平拆分的关键字段, ShardingSphere也支持根据多个字段进行分片</li>
+</ul>
+</li>
+<li><p>分片策略</p>
+<ul>
+<li><p>行表达式分片策略 InlineShardingStrategy（<strong>必备</strong>）</p>
+<p>只支持【<strong>单分片键</strong>】使用Groovy的表达式，提供对SQL语句中的 =和IN 的分片操作支持,可以通过简单的配置使用，无需自定义分片算法，从而避免繁琐的Java代码开发</p>
+</li>
+<li><p>标准分片策略StandardShardingStrategy</p>
+<p>只支持【<strong>单分片键</strong>】，提供PreciseShardingAlgorithm和RangeShardingAlgorithm两个分片算法</p>
+<p>PreciseShardingAlgorithm 精准分片 是必选的，用于处理=和IN的分片</p>
+<p>RangeShardingAlgorithm 范围分配 是可选的，用于处理BETWEEN AND分片</p>
+<p>如果不配置RangeShardingAlgorithm，如果SQL中用了BETWEEN AND语法，则将按照全库路由处理，性能下降</p>
+</li>
+<li><p>复合分片策略ComplexShardingStrategy（需了解）</p>
+<p>支持【<strong>多分片键</strong>】，多分片键之间的关系复杂，由开发者自己实现，提供最大的灵活度</p>
+<p>提供对SQL语句中的=, IN和BETWEEN AND的分片操作支持</p>
+</li>
+<li><p>Hint分片策略HintShardingStrategy（需了解）</p>
+<p>这种分片策略无需配置分片健，分片健值也不再从 SQL中解析，外部手动指定分片健或分片库，让 SQL在指定的分库、分表中执行</p>
+<p>用于处理使用Hint行分片的场景，通过Hint而非SQL解析的方式分片的策略</p>
+<p>Hint策略会绕过SQL解析的，对于这些比较复杂的需要分片的查询，Hint分片策略性能可能会更好</p>
+</li>
+<li><p>不分片策略 NoneShardingStrategy</p>
+</li>
+<li><p>不分片的策略。</p>
+</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<h3 id="springboot整合shardingjdbc"><a href="#springboot整合shardingjdbc" class="headerlink" title="springboot整合shardingjdbc"></a>springboot整合shardingjdbc</h3></blockquote>
+<p>框架版本说明</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">&lt;properties&gt;
+    &lt;maven.compiler.source&gt;8&lt;&#x2F;maven.compiler.source&gt;
+    &lt;maven.compiler.target&gt;8&lt;&#x2F;maven.compiler.target&gt;
+    &lt;project.build.sourceEncoding&gt;UTF-8&lt;&#x2F;project.build.sourceEncoding&gt;
+    &lt;project.reporting.outputEncoding&gt;UTF-8&lt;&#x2F;project.reporting.outputEncoding&gt;
+    &lt;java.version&gt;1.8&lt;&#x2F;java.version&gt;
+    &lt;mybatis-plus.version&gt;3.4.0&lt;&#x2F;mybatis-plus.version&gt;
+    &lt;spring-boot.version&gt;2.5.0&lt;&#x2F;spring-boot.version&gt;
+    &lt;lombok.version&gt;1.18.16&lt;&#x2F;lombok.version&gt;
+    &lt;mysql.version&gt;8.0.25&lt;&#x2F;mysql.version&gt;
+    &lt;sharding-jdbc.version&gt;4.1.1&lt;&#x2F;sharding-jdbc.version&gt;
+&lt;&#x2F;properties&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>maven pom文件配置</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-web&lt;&#x2F;artifactId&gt;
+        &lt;version&gt;$&#123;spring-boot.version&#125;&lt;&#x2F;version&gt;
+    &lt;&#x2F;dependency&gt;
+
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-test&lt;&#x2F;artifactId&gt;
+        &lt;version&gt;$&#123;spring-boot.version&#125;&lt;&#x2F;version&gt;
+        &lt;scope&gt;test&lt;&#x2F;scope&gt;
+    &lt;&#x2F;dependency&gt;
+
+
+    &lt;!--mybatis plus和springboot整合--&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;com.baomidou&lt;&#x2F;groupId&gt;
+        &lt;artifactId&gt;mybatis-plus-boot-starter&lt;&#x2F;artifactId&gt;
+        &lt;version&gt;$&#123;mybatis-plus.version&#125;&lt;&#x2F;version&gt;
+    &lt;&#x2F;dependency&gt;
+
+    &lt;dependency&gt;
+        &lt;groupId&gt;mysql&lt;&#x2F;groupId&gt;
+        &lt;artifactId&gt;mysql-connector-java&lt;&#x2F;artifactId&gt;
+        &lt;version&gt;$&#123;mysql.version&#125;&lt;&#x2F;version&gt;
+    &lt;&#x2F;dependency&gt;
+
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.projectlombok&lt;&#x2F;groupId&gt;
+        &lt;artifactId&gt;lombok&lt;&#x2F;artifactId&gt;
+        &lt;version&gt;$&#123;lombok.version&#125;&lt;&#x2F;version&gt;
+        &lt;!--&lt;scope&gt;provided&lt;&#x2F;scope&gt;--&gt;
+    &lt;&#x2F;dependency&gt;
+
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.apache.shardingsphere&lt;&#x2F;groupId&gt;
+        &lt;artifactId&gt;sharding-jdbc-spring-boot-starter&lt;&#x2F;artifactId&gt;
+        &lt;version&gt;$&#123;sharding-jdbc.version&#125;&lt;&#x2F;version&gt;
+    &lt;&#x2F;dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;junit&lt;&#x2F;groupId&gt;
+        &lt;artifactId&gt;junit&lt;&#x2F;artifactId&gt;
+        &lt;version&gt;4.13&lt;&#x2F;version&gt;
+        &lt;scope&gt;test&lt;&#x2F;scope&gt;
+    &lt;&#x2F;dependency&gt;
+&lt;&#x2F;dependencies&gt;
+
+&lt;build&gt;
+    &lt;plugins&gt;
+        &lt;plugin&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;
+            &lt;artifactId&gt;spring-boot-maven-plugin&lt;&#x2F;artifactId&gt;
+            &lt;version&gt;$&#123;spring-boot.version&#125;&lt;&#x2F;version&gt;
+            &lt;configuration&gt;
+                &lt;fork&gt;true&lt;&#x2F;fork&gt;
+                &lt;addResources&gt;true&lt;&#x2F;addResources&gt;
+            &lt;&#x2F;configuration&gt;
+        &lt;&#x2F;plugin&gt;
+
+    &lt;&#x2F;plugins&gt;
+&lt;&#x2F;build&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>SQL脚本</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">create table product_order_0
+(
+    id           bigint auto_increment
+        primary key,
+    out_trade_no varchar(64)    null comment &#39;订单唯一标识&#39;,
+    state        varchar(11)    null comment &#39;NEW 未支付订单,PAY已经支付订单,CANCEL超时取消订单&#39;,
+    create_time  datetime       null comment &#39;订单生成时间&#39;,
+    pay_amount   decimal(16, 2) null comment &#39;订单实际支付价格&#39;,
+    nickname     varchar(64)    null comment &#39;昵称&#39;,
+    user_id      bigint         null comment &#39;用户id&#39;
+)
+    collate &#x3D; utf8mb4_bin;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>配置文件：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">#水平分表配置
+spring:
+  shardingsphere:
+    datasource:
+	  # 数据源名称，多数据源以逗号分隔(ds0,ds1)
+      names: ds0,ds1
+      # names定义的数据源名称作为key（key不能包含下划线，否则无法识别配置）
+      ds0:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;shop_order_0?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf-8&amp;useSSL&#x3D;false&amp;serverTimezone&#x3D;Asia&#x2F;Shanghai&amp;allowPublicKeyRetrieval&#x3D;true
+        username: root
+        password: 
+      ds1:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;shop_order_1?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf-8&amp;useSSL&#x3D;false&amp;serverTimezone&#x3D;Asia&#x2F;Shanghai&amp;allowPublicKeyRetrieval&#x3D;true
+        username: root
+        password: <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<h3 id="水平分表-单分片键"><a href="#水平分表-单分片键" class="headerlink" title="水平分表-单分片键"></a>水平分表-单分片键</h3></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">#水平分表配置
+spring:
+  shardingsphere:
+    datasource:
+	  # 数据源名称，多数据源以逗号分隔(ds0,ds1)
+      names: ds0,ds1
+      # names定义的数据源名称作为key（key不能包含下划线，否则无法识别配置）
+      ds0:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;shop_order_0?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf-8&amp;useSSL&#x3D;false&amp;serverTimezone&#x3D;Asia&#x2F;Shanghai&amp;allowPublicKeyRetrieval&#x3D;true
+        username: root
+        password: 
+      ds1:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;shop_order_1?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf-8&amp;useSSL&#x3D;false&amp;serverTimezone&#x3D;Asia&#x2F;Shanghai&amp;allowPublicKeyRetrieval&#x3D;true
+        username: root
+        password: 
+    sharding:
+      # binding‐tables[0]: product_order,product_order_item
+      tables:
+        product_order:
+          key-generator:
+            column: id
+            #主键生成策略 可选内置的 SNOWFLAKE(雪花算法)&#x2F;UUID 也可以自定义
+            type: SNOWFLAKE
+          # 分库策略
+          database-strategy:
+            inline:
+              sharding-column: user_id
+              algorithm-expression: ds$-&gt;&#123;user_id % 2&#125;
+		  # 由数据源名 + 表名组成，以小数点分隔。多个表以逗号分隔，支持inline表达式
+          actual-data-nodes: ds$-&gt;&#123;0..1&#125;.product_order_$-&gt;&#123;0..1&#125;
+		  #分表策略：单分片键
+          table-strategy:
+            inline:
+			  #分片键
+              sharding-column: id
+              #数据分片规则（ID是偶数把数据添加入product_order_0，奇数入product_order_1）
+              algorithm-expression: product_order_$-&gt;&#123;id % 2&#125;
+        product_order_item:
+          key-generator:
+            column: id
+            type: SNOWFLAKE
+          # 分库策略
+          database-strategy:
+            inline:
+              sharding-column: user_id
+              algorithm-expression: ds$-&gt;&#123;user_id % 2&#125;
+          actual-data-nodes: ds$-&gt;&#123;0..1&#125;.product_order_item_$-&gt;&#123;0..1&#125;
+          table-strategy:
+            inline:
+              sharding-column: product_order_id
+              algorithm-expression: product_order_item_$-&gt;&#123;product_order_id % 2&#125;
+        ad_config:
+          key-generator:
+            column: id
+            type: SNOWFLAKE
+      # 广播表
+      broadcast-tables: ad_config
+    props:
+      sql:
+        show: true<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><strong>测试-分表-查询</strong></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@Test
+public void customRange1() &#123;
+    &#x2F;&#x2F;分区字段查询数据：精准匹配分片表，不会去别的表中扫描数据
+    ProductOrder productOrder &#x3D; productOrderMapper.selectById(Long.valueOf(&quot;791057093019828224&quot;));
+    log.info(&quot;数据为&#123;&#125;&quot;, productOrder.toString());
+
+    &#x2F;&#x2F;非分区字段查询：全表匹配，汇总结果
+    List&lt;ProductOrder&gt; productOrderList &#x3D; productOrderMapper.selectList(new QueryWrapper&lt;ProductOrder&gt;().between(&quot;create_time&quot;,&quot;2022-10-23 21:38:28&quot;,&quot;2022-10-25 21:38:28&quot;));
+    log.info(&quot;数据量&#123;&#125;&quot;,productOrderList.size());
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>日志打印如下：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">2022-10-31 00:50:12.624  INFO 15368 --- [           main] ShardingSphere-SQL                       : Logic SQL: SELECT id,out_trade_no,state,create_time,pay_amount,nickname,user_id FROM product_order WHERE id&#x3D;? 
+2022-10-31 00:50:12.624  INFO 15368 --- [           main] ShardingSphere-SQL                       : SQLStatement: SelectStatementContext(super&#x3D;CommonSQLStatementContext(sqlStatement&#x3D;org.apache.shardingsphere.sql.parser.sql.statement.dml.SelectStatement@2bc16fe2, tablesContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.table.TablesContext@d66502), tablesContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.table.TablesContext@d66502, projectionsContext&#x3D;ProjectionsContext(startIndex&#x3D;7, stopIndex&#x3D;67, distinctRow&#x3D;false, projections&#x3D;[ColumnProjection(owner&#x3D;null, name&#x3D;id, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;out_trade_no, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;state, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;create_time, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;pay_amount, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;nickname, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;user_id, alias&#x3D;Optional.empty)]), groupByContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.groupby.GroupByContext@78545d40, orderByContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.orderby.OrderByContext@34549979, paginationContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.pagination.PaginationContext@144a5e6e, containsSubquery&#x3D;false)
+2022-10-31 00:50:12.625  INFO 15368 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds0 ::: SELECT id,out_trade_no,state,create_time,pay_amount,nickname,user_id FROM product_order_0 WHERE id&#x3D;?  ::: [791057093019828224]
+2022-10-31 00:50:12.625  INFO 15368 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds1 ::: SELECT id,out_trade_no,state,create_time,pay_amount,nickname,user_id FROM product_order_0 WHERE id&#x3D;?  ::: [791057093019828224]
+2022-10-31 00:50:12.665  INFO 15368 --- [           main] CustomShardingjdbcTest                   : 数据为ProductOrder(id&#x3D;791057093019828224, outTradeNo&#x3D;333333, state&#x3D;代发货, createTime&#x3D;Sun Oct 23 21:38:28 CST 2022, payAmount&#x3D;0.04, nickname&#x3D;狗蛋4, userId&#x3D;14)
+2022-10-31 00:50:12.730  INFO 15368 --- [           main] ShardingSphere-SQL                       : Logic SQL: SELECT  id,out_trade_no,state,create_time,pay_amount,nickname,user_id  FROM product_order 
+ 
+ WHERE (create_time BETWEEN ? AND ?)
+2022-10-31 00:50:12.730  INFO 15368 --- [           main] ShardingSphere-SQL                       : SQLStatement: SelectStatementContext(super&#x3D;CommonSQLStatementContext(sqlStatement&#x3D;org.apache.shardingsphere.sql.parser.sql.statement.dml.SelectStatement@52433946, tablesContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.table.TablesContext@5403431a), tablesContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.table.TablesContext@5403431a, projectionsContext&#x3D;ProjectionsContext(startIndex&#x3D;8, stopIndex&#x3D;68, distinctRow&#x3D;false, projections&#x3D;[ColumnProjection(owner&#x3D;null, name&#x3D;id, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;out_trade_no, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;state, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;create_time, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;pay_amount, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;nickname, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;user_id, alias&#x3D;Optional.empty)]), groupByContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.groupby.GroupByContext@ab327c, orderByContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.orderby.OrderByContext@3d798e76, paginationContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.pagination.PaginationContext@763b0996, containsSubquery&#x3D;false)
+2022-10-31 00:50:12.730  INFO 15368 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds0 ::: SELECT  id,out_trade_no,state,create_time,pay_amount,nickname,user_id  FROM product_order_0 
+ 
+ WHERE (create_time BETWEEN ? AND ?) ::: [2022-10-23 21:38:28, 2022-10-25 21:38:28]
+2022-10-31 00:50:12.730  INFO 15368 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds0 ::: SELECT  id,out_trade_no,state,create_time,pay_amount,nickname,user_id  FROM product_order_1 
+ 
+ WHERE (create_time BETWEEN ? AND ?) ::: [2022-10-23 21:38:28, 2022-10-25 21:38:28]
+2022-10-31 00:50:12.730  INFO 15368 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds1 ::: SELECT  id,out_trade_no,state,create_time,pay_amount,nickname,user_id  FROM product_order_0 
+ 
+ WHERE (create_time BETWEEN ? AND ?) ::: [2022-10-23 21:38:28, 2022-10-25 21:38:28]
+2022-10-31 00:50:12.730  INFO 15368 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds1 ::: SELECT  id,out_trade_no,state,create_time,pay_amount,nickname,user_id  FROM product_order_1 
+ 
+ WHERE (create_time BETWEEN ? AND ?) ::: [2022-10-23 21:38:28, 2022-10-25 21:38:28]
+2022-10-31 00:50:12.745  INFO 15368 --- [           main] CustomShardingjdbcTest                   : 数据量70<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>由上可以看出分片字段作为查询条件时，能准定位分片数据所在分片表（上边没有使用分库键，所以只能定位到分片表）。非分片字段查询时，全表匹配，汇总结果。</p>
+<blockquote>
+<h3 id="水平分表-单分片键（标准分片算法）"><a href="#水平分表-单分片键（标准分片算法）" class="headerlink" title="水平分表-单分片键（标准分片算法）"></a>水平分表-单分片键（标准分片算法）</h3></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"># 打印执行的数据库以及语句
+spring:
+  shardingsphere:
+    datasource:
+      names: ds0,ds1
+      ds0:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;shop_order_0?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf-8&amp;useSSL&#x3D;false&amp;serverTimezone&#x3D;Asia&#x2F;Shanghai&amp;allowPublicKeyRetrieval&#x3D;true
+        username: root
+        password: 900926
+      ds1:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;shop_order_1?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf-8&amp;useSSL&#x3D;false&amp;serverTimezone&#x3D;Asia&#x2F;Shanghai&amp;allowPublicKeyRetrieval&#x3D;true
+        username: root
+        password: 900926
+    sharding:
+      # binding‐tables[0]: product_order,product_order_item
+      tables:
+        product_order:
+          key-generator:
+            column: id
+            type: SNOWFLAKE
+          actual-data-nodes: ds$-&gt;&#123;0..1&#125;.product_order_$-&gt;&#123;0..1&#125;
+          table-strategy:
+            standard:
+              sharding-column: id
+              #精确分片算法类名称，用于 &#x3D; 和 IN。该类需实现PreciseShardingAlgorithm 接口并提供无参数的构造器
+              precise-algorithm-class-name: com.rrc.strategy.CustomTablePreciseShardingAlgorithm
+              # 范围分片算法类名称，用于 BETWEEN，可选。该类需实现RangeShardingAlgorithm 接口并提供无参数的构造器
+              range-algorithm-class-name: com.rrc.strategy.CustomRangeShardingAlgorithm
+          database-strategy:
+            standard:
+              sharding-column: user_id
+              precise-algorithm-class-name: com.rrc.strategy.CustomDBPreciseShardingAlgorithm
+    props:
+      sql:
+        show: true<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><strong>精准分片算法实现</strong></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">public class CustomTablePreciseShardingAlgorithm implements PreciseShardingAlgorithm&lt;Long&gt; &#123;
+
+    &#x2F;**
+     *
+     * @param dataSourceNames 数据源集合
+     *                      在分库时值为所有分片库的集合 databaseNames
+     *                      分表时为对应分片库中所有分片表的集合 tablesNames
+     *
+     * @param shardingValue  分片属性，包括
+     *                                  logicTableName 为逻辑表，
+     *                                  columnName 分片健（字段），
+     *                                  value 为从 SQL 中解析出的分片健的值
+     * @return
+     *&#x2F;
+    @Override
+    public String doSharding(Collection&lt;String&gt; dataSourceNames, PreciseShardingValue&lt;Long&gt; shardingValue) &#123;
+        for (String databaseName : dataSourceNames) &#123;
+
+            String value &#x3D; shardingValue.getValue() % dataSourceNames.size() + &quot;&quot;;
+            &#x2F;&#x2F;value是0，则进入0库表，1则进入1库表
+            if (databaseName.endsWith(value)) &#123;
+                return databaseName;
+            &#125;
+
+        &#125;
+
+        throw new IllegalArgumentException();
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><strong>范围分片算法实现</strong></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">public class CustomRangeShardingAlgorithm implements RangeShardingAlgorithm&lt;Long&gt; &#123;
+    &#x2F;**
+     *
+     * @param dataSourceNames 数据源集合
+     *                      在分库时值为所有分片库的集合 databaseNames
+     *                      分表时为对应分片库中所有分片表的集合 tablesNames
+     *
+     * @param shardingValue  分片属性，包括
+     *                                  logicTableName 为逻辑表，
+     *                                  columnName 分片健（字段），
+     *                                  value 为从 SQL 中解析出的分片健的值
+     * @return
+     *&#x2F;
+    @Override
+    public Collection&lt;String&gt; doSharding(Collection&lt;String&gt; dataSourceNames, RangeShardingValue&lt;Long&gt; shardingValue) &#123;
+        Set&lt;String&gt; result &#x3D; new LinkedHashSet&lt;&gt;();
+
+        &#x2F;&#x2F;between 开始值
+        Long lower  &#x3D; shardingValue.getValueRange().lowerEndpoint();
+
+        &#x2F;&#x2F;between 结束值
+        Long upper &#x3D; shardingValue.getValueRange().upperEndpoint();
+
+        for(long i&#x3D;lower;i&lt;&#x3D;upper;i++)&#123;
+            for(String datasource : dataSourceNames)&#123;
+                String value &#x3D; i % dataSourceNames.size() +&quot;&quot;;
+                if(datasource.endsWith(value))&#123;
+                    result.add(datasource);
+                &#125;
+            &#125;
+
+        &#125;
+        return result;
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>测试标准分片</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@Test
+public void customRange() &#123;
+    productOrderMapper.selectList(new QueryWrapper&lt;ProductOrder&gt;().between(&quot;id&quot;,793987167104794624L,793987167104794624L));
+
+    productOrderMapper.selectList(new QueryWrapper&lt;ProductOrder&gt;().in(&quot;id&quot;,793987167104794624L,793987167373230080L));
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>日志打印如下：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">2022-10-31 23:54:19.468  INFO 19472 --- [           main] ShardingSphere-SQL                       : Logic SQL: SELECT  id,out_trade_no,state,create_time,pay_amount,nickname,user_id  FROM product_order 
+ 
+ WHERE (id BETWEEN ? AND ?)
+2022-10-31 23:54:19.468  INFO 19472 --- [           main] ShardingSphere-SQL                       : SQLStatement: SelectStatementContext(super&#x3D;CommonSQLStatementContext(sqlStatement&#x3D;org.apache.shardingsphere.sql.parser.sql.statement.dml.SelectStatement@6c5ae8fd, tablesContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.table.TablesContext@17354708), tablesContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.table.TablesContext@17354708, projectionsContext&#x3D;ProjectionsContext(startIndex&#x3D;8, stopIndex&#x3D;68, distinctRow&#x3D;false, projections&#x3D;[ColumnProjection(owner&#x3D;null, name&#x3D;id, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;out_trade_no, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;state, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;create_time, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;pay_amount, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;nickname, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;user_id, alias&#x3D;Optional.empty)]), groupByContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.groupby.GroupByContext@1aed6f0b, orderByContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.orderby.OrderByContext@3b3546a3, paginationContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.pagination.PaginationContext@134c38, containsSubquery&#x3D;false)
+2022-10-31 23:54:19.469  INFO 19472 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds0 ::: SELECT  id,out_trade_no,state,create_time,pay_amount,nickname,user_id  FROM product_order_0 
+ 
+ WHERE (id BETWEEN ? AND ?) ::: [793987167104794624, 793987167104794624]
+2022-10-31 23:54:19.469  INFO 19472 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds1 ::: SELECT  id,out_trade_no,state,create_time,pay_amount,nickname,user_id  FROM product_order_0 
+ 
+ WHERE (id BETWEEN ? AND ?) ::: [793987167104794624, 793987167104794624]
+2022-10-31 23:54:19.554  INFO 19472 --- [           main] ShardingSphere-SQL                       : Logic SQL: SELECT  id,out_trade_no,state,create_time,pay_amount,nickname,user_id  FROM product_order 
+ 
+ WHERE (id IN (?,?))
+2022-10-31 23:54:19.554  INFO 19472 --- [           main] ShardingSphere-SQL                       : SQLStatement: SelectStatementContext(super&#x3D;CommonSQLStatementContext(sqlStatement&#x3D;org.apache.shardingsphere.sql.parser.sql.statement.dml.SelectStatement@214fba74, tablesContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.table.TablesContext@252c6cdb), tablesContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.table.TablesContext@252c6cdb, projectionsContext&#x3D;ProjectionsContext(startIndex&#x3D;8, stopIndex&#x3D;68, distinctRow&#x3D;false, projections&#x3D;[ColumnProjection(owner&#x3D;null, name&#x3D;id, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;out_trade_no, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;state, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;create_time, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;pay_amount, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;nickname, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;user_id, alias&#x3D;Optional.empty)]), groupByContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.groupby.GroupByContext@61c87f1b, orderByContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.orderby.OrderByContext@1857fe6c, paginationContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.pagination.PaginationContext@44976b08, containsSubquery&#x3D;false)
+2022-10-31 23:54:19.554  INFO 19472 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds0 ::: SELECT  id,out_trade_no,state,create_time,pay_amount,nickname,user_id  FROM product_order_0 
+ 
+ WHERE (id IN (?,?)) ::: [793987167104794624, 793987167373230080]
+2022-10-31 23:54:19.554  INFO 19472 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds1 ::: SELECT  id,out_trade_no,state,create_time,pay_amount,nickname,user_id  FROM product_order_0 
+ 
+ WHERE (id IN (?,?)) ::: [793987167104794624, 793987167373230080]<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>由上可以看出<code>between(&quot;id&quot;,793987167104794624L,793987167104794624L)</code>可以确定分片定位到product_order_0，而没有分库键所以执行了ds0和ds1的全库查询。</p>
+<blockquote>
+<p>更换连接池</p>
+</blockquote>
+<p>spring boot和shardingjdbc默认使用的数据库连接池是 HikariCP。如果要在shardingsphere中使用druid,需要在项目中整合后才能生效</p>
+<p>说明：</p>
+<ol>
+<li>为shardingsphere使用druid数据源时，不要使用druid-spring-boot-starter这个包，因为它在会启动时自动从配置文件生成datasource,所以在这里使用druid这个包</li>
+<li>因为druid使用了log4j2,我们对spring-boot-starter-logging做了exclusion</li>
+</ol>
+<p>yml配置：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"># 打印执行的数据库以及语句
+spring:
+  shardingsphere:
+    datasource:
+      names: ds0,ds1
+      ds0:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;shop_order_0?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf-8&amp;useSSL&#x3D;false&amp;serverTimezone&#x3D;Asia&#x2F;Shanghai&amp;allowPublicKeyRetrieval&#x3D;true
+        username: root
+        password: 900926
+      ds1:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;shop_order_1?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf-8&amp;useSSL&#x3D;false&amp;serverTimezone&#x3D;Asia&#x2F;Shanghai&amp;allowPublicKeyRetrieval&#x3D;true
+        username: root
+        password: 900926<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>使用druid数据源时，原有的shardingsphere配置中,jdbc-url要修改为url.</p>
+<p>DruidConfig.java</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@Configuration
+public class DruidConfig &#123;
+    &#x2F;**
+     * Druid监控
+     *&#x2F;
+    @Bean
+    public ServletRegistrationBean statViewServlet()&#123;
+        ServletRegistrationBean bean &#x3D; new ServletRegistrationBean(new StatViewServlet(), &quot;&#x2F;druid&#x2F;*&quot;);
+        Map&lt;String,String&gt; initParams &#x3D; new HashMap&lt;&gt;();&#x2F;&#x2F;这是配置的druid监控的登录密码
+        initParams.put(&quot;loginUsername&quot;,&quot;root&quot;);
+        initParams.put(&quot;loginPassword&quot;,&quot;root&quot;);
+        &#x2F;&#x2F;默认就是允许所有访问
+        initParams.put(&quot;allow&quot;,&quot;127.0.0.1,192.168.3.4&quot;);
+        &#x2F;&#x2F;黑名单IP
+        initParams.put(&quot;deny&quot;,&quot;192.168.15.21&quot;);
+        bean.setInitParameters(initParams);
+        return bean;
+    &#125;
+
+    &#x2F;**
+     * web监控的filter
+     *&#x2F;
+    @Bean
+    public FilterRegistrationBean webStatFilter()&#123;
+        FilterRegistrationBean bean &#x3D; new FilterRegistrationBean();
+        bean.setFilter(new WebStatFilter());
+        Map&lt;String,String&gt; initParams &#x3D; new HashMap&lt;&gt;();
+        initParams.put(&quot;exclusions&quot;,&quot;&#x2F;static&#x2F;*,*.js,*.gif,*.jpg,*.png,*.css,*.ico,&#x2F;druid&#x2F;*&quot;);&#x2F;&#x2F;过滤掉需要监控的文件
+        bean.setInitParameters(initParams);
+        bean.setUrlPatterns(Arrays.asList(&quot;&#x2F;*&quot;));
+        return  bean;
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>自定义分布式ID算法</p>
+</blockquote>
+<p><strong>实现ShardingKeyGenerator接口，自定义分布式主键生成算法</strong></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@Slf4j
+public class SimpleShardingKeyGenerator implements ShardingKeyGenerator &#123;
+
+    private AtomicLong atomic &#x3D; new AtomicLong(1000);
+
+    @Getter
+    @Setter
+    private Properties properties &#x3D; new Properties();
+
+    &#x2F;**
+     * 分布式主键实现算法。
+     *&#x2F;
+    @Override
+    public Comparable&lt;?&gt; generateKey() &#123;
+        return atomic.incrementAndGet();
+    &#125;
+
+    @Override
+    public String getType() &#123;
+        &#x2F;&#x2F;声明类型，需要在配置文件中配置此key
+        return &quot;SIMPLE&quot;;
+    &#125;
+
+    @Override
+    public Properties getProperties() &#123;
+        return null;
+    &#125;
+
+    @Override
+    public void setProperties(Properties properties) &#123;
+
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><strong>resources下配置META-INF/services/org.apache.shardingsphere.spi.keygen.ShardingKeyGenerator</strong></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">com.rrc.generator.SimpleShardingKeyGenerator<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><strong>配置主键生成策略为自定义key</strong></p>
+<p><img src="/2022/10/28/spring-boot-shardingjdbc/SIMPLE.png" alt="自定义主键生成策略"></p>
+<blockquote>
+<p>广播表</p>
+</blockquote>
+<p>指所有的分片数据源中都存在的表，表结构和表中的数据在每个数据库中均完全一致。适用于数据量不大且需要与海量数据的表进行关联查询的场景，例如：字典表。</p>
+<p>简单此处不做说明</p>
+<blockquote>
+<p>绑定表</p>
+</blockquote>
+<p>指分片规则一致的主表和子表。例如：course表和 course_detail表，均按照 course_id分片，则此两张表互为绑定表关系。绑定表之间的多表关联查询不会出现笛卡尔积关联，关联查询效率将大大提升。</p>
+<p>简单此处不做说明</p>
+<blockquote>
+<p>分库分表优缺点</p>
+</blockquote>
+<blockquote>
+<p>引用</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/architectforest/p/13531448.html">spring boot:配置shardingsphere</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jb51.net/article/214350.htm">springboot整合shardingjdbc实现分库分表最简单demo</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.51cto.com/u_13260163/3169387">10分钟入门分库分表中间件 Sharding-JDBC</a></p>
+
                 
             </div>
             <hr/>
@@ -533,7 +1190,11 @@
                 <div class="post-meta__tag-list" style="display: inline-block;">
                     
                         <div class="article-tag">
-                            <span class="chip bg-color">无标签</span>
+                            
+                                <a href="/tags/spring-boot/">
+                                    <span class="chip bg-color">spring-boot</span>
+                                </a>
+                            
                         </div>
                     
                 </div>
@@ -720,7 +1381,10 @@
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            记录Springboot整合redis中遇到的问题。
+                            Mysql数据库架构演进从单机到主从到分库分表在数据量及访问压力不是特别大的情况，首先考虑缓存、读写分离、索引技术等方案
+
+如果数据量极大，且业务持续增长快，再考虑分库分表方案
+
                         
                     </div>
                     <div class="publish-info">
@@ -729,13 +1393,25 @@
                             </span>
                         <span class="publish-author">
                             
-                            <i class="fas fa-user fa-fw"></i>
-                            WangQingLei
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/Spring/" class="post-category">
+                                    Spring
+                                </a>
+                            
                             
                         </span>
                     </div>
                 </div>
 
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/spring-boot/">
+                        <span class="chip bg-color">spring-boot</span>
+                    </a>
+                    
+                </div>
                 
             </div>
         </div>
