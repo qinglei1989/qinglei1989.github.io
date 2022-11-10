@@ -1108,6 +1108,9 @@ public class SimpleShardingKeyGenerator implements ShardingKeyGenerator &#123;
 
 <p><strong>配置主键生成策略为自定义key</strong></p>
 <p><img src="/2022/10/28/spring-boot-shardingjdbc/SIMPLE.png" alt="自定义主键生成策略"></p>
+<p>按上面配置的ShardingJDBC表主键生成策略并没有生效，主键依然是雪花算法生成的ID。</p>
+<p>问题原因：</p>
+<p>MybatisPLus在不显式指定主键且有名为“id”的字段，会将id视为主键，当分片键也是该字段时，会与MP冲突，导致Sharding-JDBC的分片键生成策略失效。<br>那么解决方案就很简单了：<br>第一种：分片键不叫“id”就行了<br>第二种：如果分片键是主键，又想叫id，可在分片键上标记主键@TableId，并指定主键类型type = IdType.AUTO即可</p>
 <blockquote>
 <p>广播表</p>
 </blockquote>
@@ -1119,14 +1122,115 @@ public class SimpleShardingKeyGenerator implements ShardingKeyGenerator &#123;
 <p>指分片规则一致的主表和子表。例如：course表和 course_detail表，均按照 course_id分片，则此两张表互为绑定表关系。绑定表之间的多表关联查询不会出现笛卡尔积关联，关联查询效率将大大提升。</p>
 <p>简单此处不做说明</p>
 <blockquote>
-<p>分库分表优缺点</p>
+<p>读写分离</p>
 </blockquote>
+<p>配置文件：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"># 打印执行的数据库以及语句
+spring:
+  shardingsphere:
+    datasource:
+      names: ds0,ds1
+      ds0:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;shop_order_0?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf-8&amp;useSSL&#x3D;false&amp;serverTimezone&#x3D;Asia&#x2F;Shanghai&amp;allowPublicKeyRetrieval&#x3D;true
+        username: root
+        password: 900926
+      ds1:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;shop_order_1?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf-8&amp;useSSL&#x3D;false&amp;serverTimezone&#x3D;Asia&#x2F;Shanghai&amp;allowPublicKeyRetrieval&#x3D;true
+        username: root
+        password: 900926
+    sharding:
+      default-data-source-name: ds0
+    masterslave:
+      #配置主从名称
+      name: ms
+      #置主库master,负责数据的写入
+      master-data-source-name: ds0
+      #配置从库slave节点
+      slave-data-source-names: ds1
+      #配置slave节点的负载均衡均衡策略,采用轮询机制
+      load-balance-algorithm-type: round_robin
+    props:
+      sql:
+        show: true<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>表结构：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">-- auto-generated definition
+create table ad_config
+(
+    id           bigint unsigned not null comment &#39;主键id&#39;
+        primary key,
+    config_key   varchar(1024)   null comment &#39;配置key&#39;,
+    config_value varchar(1024)   null comment &#39;配置value&#39;,
+    type         varchar(128)    null comment &#39;类型&#39;
+)
+    collate &#x3D; utf8mb4_bin;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>测试类：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@ActiveProfiles(&quot;rw&quot;)
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes &#x3D; ShardingjdbcApplication.class)
+@Slf4j
+public class ShardingjdbcMasterSlave &#123;
+
+    @Autowired
+    private AdConfigMapper adConfigMapper;
+
+    @Test
+    public void insert() &#123;
+        AdConfig adConfig &#x3D; new AdConfig();
+
+        adConfig.setId(100002L);
+        adConfig.setConfigValue(&quot;1111&quot;);
+        adConfig.setConfigKey(&quot;333333&quot;);
+        adConfig.setType(&quot;44444&quot;);
+
+        adConfigMapper.insert(adConfig);
+
+        adConfig &#x3D; adConfigMapper.selectById(100001L);
+        System.out.println(adConfig);
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>日志打印：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">2022-11-02 00:41:07.324  INFO 19268 --- [           main] ShardingSphere-SQL                       : Logic SQL: INSERT INTO ad_config  ( id,
+config_key,
+config_value,
+type )  VALUES  ( ?,
+?,
+?,
+? )
+2022-11-02 00:41:07.324  INFO 19268 --- [           main] ShardingSphere-SQL                       : SQLStatement: CommonSQLStatementContext(sqlStatement&#x3D;org.apache.shardingsphere.sql.parser.sql.statement.dml.InsertStatement@54567b05, tablesContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.table.TablesContext@3a5e2525)
+2022-11-02 00:41:07.324  INFO 19268 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds0 ::: INSERT INTO ad_config  ( id,
+config_key,
+config_value,
+type )  VALUES  ( ?,
+?,
+?,
+? )
+2022-11-02 00:41:07.515  INFO 19268 --- [           main] ShardingSphere-SQL                       : Logic SQL: SELECT id,config_key,config_value,type FROM ad_config WHERE id&#x3D;? 
+2022-11-02 00:41:07.515  INFO 19268 --- [           main] ShardingSphere-SQL                       : SQLStatement: SelectStatementContext(super&#x3D;CommonSQLStatementContext(sqlStatement&#x3D;org.apache.shardingsphere.sql.parser.sql.statement.dml.SelectStatement@2086d469, tablesContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.table.TablesContext@b1d19ff), tablesContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.table.TablesContext@b1d19ff, projectionsContext&#x3D;ProjectionsContext(startIndex&#x3D;7, stopIndex&#x3D;37, distinctRow&#x3D;false, projections&#x3D;[ColumnProjection(owner&#x3D;null, name&#x3D;id, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;config_key, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;config_value, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;type, alias&#x3D;Optional.empty)]), groupByContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.groupby.GroupByContext@17c53dfb, orderByContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.orderby.OrderByContext@184de357, paginationContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.pagination.PaginationContext@efe49ab, containsSubquery&#x3D;false)
+2022-11-02 00:41:07.515  INFO 19268 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds1 ::: SELECT id,config_key,config_value,type FROM ad_config WHERE id&#x3D;? 
+null<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>从日志可以发现写请求进入ds0，读请求进入ds1。</p>
+<blockquote>
+<p>经验教训</p>
+</blockquote>
+<p>雪花算法最后12位为存储序列号。同一毫秒时间戳时，通过这个递增的序列号来区分。即对于同一台机器而言，同一毫秒时间戳下，可以生成 2^12=4096 个不重复 id。</p>
+<p>但是如果项目并发低，大概率同一毫秒内并发很少，12位序列号大概率都为0，生成的雪花算法都是偶数，所以分片HASH值应该为奇数，防止偶数/偶数导致数据分片不均匀。</p>
 <blockquote>
 <p>引用</p>
 </blockquote>
 <p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/architectforest/p/13531448.html">spring boot:配置shardingsphere</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.jb51.net/article/214350.htm">springboot整合shardingjdbc实现分库分表最简单demo</a></p>
 <p><a target="_blank" rel="noopener" href="https://blog.51cto.com/u_13260163/3169387">10分钟入门分库分表中间件 Sharding-JDBC</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43584430/article/details/120367418">Sharding-JDBC整合Mybatisplus分片键生成策略冲突问题及分析解决</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1ei4y1K7dn/">ShardingJDBC最新完整教程IDEA版通俗易懂</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1CL411n738/?spm_id_from=333.337.search-card.all.click">终于有人把ShardingSphere一口气全讲清楚了，透彻讲解原理，源码到实战一步到位！</a></p>
 
                 
             </div>
@@ -1364,51 +1468,46 @@ public class SimpleShardingKeyGenerator implements ShardingKeyGenerator &#123;
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="far fa-dot-circle"></i>&nbsp;本篇
-            </div>
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2022/10/28/spring-boot-shardingjdbc/">
+                <a href="/2022/11/04/middleware-rabbitmq1/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="spring-boot-shardingjdbc">
+                        <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="spring-boot-rabbitmq">
                         
-                        <span class="card-title">spring-boot-shardingjdbc</span>
+                        <span class="card-title">spring-boot-rabbitmq</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            Mysql数据库架构演进从单机到主从到分库分表在数据量及访问压力不是特别大的情况，首先考虑缓存、读写分离、索引技术等方案
-
-如果数据量极大，且业务持续增长快，再考虑分库分表方案
-
+                            记录Springboot整合mybatis-plus中遇到的问题。
                         
                     </div>
                     <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-10-28
-                            </span>
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-11-04
+                        </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/Spring/" class="post-category">
-                                    Spring
+                            <a href="/categories/rabbitmq/" class="post-category">
+                                    rabbitmq
                                 </a>
                             
                             
                         </span>
                     </div>
                 </div>
-
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/spring-boot/">
-                        <span class="chip bg-color">spring-boot</span>
+                    <a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/">
+                        <span class="chip bg-color">中间件</span>
                     </a>
                     
                 </div>
