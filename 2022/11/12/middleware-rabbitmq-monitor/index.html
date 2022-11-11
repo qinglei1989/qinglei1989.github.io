@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>spring-boot-rabbitmq | 山西小魔头技术博客</title>
+    <title>RabbitMQ消息持久化与内存管控 | 山西小魔头技术博客</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/9.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/14.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">spring-boot-rabbitmq</h1>
+                    <h1 class="description center-align post-title">RabbitMQ消息持久化与内存管控</h1>
                 </div>
             </div>
         </div>
@@ -456,7 +456,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2022-11-04
+                    2022-11-12
                 </div>
                 
 
@@ -483,36 +483,64 @@
                 <p>记录Springboot整合mybatis-plus中遇到的问题。</p>
 <span id="more"></span>
 
-<h3 id="【MQ中间件】RabbitMQ内存管控"><a href="#【MQ中间件】RabbitMQ内存管控" class="headerlink" title="【MQ中间件】RabbitMQ内存管控"></a>【MQ中间件】RabbitMQ内存管控</h3><blockquote>
+<h3 id="【MQ中间件】RabbitMQ消息持久化与内存管控"><a href="#【MQ中间件】RabbitMQ消息持久化与内存管控" class="headerlink" title="【MQ中间件】RabbitMQ消息持久化与内存管控"></a>【MQ中间件】RabbitMQ消息持久化与内存管控</h3><blockquote>
 <h3 id="RibbitMQ持久化"><a href="#RibbitMQ持久化" class="headerlink" title="RibbitMQ持久化"></a>RibbitMQ持久化</h3></blockquote>
 <p>持久化就把信息写入到磁盘的过程。</p>
-<p><img src="https://img2020.cnblogs.com/blog/1309074/202104/1309074-20210430125729932-1797003692.png" alt="img"></p>
+<p><img src="/2022/11/12/middleware-rabbitmq-monitor/durable.png" alt="RibbitMQ持久化"></p>
 <p>消息什么时候需要持久化：</p>
 <p>消息本身在publish的时候就要求消息写入磁盘；</p>
 <p>内存紧张，需要将部分内存中的消息转移到磁盘；</p>
 <p>持久化是为提高rabbitmq消息的可靠性，防止在异常情况(重启，关闭，宕机)下数据的丢失。</p>
 <p>rabbitmq持久化分为三个部分: <strong>交换器的持久化、队列的持久化和消息的持久化</strong>。</p>
-<p>交换器的持久化</p>
-<p>交换器的持久化是通过声明队列时，将<code>durable</code>参数设置为true实现的。如果交换器不设置持久化，那么rabbitmq服务重启之后，exchange将不复存在，不过消息不会丢失，那么既而发送方rabbitmq producer就无法正常发送消息。建议将交换器设置为持久化。</p>
-<p><img src="/2022/11/04/middleware-rabbitmq2/directDurableExchange.png" alt="未持久化exchange"></p>
-<p><img src="/2022/11/04/middleware-rabbitmq2/directDurableQueuepng" alt="绑定在未持久化exchange上的持久化queue与持久化消息"></p>
-<p><img src="/2022/11/04/middleware-rabbitmq2/undirectDurableRestart.png" alt="未持久化exchange重启之后消失"></p>
-<p>队列的持久化</p>
-<p>队列的持久化是通过声明队列时，将<code>durable</code>参数设置为true实现的。如果队列不设置持久化，那么rabbitmq服务重启之后，相关的队列元数据将会丢失，而消息是存储在队列中的，所以队列中的消息也会被丢失。</p>
-<p><img src="/2022/11/04/middleware-rabbitmq2/undirectQueue.png" alt="未持久化队列持久化消息"></p>
-<p><img src="/2022/11/04/middleware-rabbitmq2/directMessageDurable.png" alt="持久化的消息"></p>
-<p><img src="/2022/11/04/middleware-rabbitmq2/undirectQueueRestart.png" alt="未持久化队列重启消息丢失"></p>
-<p>消息的持久化</p>
-<p>队列的持久化只能保证其队列本身的元数据不会被丢失，但是不能保证消息不会被丢失。所以消息本身也需要被持久化，可以在投递消息前设置<code>AMQP.BasicProperties</code>的属性<code>deliveryMode</code>为2即可，spring boot和rabbitmq整合以后，默认消息是会被持久化的。</p>
+<h4 id="交换器的持久化"><a href="#交换器的持久化" class="headerlink" title="交换器的持久化"></a>交换器的持久化</h4><p>交换器的持久化是通过声明队列时，将<code>durable</code>参数设置为true实现的。如果交换器不设置持久化，那么rabbitmq服务重启之后，exchange将不复存在，不过消息不会丢失，那么既而发送方rabbitmq producer就无法正常发送消息。建议将交换器设置为持久化。</p>
+<p><img src="/2022/11/12/middleware-rabbitmq-monitor/directDurableExchange.png" alt="未持久化exchange"></p>
+<p><img src="/2022/11/12/middleware-rabbitmq-monitor/directDurableQueuepng" alt="绑定在未持久化exchange上的持久化queue与持久化消息"></p>
+<p><img src="/2022/11/12/middleware-rabbitmq-monitor/undirectDurableRestart.png" alt="未持久化exchange重启之后消失"></p>
+<h4 id="队列的持久化"><a href="#队列的持久化" class="headerlink" title="队列的持久化"></a>队列的持久化</h4><p>队列的持久化是通过声明队列时，将<code>durable</code>参数设置为true实现的。如果队列不设置持久化，那么rabbitmq服务重启之后，相关的队列元数据将会丢失，而消息是存储在队列中的，所以队列中的消息也会被丢失。</p>
+<p><img src="/2022/11/12/middleware-rabbitmq-monitor/undirectQueue.png" alt="未持久化队列持久化消息"></p>
+<p><img src="/2022/11/12/middleware-rabbitmq-monitor/directMessageDurable.png" alt="持久化的消息"></p>
+<p><img src="/2022/11/12/middleware-rabbitmq-monitor/undirectQueueRestart.png" alt="未持久化队列重启消息丢失"></p>
+<h4 id="消息的持久化"><a href="#消息的持久化" class="headerlink" title="消息的持久化"></a>消息的持久化</h4><p>队列的持久化只能保证其队列本身的元数据不会被丢失，但是不能保证消息不会被丢失。所以消息本身也需要被持久化，可以在投递消息前设置<code>AMQP.BasicProperties</code>的属性<code>deliveryMode</code>为2即可，spring boot和rabbitmq整合以后，默认消息是会被持久化的。</p>
 <p>消息都设置为持久化，但是这样会影响RabbitMQ的性能。因为我们将消息写入到内存的同时还需要将消息写入到磁盘。<br>对于可靠性要求不是那么高的消息可以不采用持久化处理，以提高整体系统的吞吐量。</p>
-<p><strong>将交换器、队列和消息都设置持久化之后就能保证数据不会被丢失吗？当然不是，多个方面</strong></p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p><strong>将交换器、队列和消息都设置持久化之后就能保证数据不会被丢失吗？当然不是，多个方面</strong></p>
 <ul>
 <li>消费者端: 消费者订阅队列将autoAck设置为true,虽然消费者接收到了消息，但是没有来得及处理就宕机了，那数据也会丢失，解决方案就是以为手动确认接收消息，待处理完消息之后，手动删除消息</li>
 <li>在rabbitmq服务端，如果消息正确被发送，但是rabbitmq未来得及持久化，没有将数据写入磁盘，服务异常而导致数据丢失，解决方案，可以通过rabbitmq集群的方式实现消息中间件的高可用性</li>
 </ul>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/fly910905/article/details/122872692">https://blog.csdn.net/fly910905/article/details/122872692</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/yif0118/p/14721668.html">https://www.cnblogs.com/yif0118/p/14721668.html</a></p>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/481446339">https://zhuanlan.zhihu.com/p/481446339</a></p>
+<blockquote>
+<h3 id="内存限制"><a href="#内存限制" class="headerlink" title="内存限制"></a>内存限制</h3></blockquote>
+<h4 id="内存告警"><a href="#内存告警" class="headerlink" title="内存告警"></a>内存告警</h4><p>当内存使用超过配置的阈值或者磁盘剩余空间低于配置的阈值时会暂时阻塞客户端的连接，并停止接收从客户端发来的消息，以避免服务崩溃，客户端与服务端的心跳检测也会失败。当出现内存告警时，可以通过管理命令临时调整内存大小。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">rabbitmqctl set_vm_memory_high_watermark &lt;fraction&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p> fraction为内存阈值，RabbitMQ默认是0.4，表示当RabbitMQ使用的内存超过总内存的40%时，就会产生告警并阻塞所有生产连接。 通过此命令修改的阈值在RabbitMQ重启之后将会失效，通过修改配置文件的方式设置的阈值才会永久有效，但需要重启服务才会生效。</p>
+<p>配置文件：RabbitMQ.conf</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">#相对值，也就是前面的fraction，建议设置在0.4~0.66之间，不要超过0.7
+vm_memory_high_watermark.relative&#x3D;0.4
+#绝对值，单位为KB,MB,GB,对应的临时命令是：RabbitMQctl set_vm_memory_high_watermark absolute &lt;value&gt;
+#vm_memory_high_watermark.absolute&#x3D;1GB<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="https://img2020.cnblogs.com/blog/1309074/202104/1309074-20210430125827890-512933199.png" alt="img"></p>
+<p>当出现blocking或blocked话说明到达了阈值和以及高负荷运行了。</p>
+<h4 id="内存换页"><a href="#内存换页" class="headerlink" title="内存换页"></a>内存换页</h4><p>在某个broker节点触及内存并阻塞生产者之前，他会尝试将队列内存中的消息换页存储到磁盘以释放内存空间。持久化和非持久化的消息都会被转储到磁盘中，其中持久化的消息本身就在磁盘中有一个备份，所以这里会将持久化的消息从内存中清除掉。<br>默认情况下，在内存达到内存阈值的50%时会进行换页操作。也就是说，在默认的内存阈值40%的情况下，当内存超过0.4*0.5=0.2时会经行换页动作。<br>内存换页可以通过在配置文件中设置来进行调整。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">vm_memory_high_watermark_paging_ratio&#x3D;0.75<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="磁盘限制"><a href="#磁盘限制" class="headerlink" title="磁盘限制"></a>磁盘限制</h4><p>当磁盘剩余空间低于设置的阈值时，RabbitMQ同样会阻塞生产者，这样可以避免因非持久化的消息持续换页而耗尽磁盘空间导致服务崩溃。<br>默认情况下，磁盘的阈值是5OM，表示当磁盘剩余空间低于5OM时，会阻塞生产者并停止内存中消息的换页动作。这个阈值的设置可以减小，但不能完全消除因磁盘耗尽而导致崩溃的可能性。比如在两次磁盘空间检测期间内，磁盘空间从大于50M被耗尽到OM。<br>备注:一个相对谨慎的做法是将磁盘阈值设置为与操作系统所显示的内存大小一致。<br>通过以下命令可以临时调整磁盘阈值</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">#设置具体大小，单位为KB&#x2F;MB&#x2F;GB
+rabbitmqctl set_disk_free_limit &lt;disk_limit&gt;
+#设置相对值，建议取值为1.0~2.0(相对于内存的倍数，如内存大小是8c,若为1.0，则表示磁盘剩余8G时阻塞)
+rabbitmqctl set_disk_free_limit mem_relative &lt;fraction&gt;
+
+对应的配置文件配置如下:
+disk_free_limit.relative&#x3D;2.0
+#disk_free_limit_absolute&#x3D;50MB<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="运行时查看生效的配置文件信息"><a href="#运行时查看生效的配置文件信息" class="headerlink" title="运行时查看生效的配置文件信息"></a>运行时查看生效的配置文件信息</h4><pre class="line-numbers language-java" data-language="java"><code class="language-java">rabbitmq-diagnostics environment<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<blockquote>
+<h3 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h3></blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/fly910905/article/details/122872692">RabbitMQ持久化机制</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/yif0118/p/14721668.html">RabbitMQ – RabbitMQ死信队列及内存监控</a>](<a target="_blank" rel="noopener" href="https://www.cnblogs.com/yif0118/p/14721668.html">https://www.cnblogs.com/yif0118/p/14721668.html</a>)</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/fly910905/article/details/122872692">RabbitMQ持久化机制</a></p>
 
                 
             </div>
@@ -539,7 +567,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://qinglei1989.github.io/2022/11/04/middleware-rabbitmq2/">https://qinglei1989.github.io/2022/11/04/middleware-rabbitmq2/</a>
+                    <a href="https://qinglei1989.github.io/2022/11/12/middleware-rabbitmq-monitor/">https://qinglei1989.github.io/2022/11/12/middleware-rabbitmq-monitor/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -750,17 +778,18 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
-                <a href="/2022/11/04/middleware-rabbitmq/">
+                <a href="/2022/11/12/middleware-rabbitmq-monitor/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="spring-boot-rabbitmq">
+                        <img src="/medias/featureimages/14.jpg" class="responsive-img" alt="RabbitMQ消息持久化与内存管控">
                         
-                        <span class="card-title">spring-boot-rabbitmq</span>
+                        <span class="card-title">RabbitMQ消息持久化与内存管控</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
@@ -770,9 +799,9 @@
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2022-11-04
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-11-12
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -785,6 +814,7 @@
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -803,7 +833,7 @@
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2022/11/04/middleware-rabbitmq1/">
+                <a href="/2022/11/04/middleware-rabbitmq/">
                     <div class="card-image">
                         
                         
