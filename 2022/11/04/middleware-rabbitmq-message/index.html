@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>spring-boot-rabbitmq | 山西小魔头技术博客</title>
+    <title>RabbitMQ -- RabbitMQ消息模式 | 山西小魔头技术博客</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/9.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/15.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">spring-boot-rabbitmq</h1>
+                    <h1 class="description center-align post-title">RabbitMQ -- RabbitMQ消息模式</h1>
                 </div>
             </div>
         </div>
@@ -480,101 +480,11 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>记录Springboot整合mybatis-plus中遇到的问题。</p>
+                <p>RabbitMQ – RabbitMQ消息模式</p>
 <span id="more"></span>
 
-<h3 id="【MQ中间件】RabbitMQ-–-SpringBoot整合RabbitMQ"><a href="#【MQ中间件】RabbitMQ-–-SpringBoot整合RabbitMQ" class="headerlink" title="【MQ中间件】RabbitMQ – SpringBoot整合RabbitMQ"></a>【MQ中间件】RabbitMQ – SpringBoot整合RabbitMQ</h3><blockquote>
-<h3 id="基于SpringBoot配置类构建消息队列"><a href="#基于SpringBoot配置类构建消息队列" class="headerlink" title="基于SpringBoot配置类构建消息队列"></a>基于SpringBoot配置类构建消息队列</h3></blockquote>
-<p>POM依赖</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">&lt;!--rabbitmq starter依赖--&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;
-    &lt;artifactId&gt;spring-boot-starter-amqp&lt;&#x2F;artifactId&gt;
-&lt;&#x2F;dependency&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>application.yml</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">#配置rabbitMq 服务器
-  rabbitmq:
-    host: 127.0.0.1
-    port: 5672
-    username: admin
-    password: admin
-    #虚拟host 可以不设置,使用server默认host
-    virtual-host: rrcVhost<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<blockquote>
-<h3 id="生产者配置类"><a href="#生产者配置类" class="headerlink" title="生产者配置类"></a>生产者配置类</h3></blockquote>
-<p>配置类生成交换机与队列</p>
-<p>配置类DirectTypeRabbitConfig</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">&#x2F;&#x2F;注意：XxxType表示是交换机类型：可以是Fanout&#x2F;Direct&#x2F;Topic&#x2F;Headers
-@Configuration
-public class DirectTypeRabbitConfig &#123;
-    &#x2F;&#x2F;使用注入方式声明对应的Queue
-    @Bean
-    public Queue emailQueue() &#123;
-        &#x2F;&#x2F; durable:是否持久化,默认是false,持久化队列：会被存储在磁盘上，当消息代理重启时仍然存在，暂存队列：当前连接有效
-        &#x2F;&#x2F; exclusive:默认也是false，只能被当前创建的连接使用，而且当连接关闭后队列即被删除。此参考优先级高于durable
-        &#x2F;&#x2F; autoDelete:是否自动删除，当没有生产者或者消费者使用此队列，该队列会自动删除。
-        &#x2F;&#x2F;一般设置一下队列的持久化就好,其余两个就是默认false
-        return new Queue(&quot;email.DirectType.queue&quot;, true);
-    &#125;
-
-    &#x2F;&#x2F;声明交换机，不同的交换机类型不同：DirectExchange&#x2F;FanoutExchange&#x2F;TopicExchange&#x2F;HeadersExchange
-    @Bean
-    public DirectTypeExchange DirectTypeOrderExchange() &#123;
-        &#x2F;&#x2F; durable:是否持久化,默认是true,持久化队列：会被存储在磁盘上，当消息代理重启时仍然存在，暂存队列：当前连接有效
-        &#x2F;&#x2F; autoDelete:是否自动删除，当没有生产者或者消费者使用此队列，该队列会自动删除。默认false
-        return new DirectTypeExchange(&quot;DirectType_order_exchange&quot;, true, false);
-    &#125;
-
-    &#x2F;&#x2F;绑定关系：将队列和交换机绑定, 并设置用于匹配键：routingKey
-    @Bean
-    public Binding bindingXxxType1() &#123;
-        return BindingBuilder
-                .bind(emailQueue())  &#x2F;&#x2F;绑定哪个Queue
-                .to(xxxTypeOrderExchange())
-            	.with(&quot;routingKey&quot;);&#x2F;&#x2F;fanout这里绑定Queues的时候不要设置routing key，是采用广播订阅发送的方式&#96;
-    &#125;
-&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>消息发送类，主要给创建的队列填充消息，这里主要用到RabbitTemplate类调用convertAndSend方法进行对应交换机消息队列的发送：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">rabbitTemplate.convertAndSend(String exchange, String routingKey, Object object)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<blockquote>
-<h3 id="消费者配置类"><a href="#消费者配置类" class="headerlink" title="消费者配置类"></a>消费者配置类</h3></blockquote>
-<p><strong>Direct模式消息消费者</strong></p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">&#x2F;&#x2F;通过@RabbitListener绑定队列接收消息
-@RabbitListener(queues &#x3D; &#123;&quot;weixin.direct.queue&quot;&#125;)
-@Component
-public class DirectDuanxinConsumer &#123;
-    &#x2F;&#x2F;队列中的消息会通过@RabbitHandler注解注入到方法参数中，就可以获取到队列中的消息
-    @RabbitHandler
-    public void reviceMessage(String message)&#123;
-        System.out.println(&quot;duanxin direct queue----接收到了订单信息是：-&gt;&quot; + message);
-    &#125;
-&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p><strong>Topic模式消息消费者</strong></p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">&#x2F;&#x2F;通过@RabbitListener绑定队列接收消息
-&#x2F;&#x2F; bindings其实就是用来确定队列和交换机绑定关系
-@RabbitListener(bindings &#x3D; @QueueBinding(
-    &#x2F;&#x2F;队列名字，绑定对应的队列接收消息
-    value &#x3D; @Queue(value &#x3D; &quot;weixin.topic.queue&quot;, autoDelete &#x3D; &quot;false&quot;),
-    &#x2F;&#x2F;交换机名字，必须和生产者中交换机名相同；指定绑定的交换机类型
-    exchange &#x3D; @Exchange(value &#x3D; &quot;topic_order_exchange&quot;, type &#x3D; ExchangeTypes.TOPIC),
-    key &#x3D; &quot;com.#&quot;
-))
-@Component
-public class TopicDuanxinConsumer &#123;
-    &#x2F;&#x2F;队列中的消息会通过@RabbitHandler注解注入到方法参数中，就可以获取到队列中的消息
-    @RabbitHandler
-    public void reviceMessage(String message)&#123;
-        System.out.println(&quot;duanxin topic----接收到了订单信息是：-&gt;&quot; + message);
-    &#125;
-&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-
-
+<h3 id="【MQ中间件】RabbitMQ-–-RabbitMQ消息模式"><a href="#【MQ中间件】RabbitMQ-–-RabbitMQ消息模式" class="headerlink" title="【MQ中间件】RabbitMQ – RabbitMQ消息模式"></a>【MQ中间件】RabbitMQ – RabbitMQ消息模式</h3><blockquote>
+<h2 id="RabbitMQ入门"><a href="#RabbitMQ入门" class="headerlink" title="RabbitMQ入门"></a>RabbitMQ入门</h2></blockquote>
 <p>默认情况下，rabbitmq是没有安装web端的客户端插件，需要安装才可以生效：</p>
 <pre class="line-numbers language-none"><code class="language-none">rabbitmq-plugins enable rabbitmq_management<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
@@ -585,19 +495,19 @@ public class TopicDuanxinConsumer &#123;
 <p> 一定要记住，在对应服务器(阿里云，腾讯云等)的安全组中开放<code>15672</code>的端口。</p>
 <blockquote>
 <h2 id="RabbitMQ架构"><a href="#RabbitMQ架构" class="headerlink" title="RabbitMQ架构"></a>RabbitMQ架构</h2></blockquote>
-<p><img src="/2022/11/04/middleware-rabbitmq1/jiagou.png" alt="RabbitMQ核心组成"></p>
-<p><img src="/2022/11/04/middleware-rabbitmq1/zhengtijiagou.png" alt="RabbitMQ整体架构"></p>
+<p><img src="/2022/11/04/middleware-rabbitmq-message/jiagou.png" alt="RabbitMQ核心组成"></p>
+<p><img src="/2022/11/04/middleware-rabbitmq-message/zhengtijiagou.png" alt="RabbitMQ整体架构"></p>
 <p>从架构图中可以看出：RabbitMQ架构包含了Provider（生产者）、Exchanges（交换机）、Queues（队列）、Consumer（消费者）。</p>
-<p><img src="/2022/11/04/middleware-rabbitmq1/liucheng.png" alt="RabbitMQ的运行流程"></p>
+<p><img src="/2022/11/04/middleware-rabbitmq-message/liucheng.png" alt="RabbitMQ的运行流程"></p>
 <blockquote>
 <h2 id="RabbitMQ支持的消息模式"><a href="#RabbitMQ支持的消息模式" class="headerlink" title="RabbitMQ支持的消息模式"></a>RabbitMQ支持的消息模式</h2></blockquote>
-<h3 id="简单模式-Simple"><a href="#简单模式-Simple" class="headerlink" title="简单模式 Simple"></a><strong>简单模式 Simple</strong></h3><p><img src="/2022/11/04/middleware-rabbitmq1/simple.png" alt="简单模式 Simple"></p>
+<h3 id="简单模式-Simple"><a href="#简单模式-Simple" class="headerlink" title="简单模式 Simple"></a><strong>简单模式 Simple</strong></h3><p><img src="/2022/11/04/middleware-rabbitmq-message/simple.png" alt="简单模式 Simple"></p>
 <p>在简单模式的消息发送中，不需要特别创建交换机（指定交换机的类型），通过默认的交换机Binding Default exchange，通过指定Routing key为queue name即可向queue name指向的Queue队列发送消息（1对1分发）。</p>
 <p>注意：</p>
 <p><code>rabbitmq发送消息一定有一个交换机，如果没有创建交换机，默认使用Default_exchange进行绑定。</code></p>
-<p><img src="/2022/11/04/middleware-rabbitmq1/default-exchange.png" alt="默认交换机"></p>
-<p><img src="/2022/11/04/middleware-rabbitmq1/default-binds.png" alt="默认交换机绑定"></p>
-<h3 id="工作队列模式-WorkQueues"><a href="#工作队列模式-WorkQueues" class="headerlink" title="工作队列模式 WorkQueues"></a><strong>工作队列模式 WorkQueues</strong></h3><p><img src="/2022/11/04/middleware-rabbitmq1/workqueues.png" alt="工作队列模式"></p>
+<p><img src="/2022/11/04/middleware-rabbitmq-message/default-exchange.png" alt="默认交换机"></p>
+<p><img src="/2022/11/04/middleware-rabbitmq-message/default-binds.png" alt="默认交换机绑定"></p>
+<h3 id="工作队列模式-WorkQueues"><a href="#工作队列模式-WorkQueues" class="headerlink" title="工作队列模式 WorkQueues"></a><strong>工作队列模式 WorkQueues</strong></h3><p><img src="/2022/11/04/middleware-rabbitmq-message/workqueues.png" alt="工作队列模式"></p>
 <p>工作队列模式也是指定的默认的default默认交换机对多个Queue消费者进行消息的发送，</p>
 <p>主要有两种模式：<br>1、<code>轮询模式分发</code>：一个消费者一条，按均分配，平均分，不会因为哪个消费者内部处理速率较快而减少消息的发送；</p>
 <p>​      轮询模式设置为自动应答</p>
@@ -605,41 +515,22 @@ public class TopicDuanxinConsumer &#123;
 <p>2、<code>公平分发</code>：根据消费者的消费能力进行公平分发，处理快的处理的多，处理慢的处理的少；按劳分配；</p>
 <p>​     设置为手动应答</p>
 <p>​     开启限流</p>
-<h3 id="发布订阅模式-Publish-Subscribe"><a href="#发布订阅模式-Publish-Subscribe" class="headerlink" title="发布订阅模式 Publish/Subscribe"></a><strong>发布订阅模式 Publish/Subscribe</strong></h3><p><img src="/2022/11/04/middleware-rabbitmq1/publishsubscribe.png" alt="发布订阅模式"></p>
+<h3 id="发布订阅模式-Publish-Subscribe"><a href="#发布订阅模式-Publish-Subscribe" class="headerlink" title="发布订阅模式 Publish/Subscribe"></a><strong>发布订阅模式 Publish/Subscribe</strong></h3><p><img src="/2022/11/04/middleware-rabbitmq-message/publishsubscribe.png" alt="发布订阅模式"></p>
 <p>发布订阅模式使用fanout类型交换机绑定每一个消费者Queue队列，相当于广播的形式，订阅了该交换机（频道）的Queue都会收到通过交换机发送的来自生产者的消息。</p>
-<p><img src="/2022/11/04/middleware-rabbitmq1/psExchange.png" alt="发布订阅交换机"></p>
-<h3 id="路由模式Routing"><a href="#路由模式Routing" class="headerlink" title="路由模式Routing"></a><strong>路由模式Routing</strong></h3><p><img src="/2022/11/04/middleware-rabbitmq1/routing.png" alt="路由模式"></p>
+<p><img src="/2022/11/04/middleware-rabbitmq-message/psExchange.png" alt="发布订阅交换机"></p>
+<h3 id="路由模式Routing"><a href="#路由模式Routing" class="headerlink" title="路由模式Routing"></a><strong>路由模式Routing</strong></h3><p><img src="/2022/11/04/middleware-rabbitmq-message/routing.png" alt="路由模式"></p>
 <p>路由模式的交换机类型是：<strong>direct类型</strong></p>
 <p>路由模式与发布订阅模式非常相似，也非常容易理解。它只是在发布订阅模式上新增了路由key，通过对应的路由key与对应的Queue进行绑定，这个Queue就被key唯一标识了。</p>
 <p>然后当交换机再去发送消息的时候，会在绑定了交换机的Queue中指定对应的路由key进行发送，只有对应路由key为发送key一一对应的才能收到消息。</p>
-<p><img src="/2022/11/04/middleware-rabbitmq1/direct.png" alt="路由交换机"></p>
-<h3 id="主题Topic模式"><a href="#主题Topic模式" class="headerlink" title="主题Topic模式"></a><strong>主题Topic模式</strong></h3><p><img src="/2022/11/04/middleware-rabbitmq1/topicExchange.png" alt="主题模式"></p>
+<p><img src="/2022/11/04/middleware-rabbitmq-message/direct.png" alt="路由交换机"></p>
+<h3 id="主题Topic模式"><a href="#主题Topic模式" class="headerlink" title="主题Topic模式"></a><strong>主题Topic模式</strong></h3><p><img src="/2022/11/04/middleware-rabbitmq-message/topicExchange.png" alt="主题模式"></p>
 <p>主题模式topics相较于路由模式是非常相似的，只不过在路由的基础之上增加了支持模糊匹配的Routing key的形式。 </p>
 <p>主题模式的交换机类型选择必须是topic类型。</p>
 <p>匹配规则：</p>
 <p>#：表示0个或者多个，取值范围为[0,+无穷大）</p>
 <p>*：表示1个，取值为1，即必须要有一个。</p>
-<p><img src="/2022/11/04/middleware-rabbitmq1/topic.png" alt="topic模式交换机"></p>
-<h3 id="参数模式"><a href="#参数模式" class="headerlink" title="参数模式"></a><strong>参数模式</strong></h3><blockquote>
-<h4 id="RabbitMQ消息可靠性投递"><a href="#RabbitMQ消息可靠性投递" class="headerlink" title="RabbitMQ消息可靠性投递"></a>RabbitMQ消息可靠性投递</h4></blockquote>
-<p>先来说明一个概念，什么是可靠投递呢？在RabbitMQ中，一个消息从生产者发送到RabbitMQ服务器，需要经历这么几个步骤：</p>
-<ol>
-<li>生产者准备好需要投递的消息。</li>
-<li>生产者与RabbitMQ服务器建立连接。</li>
-<li>生产者发送消息。</li>
-<li>RabbitMQ服务器接收到消息，并将其路由到指定队列。</li>
-<li>RabbitMQ服务器发起回调，告知生产者消息发送成功。</li>
-</ol>
-<p>所谓可靠投递，就是确保消息能够百分百从生产者发送到服务器。</p>
-<p><img src="/2022/11/04/middleware-rabbitmq1/producer.jpg" alt="生产者发送消息流程"></p>
-<p>为了避免争议，补充说明一下，如果没有设置Mandatory参数，是不需要先路由消息才发起回调的，服务器收到消息后就会进行回调确认。</p>
-<p>2、3、5步都是通过TCP连接进行交互，有网络调用的地方就会有事故，网络波动随时都有可能发生，不管是内部机房停电，还是外部光缆被切，网络事故无法预测，虽然这些都是小概率事件，但对于订单等敏感数据处理来说，这些情况下导致消息丢失都是不可接受的。</p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_35387940/article/details/100514134">https://blog.csdn.net/qq_35387940/article/details/100514134</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/mfrank/p/11380102.html">https://www.cnblogs.com/mfrank/p/11380102.html</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_35387940/article/details/100514134">https://blog.csdn.net/qq_35387940/article/details/100514134</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/yif0118/p/14664154.html">https://www.cnblogs.com/yif0118/p/14664154.html</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/yif0118/p/14665274.html">https://www.cnblogs.com/yif0118/p/14665274.html</a></p>
-
+<p><img src="/2022/11/04/middleware-rabbitmq-message/topic.png" alt="topic模式交换机"></p>
+<h3 id="参数模式"><a href="#参数模式" class="headerlink" title="参数模式"></a><strong>参数模式</strong></h3>
                 
             </div>
             <hr/>
@@ -665,7 +556,7 @@ public class TopicDuanxinConsumer &#123;
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://qinglei1989.github.io/2022/11/04/middleware-rabbitmq1/">https://qinglei1989.github.io/2022/11/04/middleware-rabbitmq1/</a>
+                    <a href="https://qinglei1989.github.io/2022/11/04/middleware-rabbitmq-message/">https://qinglei1989.github.io/2022/11/04/middleware-rabbitmq-message/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -901,6 +792,43 @@ public class TopicDuanxinConsumer &#123;
                         </span>
                         <span class="publish-author">
                             
+                            <i class="fas fa-user fa-fw"></i>
+                            WangQingLei
+                            
+                        </span>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2022/11/04/middleware-rabbitmq-springboot/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="spring-boot-rabbitmq">
+                        
+                        <span class="card-title">spring-boot-rabbitmq</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            SpringBoot整合RabbitMQ
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-11-04
+                            </span>
+                        <span class="publish-author">
+                            
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
                             <a href="/categories/rabbitmq/" class="post-category">
@@ -916,58 +844,6 @@ public class TopicDuanxinConsumer &#123;
                     
                     <a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/">
                         <span class="chip bg-color">中间件</span>
-                    </a>
-                    
-                </div>
-                
-            </div>
-        </div>
-        
-        
-        <div class="article col s12 m6" data-aos="fade-up">
-            <div class="article-badge right-badge text-color">
-                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
-            </div>
-            <div class="card">
-                <a href="/2022/10/28/spring-boot-shardingjdbc/">
-                    <div class="card-image">
-                        
-                        
-                        <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="spring-boot-shardingjdbc">
-                        
-                        <span class="card-title">spring-boot-shardingjdbc</span>
-                    </div>
-                </a>
-                <div class="card-content article-content">
-                    <div class="summary block-with-text">
-                        
-                            Mysql数据库架构演进从单机到主从到分库分表在数据量及访问压力不是特别大的情况，首先考虑缓存、读写分离、索引技术等方案
-
-如果数据量极大，且业务持续增长快，再考虑分库分表方案
-
-                        
-                    </div>
-                    <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-10-28
-                            </span>
-                        <span class="publish-author">
-                            
-                            <i class="fas fa-bookmark fa-fw icon-category"></i>
-                            
-                            <a href="/categories/Spring/" class="post-category">
-                                    Spring
-                                </a>
-                            
-                            
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="card-action article-tags">
-                    
-                    <a href="/tags/spring-boot/">
-                        <span class="chip bg-color">spring-boot</span>
                     </a>
                     
                 </div>

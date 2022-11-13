@@ -480,7 +480,7 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>记录Springboot整合mybatis-plus中遇到的问题。</p>
+                <p>RabbitMQ消息持久化与内存管控。</p>
 <span id="more"></span>
 
 <h3 id="【MQ中间件】RabbitMQ消息持久化与内存管控"><a href="#【MQ中间件】RabbitMQ消息持久化与内存管控" class="headerlink" title="【MQ中间件】RabbitMQ消息持久化与内存管控"></a>【MQ中间件】RabbitMQ消息持久化与内存管控</h3><blockquote>
@@ -519,12 +519,12 @@ vm_memory_high_watermark.relative&#x3D;0.4
 #绝对值，单位为KB,MB,GB,对应的临时命令是：RabbitMQctl set_vm_memory_high_watermark absolute &lt;value&gt;
 #vm_memory_high_watermark.absolute&#x3D;1GB<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p><img src="https://img2020.cnblogs.com/blog/1309074/202104/1309074-20210430125827890-512933199.png" alt="img"></p>
+<p><img src="/2022/11/12/middleware-rabbitmq-monitor/blocked.png" alt="阻塞"></p>
 <p>当出现blocking或blocked话说明到达了阈值和以及高负荷运行了。</p>
 <h4 id="内存换页"><a href="#内存换页" class="headerlink" title="内存换页"></a>内存换页</h4><p>在某个broker节点触及内存并阻塞生产者之前，他会尝试将队列内存中的消息换页存储到磁盘以释放内存空间。持久化和非持久化的消息都会被转储到磁盘中，其中持久化的消息本身就在磁盘中有一个备份，所以这里会将持久化的消息从内存中清除掉。<br>默认情况下，在内存达到内存阈值的50%时会进行换页操作。也就是说，在默认的内存阈值40%的情况下，当内存超过0.4*0.5=0.2时会经行换页动作。<br>内存换页可以通过在配置文件中设置来进行调整。</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">vm_memory_high_watermark_paging_ratio&#x3D;0.75<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
-<h4 id="磁盘限制"><a href="#磁盘限制" class="headerlink" title="磁盘限制"></a>磁盘限制</h4><p>当磁盘剩余空间低于设置的阈值时，RabbitMQ同样会阻塞生产者，这样可以避免因非持久化的消息持续换页而耗尽磁盘空间导致服务崩溃。<br>默认情况下，磁盘的阈值是5OM，表示当磁盘剩余空间低于5OM时，会阻塞生产者并停止内存中消息的换页动作。这个阈值的设置可以减小，但不能完全消除因磁盘耗尽而导致崩溃的可能性。比如在两次磁盘空间检测期间内，磁盘空间从大于50M被耗尽到OM。<br>备注:一个相对谨慎的做法是将磁盘阈值设置为与操作系统所显示的内存大小一致。<br>通过以下命令可以临时调整磁盘阈值</p>
+<h4 id="磁盘限制"><a href="#磁盘限制" class="headerlink" title="磁盘限制"></a>磁盘限制</h4><p>当磁盘剩余空间低于设置的阈值时，RabbitMQ同样会阻塞生产者，这样可以避免因非持久化的消息持续换页而耗尽磁盘空间导致服务崩溃。<br>默认情况下，磁盘的阈值是5OM，表示当磁盘剩余空间低于5OM时，会阻塞生产者并停止内存中消息的换页动作。这个阈值的设置可以减小，但不能完全消除因磁盘耗尽而导致崩溃的可能性。比如在两次磁盘空间检测期间内，磁盘空间从大于50M被耗尽到OM。<br><code>备注:一个相对谨慎的做法是将磁盘阈值设置为与操作系统所显示的内存大小一致。</code><br>通过以下命令可以临时调整磁盘阈值</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">#设置具体大小，单位为KB&#x2F;MB&#x2F;GB
 rabbitmqctl set_disk_free_limit &lt;disk_limit&gt;
 #设置相对值，建议取值为1.0~2.0(相对于内存的倍数，如内存大小是8c,若为1.0，则表示磁盘剩余8G时阻塞)
@@ -539,7 +539,7 @@ disk_free_limit.relative&#x3D;2.0
 <blockquote>
 <h3 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h3></blockquote>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/fly910905/article/details/122872692">RabbitMQ持久化机制</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/yif0118/p/14721668.html">RabbitMQ – RabbitMQ死信队列及内存监控</a>](<a target="_blank" rel="noopener" href="https://www.cnblogs.com/yif0118/p/14721668.html">https://www.cnblogs.com/yif0118/p/14721668.html</a>)</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/yif0118/p/14721668.html">RabbitMQ – RabbitMQ死信队列及内存监控</a></p>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/fly910905/article/details/122872692">RabbitMQ持久化机制</a></p>
 
                 
@@ -795,7 +795,7 @@ disk_free_limit.relative&#x3D;2.0
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            记录Springboot整合mybatis-plus中遇到的问题。
+                            RabbitMQ消息持久化与内存管控。
                         
                     </div>
                     <div class="publish-info">
@@ -854,23 +854,11 @@ disk_free_limit.relative&#x3D;2.0
                             </span>
                         <span class="publish-author">
                             
-                            <i class="fas fa-bookmark fa-fw icon-category"></i>
-                            
-                            <a href="/categories/rabbitmq/" class="post-category">
-                                    rabbitmq
-                                </a>
-                            
+                            <i class="fas fa-user fa-fw"></i>
+                            WangQingLei
                             
                         </span>
                     </div>
-                </div>
-                
-                <div class="card-action article-tags">
-                    
-                    <a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/">
-                        <span class="chip bg-color">中间件</span>
-                    </a>
-                    
                 </div>
                 
             </div>
