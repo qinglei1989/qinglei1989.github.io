@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>spring-boot-rabbitmq | 山西小魔头技术博客</title>
+    <title>SpringBoot整合RabbitMQ | 山西小魔头技术博客</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/9.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/7.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">spring-boot-rabbitmq</h1>
+                    <h1 class="description center-align post-title">SpringBoot整合RabbitMQ</h1>
                 </div>
             </div>
         </div>
@@ -456,7 +456,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2022-11-04
+                    2022-11-13
                 </div>
                 
 
@@ -683,7 +683,7 @@ ConfirmCallback:     原因：null<span aria-hidden="true" class="line-numbers-r
 <p>同样使用不确认后重新入列这个确认模式要谨慎，因为这里也可能因为考虑不周出现消息一直被重新丢回去的情况，导致积压。</p>
 <h4 id="mandatory与备份交换机-Alternate-Exchange"><a href="#mandatory与备份交换机-Alternate-Exchange" class="headerlink" title="mandatory与备份交换机(Alternate Exchange)"></a>mandatory与备份交换机(Alternate Exchange)</h4><p>备份交换机：为一个普通交换机添加一个”备胎“，当交换机接收到一条无法路由的消息时，就会把消息转发给备份交换机，有备份交换机来转发和处理，该交换机类型一般为”fanout“型，这样就可以把所有消息发送到与其绑定队列中去。</p>
 <p>案例：一个生产者发送一条路由不通的消息，看看备份交换机如何处理，如下图：</p>
-<p><img src="/2022/11/04/middleware-rabbitmq-springboot/backupexchange.png" alt="备份交换机"></p>
+<p><img src="/2022/11/13/middleware-rabbitmq-springboot/backupexchange.png" alt="备份交换机"></p>
 <p>当mandatory参数设为true时，交换器无法根据自身的类型和路由键找到一个符合条件的队列，那么 RabbitMQ会调用Basic.Return命令将消息返回给生产者。当mandatory参数设置为false时，出现上述情形，则消息直接被丢弃。</p>
 <p>生产者在发送消息的时候如果不设置mandatory参数，那么消息在未被路由的情况下将会丢失;如果设置了mandatory参数，那么需要添加ReturnListener的编程逻辑，生产者的代码将变得复杂。如果既不想复杂化生产者的编程逻辑，又不想消息丢失，那么可以使用备份交换器，这样可以将未被路由的消息存储在RabbitMQ中，再在需要的时候去处理这些消息。这样可以将未被路由的消息存储在RabbitMQ中，再在需要的时候去处理这些消息。</p>
 <p>对于备份交换器，总结了以下几种特殊情况:<br>如果设置的备份交换器不存在，客户端和RabbitMQ服务端都不会有异常出现，此时消息会丢失。</p>
@@ -872,7 +872,7 @@ Caused by: org.springframework.amqp.AmqpException: PublisherCallbackChannel is c
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://qinglei1989.github.io/2022/11/04/middleware-rabbitmq-springboot/">https://qinglei1989.github.io/2022/11/04/middleware-rabbitmq-springboot/</a>
+                    <a href="https://qinglei1989.github.io/2022/11/13/middleware-rabbitmq-springboot/">https://qinglei1989.github.io/2022/11/13/middleware-rabbitmq-springboot/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -1087,25 +1087,74 @@ Caused by: org.springframework.amqp.AmqpException: PublisherCallbackChannel is c
             <div class="article-badge left-badge text-color">
                 <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2022/11/04/middleware-rabbitmq-message/">
+                <a href="/2022/11/16/elasticsearch-introduction/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/15.jpg" class="responsive-img" alt="RabbitMQ -- RabbitMQ消息模式">
+                        <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="Elasticsearch核心概念">
                         
-                        <span class="card-title">RabbitMQ -- RabbitMQ消息模式</span>
+                        <span class="card-title">Elasticsearch核心概念</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            RabbitMQ – RabbitMQ消息模式
+                            Elasticsearch核心概念。
                         
                     </div>
                     <div class="publish-info">
                         <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2022-11-04
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-11-16
                         </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="post-category">
+                                    中间件
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/Elasticsearch/">
+                        <span class="chip bg-color">Elasticsearch</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2022/11/12/middleware-rabbitmq-monitor/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/14.jpg" class="responsive-img" alt="RabbitMQ消息持久化与内存管控">
+                        
+                        <span class="card-title">RabbitMQ消息持久化与内存管控</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            RabbitMQ消息持久化与内存管控。
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-11-12
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -1123,58 +1172,6 @@ Caused by: org.springframework.amqp.AmqpException: PublisherCallbackChannel is c
                     
                     <a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/">
                         <span class="chip bg-color">中间件</span>
-                    </a>
-                    
-                </div>
-                
-            </div>
-        </div>
-        
-        
-        <div class="article col s12 m6" data-aos="fade-up">
-            <div class="article-badge right-badge text-color">
-                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
-            </div>
-            <div class="card">
-                <a href="/2022/10/28/spring-boot-shardingjdbc/">
-                    <div class="card-image">
-                        
-                        
-                        <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="spring-boot-shardingjdbc">
-                        
-                        <span class="card-title">spring-boot-shardingjdbc</span>
-                    </div>
-                </a>
-                <div class="card-content article-content">
-                    <div class="summary block-with-text">
-                        
-                            Mysql数据库架构演进从单机到主从到分库分表在数据量及访问压力不是特别大的情况，首先考虑缓存、读写分离、索引技术等方案
-
-如果数据量极大，且业务持续增长快，再考虑分库分表方案
-
-                        
-                    </div>
-                    <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-10-28
-                            </span>
-                        <span class="publish-author">
-                            
-                            <i class="fas fa-bookmark fa-fw icon-category"></i>
-                            
-                            <a href="/categories/Spring/" class="post-category">
-                                    Spring
-                                </a>
-                            
-                            
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="card-action article-tags">
-                    
-                    <a href="/tags/spring-boot/">
-                        <span class="chip bg-color">spring-boot</span>
                     </a>
                     
                 </div>

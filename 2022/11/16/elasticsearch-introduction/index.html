@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="SpringBoot,rabbitmq">
+    <meta name="keywords" content="Elasticsearch">
     <meta name="description" content="失落时悄悄徘徊，伤感时默默遐想">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>spring-boot-rabbitmq | 山西小魔头技术博客</title>
+    <title>Elasticsearch核心概念 | 山西小魔头技术博客</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/9.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/11.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">spring-boot-rabbitmq</h1>
+                    <h1 class="description center-align post-title">Elasticsearch核心概念</h1>
                 </div>
             </div>
         </div>
@@ -429,12 +429,25 @@
             <div class="row tag-cate">
                 <div class="col s7">
                     
-                          <div class="article-tag">
-                            <span class="chip bg-color">无标签</span>
-                          </div>
+                    <div class="article-tag">
+                        
+                            <a href="/tags/Elasticsearch/">
+                                <span class="chip bg-color">Elasticsearch</span>
+                            </a>
+                        
+                    </div>
                     
                 </div>
                 <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="post-category">
+                                中间件
+                            </a>
+                        
+                    </div>
                     
                 </div>
             </div>
@@ -443,7 +456,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2022-11-04
+                    2022-11-16
                 </div>
                 
 
@@ -467,57 +480,51 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>记录Springboot整合mybatis-plus中遇到的问题。</p>
+                <p>Elasticsearch核心概念。</p>
 <span id="more"></span>
 
-<h3 id="【MQ中间件】RabbitMQ-–-RabbitMQ消息模式"><a href="#【MQ中间件】RabbitMQ-–-RabbitMQ消息模式" class="headerlink" title="【MQ中间件】RabbitMQ – RabbitMQ消息模式"></a>【MQ中间件】RabbitMQ – RabbitMQ消息模式</h3><blockquote>
-<h2 id="RabbitMQ入门"><a href="#RabbitMQ入门" class="headerlink" title="RabbitMQ入门"></a>RabbitMQ入门</h2></blockquote>
-<p>默认情况下，rabbitmq是没有安装web端的客户端插件，需要安装才可以生效：</p>
-<pre class="line-numbers language-none"><code class="language-none">rabbitmq-plugins enable rabbitmq_management<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<center><h2>Elasticsearch核心概念</h2></center>  
 
-<p> 说明：rabbitmq有一个默认账号和密码是：**<code>guest</code>** 默认情况只能在localhost本机下访问，所以需要添加一个远程登录的用户。</p>
-<p> 安装完毕以后，重启服务即可</p>
-<pre class="line-numbers language-none"><code class="language-none">systemctl restart rabbitmq-server<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<blockquote>
+<h3 id="lucene和elasticsearch"><a href="#lucene和elasticsearch" class="headerlink" title="lucene和elasticsearch"></a>lucene和elasticsearch</h3></blockquote>
+<p>lucene是一个 Java库 ，最先进、功能最强大的搜索库，直接基于lucene开发，非常复杂，api复杂（实现一些简单的功能，写大量的java代码），需要深入理解原理（各种索引结构）。</p>
+<p>Elasticsearch基于lucene，是一个基于 JSON ， 分布式 ， 网络服务器。提供简单易用的restful api接口</p>
+<p>所以总结一下：</p>
+<ol>
+<li>Elasticsearch 基于Lucene构建，并提供基于 JSON的REST API来引用Lucene功能。</li>
+<li>Elasticsearch在Lucene之上 提供了一个 分布式系统 。Lucene并没有意识到分布式系统的存在。Elasticsearch提供了这种分布式结构的抽象。</li>
+<li>Elasticsearch提供了其他支持功能，例如线程池，队列，节点/集群监视API，数据监视API，集群管理等。</li>
+</ol>
+<blockquote>
+<h3 id="elasticsearch的核心概念"><a href="#elasticsearch的核心概念" class="headerlink" title="elasticsearch的核心概念"></a>elasticsearch的核心概念</h3></blockquote>
+<blockquote>
+<h4 id="NRT"><a href="#NRT" class="headerlink" title="NRT"></a>NRT</h4></blockquote>
+<p>Near Realtime（NRT）：近实时，两个意思，从写入数据到数据可以被搜索到有一个小延迟（大概1秒）；基于es执行搜索和分析可以达到秒级</p>
+<blockquote>
+<h4 id="Cluster"><a href="#Cluster" class="headerlink" title="Cluster"></a>Cluster</h4></blockquote>
+<p>集群，包含多个节点，每个节点属于哪个集群是通过一个配置（集群名称，默认是elasticsearch）来决定的。</p>
+<blockquote>
+<h4 id="Node"><a href="#Node" class="headerlink" title="Node"></a>Node</h4></blockquote>
+<p>节点，集群中的一个节点，节点也有一个名称（默认是随机分配的），节点名称很重要（在执行运维管理操作的时候），默认节点会去加入一个名称为“elasticsearch”的集群，如果直接启动一堆节点，那么它们会自动组成一个elasticsearch集群，当然一个节点也可以组成一个elasticsearch集群</p>
+<blockquote>
+<h4 id="Document-amp-field"><a href="#Document-amp-field" class="headerlink" title="Document&amp;field"></a>Document&amp;field</h4></blockquote>
+<p>文档，es中的最小数据单元，一个document可以是一条客户数据，一条商品分类数据，一条订单数据，通常用JSON数据结构表示，每个index下的type中，都可以去存储多个document。一个document里面有多个field，每个field就是一个数据字段。</p>
+<p><code>相当于数据库中的行和字段</code></p>
+<blockquote>
+<h4 id="Index"><a href="#Index" class="headerlink" title="Index"></a>Index</h4></blockquote>
+<p>索引，包含一堆有相似结构的文档数据，比如可以有一个客户索引，商品分类索引，订单索引，索引有一个名称。一个index包含很多document，一个index就代表了一类类似的或者相同的document。比如说建立一个product index，商品索引，里面可能就存放了所有的商品数据，所有的商品document。</p>
+<p><code>相当于数据库</code></p>
+<blockquote>
+<h4 id="Type"><a href="#Type" class="headerlink" title="Type"></a>Type</h4></blockquote>
+<p>类型，每个索引里都可以有一个或多个type，type是index中的一个逻辑数据分类，一个type下的document，都有相同的field，比如博客系统，有一个索引，可以定义用户数据type，博客数据type，评论数据type。</p>
+<p><code>相当于数据库中的表</code></p>
+<blockquote>
+<h4 id="shard"><a href="#shard" class="headerlink" title="shard"></a>shard</h4></blockquote>
+<p>单台机器无法存储大量数据，es可以将一个索引中的数据切分为多个shard，分布在多台服务器上存储。有了shard就可以横向扩展，存储更多数据，让搜索和分析等操作分布到多台服务器上去执行，提升吞吐量和性能。每个shard都是一个lucene index。</p>
+<blockquote>
+<h4 id="replica"><a href="#replica" class="headerlink" title="replica"></a>replica</h4></blockquote>
+<p>任何一个服务器随时可能故障或宕机，此时shard可能就会丢失，因此可以为每个shard创建多个replica副本。replica可以在shard故障时提供备用服务，保证数据不丢失，多个replica还可以提升搜索操作的吞吐量和性能</p>
 
-<p> 一定要记住，在对应服务器(阿里云，腾讯云等)的安全组中开放<code>15672</code>的端口。</p>
-<blockquote>
-<h2 id="RabbitMQ架构"><a href="#RabbitMQ架构" class="headerlink" title="RabbitMQ架构"></a>RabbitMQ架构</h2></blockquote>
-<p><img src="/2022/11/04/middleware-rabbitmq/jiagou.png" alt="RabbitMQ核心组成"></p>
-<p><img src="/2022/11/04/middleware-rabbitmq/zhengtijiagou.png" alt="RabbitMQ整体架构"></p>
-<p>从架构图中可以看出：RabbitMQ架构包含了Provider（生产者）、Exchanges（交换机）、Queues（队列）、Consumer（消费者）。</p>
-<p><img src="/2022/11/04/middleware-rabbitmq/liucheng.png" alt="RabbitMQ的运行流程"></p>
-<blockquote>
-<h2 id="RabbitMQ支持的消息模式"><a href="#RabbitMQ支持的消息模式" class="headerlink" title="RabbitMQ支持的消息模式"></a>RabbitMQ支持的消息模式</h2></blockquote>
-<h3 id="简单模式-Simple"><a href="#简单模式-Simple" class="headerlink" title="简单模式 Simple"></a><strong>简单模式 Simple</strong></h3><p><img src="/2022/11/04/middleware-rabbitmq/simple.png" alt="简单模式 Simple"></p>
-<p>在简单模式的消息发送中，不需要特别创建交换机（指定交换机的类型），通过默认的交换机Binding Default exchange，通过指定Routing key为queue name即可向queue name指向的Queue队列发送消息（1对1分发）。</p>
-<p>注意：</p>
-<p><code>rabbitmq发送消息一定有一个交换机，如果没有创建交换机，默认使用Default_exchange进行绑定。</code></p>
-<p><img src="/2022/11/04/middleware-rabbitmq/default-exchange.png" alt="默认交换机"></p>
-<p><img src="/2022/11/04/middleware-rabbitmq/default-binds.png" alt="默认交换机绑定"></p>
-<h3 id="工作队列模式-WorkQueues"><a href="#工作队列模式-WorkQueues" class="headerlink" title="工作队列模式 WorkQueues"></a><strong>工作队列模式 WorkQueues</strong></h3><p><img src="/2022/11/04/middleware-rabbitmq/workqueues.png" alt="工作队列模式"></p>
-<p>工作队列模式也是指定的默认的default默认交换机对多个Queue消费者进行消息的发送，</p>
-<p>主要有两种模式：<br>1、<code>轮询模式分发</code>：一个消费者一条，按均分配，平均分，不会因为哪个消费者内部处理速率较快而减少消息的发送；</p>
-<p>​      轮询模式设置为自动应答</p>
-<p>​      不设置限流</p>
-<p>2、<code>公平分发</code>：根据消费者的消费能力进行公平分发，处理快的处理的多，处理慢的处理的少；按劳分配；</p>
-<p>​     设置为手动应答</p>
-<p>​     开启限流</p>
-<h3 id="发布订阅模式-Publish-Subscribe"><a href="#发布订阅模式-Publish-Subscribe" class="headerlink" title="发布订阅模式 Publish/Subscribe"></a><strong>发布订阅模式 Publish/Subscribe</strong></h3><p><img src="/2022/11/04/middleware-rabbitmq/publishsubscribe.png" alt="发布订阅模式"></p>
-<p>发布订阅模式使用fanout类型交换机绑定每一个消费者Queue队列，相当于广播的形式，订阅了该交换机（频道）的Queue都会收到通过交换机发送的来自生产者的消息。</p>
-<p><img src="/2022/11/04/middleware-rabbitmq/psExchange.png" alt="发布订阅交换机"></p>
-<h3 id="路由模式Routing"><a href="#路由模式Routing" class="headerlink" title="路由模式Routing"></a><strong>路由模式Routing</strong></h3><p><img src="/2022/11/04/middleware-rabbitmq/routing.png" alt="路由模式"></p>
-<p>路由模式的交换机类型是：<strong>direct类型</strong></p>
-<p>路由模式与发布订阅模式非常相似，也非常容易理解。它只是在发布订阅模式上新增了路由key，通过对应的路由key与对应的Queue进行绑定，这个Queue就被key唯一标识了。</p>
-<p>然后当交换机再去发送消息的时候，会在绑定了交换机的Queue中指定对应的路由key进行发送，只有对应路由key为发送key一一对应的才能收到消息。</p>
-<p><img src="/2022/11/04/middleware-rabbitmq/direct.png" alt="路由交换机"></p>
-<h3 id="主题Topic模式"><a href="#主题Topic模式" class="headerlink" title="主题Topic模式"></a><strong>主题Topic模式</strong></h3><p><img src="/2022/11/04/middleware-rabbitmq/topicExchange.png" alt="主题模式"></p>
-<p>主题模式topics相较于路由模式是非常相似的，只不过在路由的基础之上增加了支持模糊匹配的Routing key的形式。 </p>
-<p>主题模式的交换机类型选择必须是topic类型。</p>
-<p>匹配规则：</p>
-<p>#：表示0个或者多个，取值范围为[0,+无穷大）</p>
-<p>*：表示1个，取值为1，即必须要有一个。</p>
-<p><img src="/2022/11/04/middleware-rabbitmq/topic.png" alt="topic模式交换机"></p>
-<h3 id="参数模式"><a href="#参数模式" class="headerlink" title="参数模式"></a><strong>参数模式</strong></h3>
                 
             </div>
             <hr/>
@@ -543,7 +550,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://qinglei1989.github.io/2022/11/04/middleware-rabbitmq/">https://qinglei1989.github.io/2022/11/04/middleware-rabbitmq/</a>
+                    <a href="https://qinglei1989.github.io/2022/11/16/elasticsearch-introduction/">https://qinglei1989.github.io/2022/11/16/elasticsearch-introduction/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -580,7 +587,11 @@
                 <div class="post-meta__tag-list" style="display: inline-block;">
                     
                         <div class="article-tag">
-                            <span class="chip bg-color">无标签</span>
+                            
+                                <a href="/tags/Elasticsearch/">
+                                    <span class="chip bg-color">Elasticsearch</span>
+                                </a>
+                            
                         </div>
                     
                 </div>
@@ -750,46 +761,48 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
-                <a href="/2022/11/12/middleware-rabbitmq-monitor/">
+                <a href="/2022/11/16/elasticsearch-introduction/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/14.jpg" class="responsive-img" alt="RabbitMQ消息持久化与内存管控">
+                        <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="Elasticsearch核心概念">
                         
-                        <span class="card-title">RabbitMQ消息持久化与内存管控</span>
+                        <span class="card-title">Elasticsearch核心概念</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            RabbitMQ消息持久化与内存管控。
+                            Elasticsearch核心概念。
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2022-11-12
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-11-16
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/rabbitmq/" class="post-category">
-                                    rabbitmq
+                            <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="post-category">
+                                    中间件
                                 </a>
                             
                             
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/">
-                        <span class="chip bg-color">中间件</span>
+                    <a href="/tags/Elasticsearch/">
+                        <span class="chip bg-color">Elasticsearch</span>
                     </a>
                     
                 </div>
@@ -803,24 +816,24 @@
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2022/11/04/middleware-rabbitmq-message/">
+                <a href="/2022/11/13/middleware-rabbitmq-springboot/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/15.jpg" class="responsive-img" alt="RabbitMQ -- RabbitMQ消息模式">
+                        <img src="/medias/featureimages/7.jpg" class="responsive-img" alt="SpringBoot整合RabbitMQ">
                         
-                        <span class="card-title">RabbitMQ -- RabbitMQ消息模式</span>
+                        <span class="card-title">SpringBoot整合RabbitMQ</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            RabbitMQ – RabbitMQ消息模式
+                            SpringBoot整合RabbitMQ
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-11-04
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-11-13
                             </span>
                         <span class="publish-author">
                             
