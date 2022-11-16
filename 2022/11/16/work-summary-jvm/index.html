@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="Elasticsearch">
+    <meta name="keywords" content="JAVA,JVM,JAVA虚拟机,工作总结">
     <meta name="description" content="失落时悄悄徘徊，伤感时默默遐想">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>Elasticsearch核心概念 | 山西小魔头技术博客</title>
+    <title>工作总结-年轻代GC频繁 | 山西小魔头技术博客</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/11.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/2.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">Elasticsearch核心概念</h1>
+                    <h1 class="description center-align post-title">工作总结-年轻代GC频繁</h1>
                 </div>
             </div>
         </div>
@@ -431,8 +431,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/Elasticsearch/">
-                                <span class="chip bg-color">Elasticsearch</span>
+                            <a href="/tags/nginx/">
+                                <span class="chip bg-color">nginx</span>
                             </a>
                         
                     </div>
@@ -443,8 +443,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="post-category">
-                                中间件
+                            <a href="/categories/%E5%B7%A5%E4%BD%9C%E6%80%BB%E7%BB%93/" class="post-category">
+                                工作总结
                             </a>
                         
                     </div>
@@ -480,50 +480,172 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>Elasticsearch核心概念。</p>
+                <p>服务器从阿里云ECS迁移到58容器，为了保证迁移的顺利，在58容器做了一个简单的压测，发现了年轻代GC频繁的问题，在此做一下记录。</p>
 <span id="more"></span>
 
-<center><h2>Elasticsearch核心概念</h2></center>  
+<center><h1>nginx服务器</h1></center>
 
 <blockquote>
-<h3 id="lucene和elasticsearch"><a href="#lucene和elasticsearch" class="headerlink" title="lucene和elasticsearch"></a>lucene和elasticsearch</h3></blockquote>
-<p>lucene是一个 Java库 ，最先进、功能最强大的搜索库，直接基于lucene开发，非常复杂，api复杂（实现一些简单的功能，写大量的java代码），需要深入理解原理（各种索引结构）。</p>
-<p>Elasticsearch基于lucene，是一个基于 JSON ， 分布式 ， 网络服务器。提供简单易用的restful api接口</p>
-<p>所以总结一下：</p>
-<ol>
-<li>Elasticsearch 基于Lucene构建，并提供基于 JSON的REST API来引用Lucene功能。</li>
-<li>Elasticsearch在Lucene之上 提供了一个 分布式系统 。Lucene并没有意识到分布式系统的存在。Elasticsearch提供了这种分布式结构的抽象。</li>
-<li>Elasticsearch提供了其他支持功能，例如线程池，队列，节点/集群监视API，数据监视API，集群管理等。</li>
-</ol>
+<h2 id="环境配置及相关监控"><a href="#环境配置及相关监控" class="headerlink" title="环境配置及相关监控"></a>环境配置及相关监控</h2></blockquote>
 <blockquote>
-<h3 id="elasticsearch的核心概念"><a href="#elasticsearch的核心概念" class="headerlink" title="elasticsearch的核心概念"></a>elasticsearch的核心概念</h3></blockquote>
+<p>阿里云ECS配置</p>
+</blockquote>
+<p><img src="/2022/11/16/work-summary-jvm/aliyun.png" alt="阿里云ECS配置"></p>
 <blockquote>
-<h4 id="NRT"><a href="#NRT" class="headerlink" title="NRT"></a>NRT</h4></blockquote>
-<p>Near Realtime（NRT）：近实时，两个意思，从写入数据到数据可以被搜索到有一个小延迟（大概1秒）；基于es执行搜索和分析可以达到秒级</p>
+<p>阿里云ECS监控</p>
+</blockquote>
+<p><img src="/2022/11/16/work-summary-jvm/aliyun-jiankong.png" alt="阿里云ECS监控"></p>
 <blockquote>
-<h4 id="Cluster"><a href="#Cluster" class="headerlink" title="Cluster"></a>Cluster</h4></blockquote>
-<p>集群，包含多个节点，每个节点属于哪个集群是通过一个配置（集群名称，默认是elasticsearch）来决定的。</p>
+<p>58容器</p>
+</blockquote>
+<p><img src="/2022/11/16/work-summary-jvm/58.png" alt="58容器配置"></p>
 <blockquote>
-<h4 id="Node"><a href="#Node" class="headerlink" title="Node"></a>Node</h4></blockquote>
-<p>节点，集群中的一个节点，节点也有一个名称（默认是随机分配的），节点名称很重要（在执行运维管理操作的时候），默认节点会去加入一个名称为“elasticsearch”的集群，如果直接启动一堆节点，那么它们会自动组成一个elasticsearch集群，当然一个节点也可以组成一个elasticsearch集群</p>
+<h3 id="压测"><a href="#压测" class="headerlink" title="压测"></a>压测</h3></blockquote>
+<p>基于日常的NGINX日志重放做简单压测，58容器启动了两个POD，单台QPS在100/s左右。压测1小时之后的argus监控显示如下：</p>
+<p><img src="/2022/11/16/work-summary-jvm/argus1.png" alt="容器监控1"></p>
+<p><img src="/2022/11/16/work-summary-jvm/argus2.png" alt="容器监控2"></p>
 <blockquote>
-<h4 id="Document-amp-field"><a href="#Document-amp-field" class="headerlink" title="Document&amp;field"></a>Document&amp;field</h4></blockquote>
-<p>文档，es中的最小数据单元，一个document可以是一条客户数据，一条商品分类数据，一条订单数据，通常用JSON数据结构表示，每个index下的type中，都可以去存储多个document。一个document里面有多个field，每个field就是一个数据字段。</p>
-<p><code>相当于数据库中的行和字段</code></p>
+<h3 id="现像"><a href="#现像" class="headerlink" title="现像"></a>现像</h3></blockquote>
+<p>5分钟之内的GC次数最高达到了63次，平均GC次数达到了41.2次。而GC时长最长高达812ms，平均GC时长519ms。为什么会频繁的发生GC呢。</p>
+<p>分析gc日志，网址：<a target="_blank" rel="noopener" href="https://gceasy.ycrash.cn/gc-index.jsp%EF%BC%8C%E5%8F%91%E7%8E%B0%E4%BA%86%E4%B8%80%E4%B8%AA%E6%83%8A%E8%AE%B6%E7%9A%84%E5%9C%B0%E6%96%B9%EF%BC%8C%E5%A6%82%E4%B8%8B%EF%BC%9A">https://gceasy.ycrash.cn/gc-index.jsp，发现了一个惊讶的地方，如下：</a></p>
+<p><img src="/2022/11/16/work-summary-jvm/jvm-memory.png" alt="新生代与老年代内存容量"></p>
+<p>新生代的内存竟然之后166M。</p>
+<p>查看项目的jvm参数配置：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work          45      14 24 00:28 ?        00:00:30 &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;bin&#x2F;java -Dsun.misc.URLClassPath.disableJarChecking&#x3D;true -DLOG_PATH&#x3D;&#x2F;mnt&#x2F;logs&#x2F;authority-api-jmeter -server -XX:MaxRAMPercentage&#x3D;30.0 -XX:InitialRAMPercentage&#x3D;30.0 -XX:MinRAMPercentage&#x3D;30.0 -verbose:gc -XX:+UseParNewGC -XX:+PrintHeapAtGC -XX:+PrintGCDetails -XX:ConcGCThreads&#x3D;2 -XX:GCLogFileSize&#x3D;50M -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+UseConcMarkSweepGC -XX:ParallelGCThreads&#x3D;2 -XX:NumberOfGCLogFiles&#x3D;1 -XX:+UseGCLogFileRotation -XX:+ScavengeBeforeFullGC -XX:+CMSScavengeBeforeRemark -XX:+CMSParallelRemarkEnabled -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintGCApplicationStoppedTime -Dsun.net.httpserver.maxReqTime&#x3D;30 -Dsun.net.httpserver.maxRspTime&#x3D;30 -XX:CMSInitiatingOccupancyFraction&#x3D;70 -Xloggc:&#x2F;mnt&#x2F;logs&#x2F;authority-api-jmeter&#x2F;jvm&#x2F;gc.log -XX:HeapDumpPath&#x3D;&#x2F;mnt&#x2F;logs&#x2F;authority-api-jmeter&#x2F;jvm -javaagent:&#x2F;usr&#x2F;local&#x2F;jmx-exporter&#x2F;jmx_prometheus_javaagent-0.14.0.jar&#x3D;9990:&#x2F;usr&#x2F;local&#x2F;jmx-exporter&#x2F;prometheus-jmx-config.yaml -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -jar &#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api-jmeter&#x2F;lib&#x2F;authority-api.jar --server.address&#x3D;0.0.0.0 --spring.config.location&#x3D;&#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api-jmeter&#x2F;conf&#x2F; --spring.profiles.active&#x3D;production --logging.config&#x3D;&#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api-jmeter&#x2F;conf&#x2F;log4j2.yml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>容器模式下，我们可以给每个JVM实例所属的POD分配任意大小的内存上限。比如，给每个账户服务分配4G，给每个支付服务分配8G。如此一来，启动脚本就不好写成通用的了，指定3G也不是，指定6G也不是。</p>
+<p>但是有了这三个新增参数<strong>MaxRAMPercentage</strong>、<strong>InitialRAMPercentage</strong>、<strong>MinRAMPercentage</strong>，我们就可以在通用的启动脚本中指定堆的内存量百分比（-XX:MaxRAMPercentage=30 -XX:InitialRAMPercentage=30 -XX:MinRAMPercentage=30）。</p>
+<p>对于我们的8G内存，按照30%分配的话，我们就相当于设置了堆内存-Xmx2.4G -Xms2.4G，按照新生代与老年代的默认比例1：2来说。新生代的大小应该为0.8G，老年代1.6G。</p>
+<p>通过<code>jmap -heap</code>显示Java堆的如下信息：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-api-jmeter-v1-65c64db6c7-74z8p:~$ jmap -heap 45
+Attaching to process ID 45, please wait...
+Debugger attached successfully.
+Server compiler detected.
+JVM version is 25.222-b10
+
+using parallel threads in the new generation.
+using thread-local object allocation.
+Concurrent Mark-Sweep GC
+
+Heap Configuration:
+   MinHeapFreeRatio         &#x3D; 40
+   MaxHeapFreeRatio         &#x3D; 70
+   MaxHeapSize              &#x3D; 2577399808 (2458.0MB)
+   NewSize                  &#x3D; 174456832 (166.375MB)
+   MaxNewSize               &#x3D; 174456832 (166.375MB)
+   OldSize                  &#x3D; 2402942976 (2291.625MB)
+   NewRatio                 &#x3D; 2
+   SurvivorRatio            &#x3D; 8
+   MetaspaceSize            &#x3D; 21807104 (20.796875MB)
+   CompressedClassSpaceSize &#x3D; 1073741824 (1024.0MB)
+   MaxMetaspaceSize         &#x3D; 17592186044415 MB
+   G1HeapRegionSize         &#x3D; 0 (0.0MB)
+
+Heap Usage:
+New Generation (Eden + 1 Survivor Space):
+   capacity &#x3D; 157024256 (149.75MB)
+   used     &#x3D; 64436528 (61.45146179199219MB)
+   free     &#x3D; 92587728 (88.29853820800781MB)
+   41.03603458563752% used
+Eden Space:
+   capacity &#x3D; 139591680 (133.125MB)
+   used     &#x3D; 49245504 (46.96417236328125MB)
+   free     &#x3D; 90346176 (86.16082763671875MB)
+   35.27825154049296% used
+From Space:
+   capacity &#x3D; 17432576 (16.625MB)
+   used     &#x3D; 15191024 (14.487289428710938MB)
+   free     &#x3D; 2241552 (2.1377105712890625MB)
+   87.14159054863721% used
+To Space:
+   capacity &#x3D; 17432576 (16.625MB)
+   used     &#x3D; 0 (0.0MB)
+   free     &#x3D; 17432576 (16.625MB)
+   0.0% used
+concurrent mark-sweep generation:
+   capacity &#x3D; 2402942976 (2291.625MB)
+   used     &#x3D; 52197864 (49.779762268066406MB)
+   free     &#x3D; 2350745112 (2241.8452377319336MB)
+   2.1722473034665972% used
+
+ 30750 interned Strings occupying 3569720 bytes.<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>可以看到实际新生代的大小与日志分析结果相同为166.4 mb（Eden<code>133.125MB</code> + 2 Survivor Space<code>16.625MB</code>）</p>
+<p>经过查找资料发现：新生代的大小为：</p>
+<p><strong>max_heap/(NewRatio+1) 和 ScaleForWordSize(young_gen_per_worker * parallel_gc_threads) 中较小的那个</strong></p>
+<p>max_heap/(NewRatio+1) 这个我们都了解，就是按照 默认NewRatio 为2来计算，新生代的大小应该为0.8G。</p>
+<p><img src="/2022/11/16/work-summary-jvm/scaleForWordSize.png" alt="ScaleForWordSize 的定义"></p>
+<p>而ScaleForWordSize最终的计算公式是</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">机器硬件决定(x86位64M) * 并行线程数(-XX:ParallelGCThreads指定的值) * 13 &#x2F; 10<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>由于我们指定了<code>-XX:ParallelGCThreads=2</code>,按照这个公式64M * <em>2</em> * 13 / 10=166.4M</p>
+<p>所以我们在使用CMS收集器模式时，一定要指定新生代的大小，完整参数如下：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">-XX:+UseConcMarkSweepGC -XX:NewRatio&#x3D;2 -XX:ParallelGCThreads&#x3D;2 -XX:CICompilerCount&#x3D;2 <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
 <blockquote>
-<h4 id="Index"><a href="#Index" class="headerlink" title="Index"></a>Index</h4></blockquote>
-<p>索引，包含一堆有相似结构的文档数据，比如可以有一个客户索引，商品分类索引，订单索引，索引有一个名称。一个index包含很多document，一个index就代表了一类类似的或者相同的document。比如说建立一个product index，商品索引，里面可能就存放了所有的商品数据，所有的商品document。</p>
-<p><code>相当于数据库</code></p>
-<blockquote>
-<h4 id="Type"><a href="#Type" class="headerlink" title="Type"></a>Type</h4></blockquote>
-<p>类型，每个索引里都可以有一个或多个type，type是index中的一个逻辑数据分类，一个type下的document，都有相同的field，比如博客系统，有一个索引，可以定义用户数据type，博客数据type，评论数据type。</p>
-<p><code>相当于数据库中的表</code></p>
-<blockquote>
-<h4 id="shard"><a href="#shard" class="headerlink" title="shard"></a>shard</h4></blockquote>
-<p>单台机器无法存储大量数据，es可以将一个索引中的数据切分为多个shard，分布在多台服务器上存储。有了shard就可以横向扩展，存储更多数据，让搜索和分析等操作分布到多台服务器上去执行，提升吞吐量和性能。每个shard都是一个lucene index。</p>
-<blockquote>
-<h4 id="replica"><a href="#replica" class="headerlink" title="replica"></a>replica</h4></blockquote>
-<p>任何一个服务器随时可能故障或宕机，此时shard可能就会丢失，因此可以为每个shard创建多个replica副本。replica可以在shard故障时提供备用服务，保证数据不丢失，多个replica还可以提升搜索操作的吞吐量和性能</p>
+<h3 id="调整"><a href="#调整" class="headerlink" title="调整"></a>调整</h3></blockquote>
+<p>发现生产环境很多服务都存在此问题</p>
+<p><img src="/2022/11/16/work-summary-jvm/gc-old.png" alt="生产环境未调整设置的GC情况"></p>
+<p><img src="/2022/11/16/work-summary-jvm/gc-after.png" alt="生产环境调整之后的GC情况"></p>
+<p>打印heap参数：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-api-v1-dc978c6b5-kb8f9:~$ jmap -heap 47
+Attaching to process ID 47, please wait...
+Debugger attached successfully.
+Server compiler detected.
+JVM version is 25.222-b10
+
+using parallel threads in the new generation.
+using thread-local object allocation.
+Concurrent Mark-Sweep GC
+
+Heap Configuration:
+   MinHeapFreeRatio         &#x3D; 40
+   MaxHeapFreeRatio         &#x3D; 70
+   MaxHeapSize              &#x3D; 2577399808 (2458.0MB)
+   NewSize                  &#x3D; 859111424 (819.3125MB)
+   MaxNewSize               &#x3D; 859111424 (819.3125MB)
+   OldSize                  &#x3D; 1718288384 (1638.6875MB)
+   NewRatio                 &#x3D; 2
+   SurvivorRatio            &#x3D; 8
+   MetaspaceSize            &#x3D; 21807104 (20.796875MB)
+   CompressedClassSpaceSize &#x3D; 1073741824 (1024.0MB)
+   MaxMetaspaceSize         &#x3D; 17592186044415 MB
+   G1HeapRegionSize         &#x3D; 0 (0.0MB)
+
+Heap Usage:
+New Generation (Eden + 1 Survivor Space):
+   capacity &#x3D; 773259264 (737.4375MB)
+   used     &#x3D; 594538992 (566.9965667724609MB)
+   free     &#x3D; 178720272 (170.44093322753906MB)
+   76.88740629171434% used
+Eden Space:
+   capacity &#x3D; 687407104 (655.5625MB)
+   used     &#x3D; 593315240 (565.8295059204102MB)
+   free     &#x3D; 94091864 (89.73299407958984MB)
+   86.31206115670285% used
+From Space:
+   capacity &#x3D; 85852160 (81.875MB)
+   used     &#x3D; 1223752 (1.1670608520507812MB)
+   free     &#x3D; 84628408 (80.70793914794922MB)
+   1.4254178345658397% used
+To Space:
+   capacity &#x3D; 85852160 (81.875MB)
+   used     &#x3D; 0 (0.0MB)
+   free     &#x3D; 85852160 (81.875MB)
+   0.0% used
+concurrent mark-sweep generation:
+   capacity &#x3D; 1718288384 (1638.6875MB)
+   used     &#x3D; 104572760 (99.72835540771484MB)
+   free     &#x3D; 1613715624 (1538.9591445922852MB)
+   6.085867830670268% used
+
+52552 interned Strings occupying 5734440 bytes.
+work@authority-api-v1-dc978c6b5-kb8f9:~$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>确认堆新生代已经调整为819.3125MB。</p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/832fc4d4cb53">CMS GC 默认新生代是多大</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.51cto.com/u_14410880/2824970">JVM新生代、老年代的默认比值真的是1:2吗？</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/matt8/article/details/122732697">jvm gc调优-新生代的默认值</a></p>
 
                 
             </div>
@@ -550,7 +672,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://qinglei1989.github.io/2022/11/16/elasticsearch-introduction/">https://qinglei1989.github.io/2022/11/16/elasticsearch-introduction/</a>
+                    <a href="https://qinglei1989.github.io/2022/11/16/work-summary-jvm/">https://qinglei1989.github.io/2022/11/16/work-summary-jvm/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -588,8 +710,8 @@
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/Elasticsearch/">
-                                    <span class="chip bg-color">Elasticsearch</span>
+                                <a href="/tags/nginx/">
+                                    <span class="chip bg-color">nginx</span>
                                 </a>
                             
                         </div>
@@ -761,9 +883,10 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/2022/11/16/work-summary-jvm/">
                     <div class="card-image">
@@ -781,9 +904,9 @@
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2022-11-16
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-11-16
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -796,6 +919,7 @@
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -814,31 +938,31 @@
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2022/11/13/middleware-rabbitmq-springboot/">
+                <a href="/2022/11/16/elasticsearch-introduction/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/7.jpg" class="responsive-img" alt="SpringBoot整合RabbitMQ">
+                        <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="Elasticsearch核心概念">
                         
-                        <span class="card-title">SpringBoot整合RabbitMQ</span>
+                        <span class="card-title">Elasticsearch核心概念</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            SpringBoot整合RabbitMQ
+                            Elasticsearch核心概念。
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-11-13
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-11-16
                             </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/rabbitmq/" class="post-category">
-                                    rabbitmq
+                            <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="post-category">
+                                    中间件
                                 </a>
                             
                             
@@ -848,8 +972,8 @@
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/">
-                        <span class="chip bg-color">中间件</span>
+                    <a href="/tags/Elasticsearch/">
+                        <span class="chip bg-color">Elasticsearch</span>
                     </a>
                     
                 </div>
