@@ -483,7 +483,7 @@
                 <p>服务器从阿里云ECS迁移到58容器，为了保证迁移的顺利，在58容器做了一个简单的压测，发现了年轻代GC频繁的问题，在此做一下记录。</p>
 <span id="more"></span>
 
-<center><h1>nginx服务器</h1></center>
+<center><h1>工作总结-年轻代GC频繁</h1></center>
 
 <blockquote>
 <h2 id="环境配置及相关监控"><a href="#环境配置及相关监控" class="headerlink" title="环境配置及相关监控"></a>环境配置及相关监控</h2></blockquote>
@@ -507,9 +507,9 @@
 <blockquote>
 <h3 id="现像"><a href="#现像" class="headerlink" title="现像"></a>现像</h3></blockquote>
 <p>5分钟之内的GC次数最高达到了63次，平均GC次数达到了41.2次。而GC时长最长高达812ms，平均GC时长519ms。为什么会频繁的发生GC呢。</p>
-<p>分析gc日志，网址：<a target="_blank" rel="noopener" href="https://gceasy.ycrash.cn/gc-index.jsp%EF%BC%8C%E5%8F%91%E7%8E%B0%E4%BA%86%E4%B8%80%E4%B8%AA%E6%83%8A%E8%AE%B6%E7%9A%84%E5%9C%B0%E6%96%B9%EF%BC%8C%E5%A6%82%E4%B8%8B%EF%BC%9A">https://gceasy.ycrash.cn/gc-index.jsp，发现了一个惊讶的地方，如下：</a></p>
+<p>分析gc日志：<a target="_blank" rel="noopener" href="https://gceasy.ycrash.cn/gc-index.jsp">GC分析官网</a>，发现了一个惊讶的地方，如下：</p>
 <p><img src="/2022/11/16/work-summary-jvm/jvm-memory.png" alt="新生代与老年代内存容量"></p>
-<p>新生代的内存竟然之后166M。</p>
+<p><strong><code>新生代的内存竟然只有166M。</code></strong></p>
 <p>查看项目的jvm参数配置：</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">work          45      14 24 00:28 ?        00:00:30 &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;bin&#x2F;java -Dsun.misc.URLClassPath.disableJarChecking&#x3D;true -DLOG_PATH&#x3D;&#x2F;mnt&#x2F;logs&#x2F;authority-api-jmeter -server -XX:MaxRAMPercentage&#x3D;30.0 -XX:InitialRAMPercentage&#x3D;30.0 -XX:MinRAMPercentage&#x3D;30.0 -verbose:gc -XX:+UseParNewGC -XX:+PrintHeapAtGC -XX:+PrintGCDetails -XX:ConcGCThreads&#x3D;2 -XX:GCLogFileSize&#x3D;50M -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+UseConcMarkSweepGC -XX:ParallelGCThreads&#x3D;2 -XX:NumberOfGCLogFiles&#x3D;1 -XX:+UseGCLogFileRotation -XX:+ScavengeBeforeFullGC -XX:+CMSScavengeBeforeRemark -XX:+CMSParallelRemarkEnabled -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintGCApplicationStoppedTime -Dsun.net.httpserver.maxReqTime&#x3D;30 -Dsun.net.httpserver.maxRspTime&#x3D;30 -XX:CMSInitiatingOccupancyFraction&#x3D;70 -Xloggc:&#x2F;mnt&#x2F;logs&#x2F;authority-api-jmeter&#x2F;jvm&#x2F;gc.log -XX:HeapDumpPath&#x3D;&#x2F;mnt&#x2F;logs&#x2F;authority-api-jmeter&#x2F;jvm -javaagent:&#x2F;usr&#x2F;local&#x2F;jmx-exporter&#x2F;jmx_prometheus_javaagent-0.14.0.jar&#x3D;9990:&#x2F;usr&#x2F;local&#x2F;jmx-exporter&#x2F;prometheus-jmx-config.yaml -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -jar &#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api-jmeter&#x2F;lib&#x2F;authority-api.jar --server.address&#x3D;0.0.0.0 --spring.config.location&#x3D;&#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api-jmeter&#x2F;conf&#x2F; --spring.profiles.active&#x3D;production --logging.config&#x3D;&#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api-jmeter&#x2F;conf&#x2F;log4j2.yml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
@@ -578,8 +578,9 @@ concurrent mark-sweep generation:
 <p>而ScaleForWordSize最终的计算公式是</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">机器硬件决定(x86位64M) * 并行线程数(-XX:ParallelGCThreads指定的值) * 13 &#x2F; 10<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
-<p>由于我们指定了<code>-XX:ParallelGCThreads=2</code>,按照这个公式64M * <em>2</em> * 13 / 10=166.4M</p>
-<p>所以我们在使用CMS收集器模式时，一定要指定新生代的大小，完整参数如下：</p>
+<p>由于我们指定了<code>-XX:ParallelGCThreads=2</code>,按照这个公式64M * <em>2</em> * 13 / 10=166.4M。</p>
+<p>所以二者之间取小值，我们最终的新生代的大小为166.4M。验证了现像。</p>
+<p>总结：所以我们在使用CMS收集器模式时，一定要指定新生代的大小，完整参数如下：</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">-XX:+UseConcMarkSweepGC -XX:NewRatio&#x3D;2 -XX:ParallelGCThreads&#x3D;2 -XX:CICompilerCount&#x3D;2 <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <blockquote>
