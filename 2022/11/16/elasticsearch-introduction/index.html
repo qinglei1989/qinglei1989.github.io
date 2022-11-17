@@ -501,29 +501,462 @@
 <h4 id="NRT"><a href="#NRT" class="headerlink" title="NRT"></a>NRT</h4></blockquote>
 <p>Near Realtime（NRT）：近实时，两个意思，从写入数据到数据可以被搜索到有一个小延迟（大概1秒）；基于es执行搜索和分析可以达到秒级</p>
 <blockquote>
-<h4 id="Cluster"><a href="#Cluster" class="headerlink" title="Cluster"></a>Cluster</h4></blockquote>
+<h4 id="集群（Cluster）"><a href="#集群（Cluster）" class="headerlink" title="集群（Cluster）"></a>集群（Cluster）</h4></blockquote>
 <p>集群，包含多个节点，每个节点属于哪个集群是通过一个配置（集群名称，默认是elasticsearch）来决定的。</p>
 <blockquote>
-<h4 id="Node"><a href="#Node" class="headerlink" title="Node"></a>Node</h4></blockquote>
+<h4 id="节点（Node）"><a href="#节点（Node）" class="headerlink" title="节点（Node）"></a>节点（Node）</h4></blockquote>
 <p>节点，集群中的一个节点，节点也有一个名称（默认是随机分配的），节点名称很重要（在执行运维管理操作的时候），默认节点会去加入一个名称为“elasticsearch”的集群，如果直接启动一堆节点，那么它们会自动组成一个elasticsearch集群，当然一个节点也可以组成一个elasticsearch集群</p>
 <blockquote>
-<h4 id="Document-amp-field"><a href="#Document-amp-field" class="headerlink" title="Document&amp;field"></a>Document&amp;field</h4></blockquote>
+<h4 id="文档（Document）-amp-field"><a href="#文档（Document）-amp-field" class="headerlink" title="文档（Document）&amp;field"></a>文档（Document）&amp;field</h4></blockquote>
 <p>文档，es中的最小数据单元，一个document可以是一条客户数据，一条商品分类数据，一条订单数据，通常用JSON数据结构表示，每个index下的type中，都可以去存储多个document。一个document里面有多个field，每个field就是一个数据字段。</p>
 <p><code>相当于数据库中的行和字段</code></p>
 <blockquote>
-<h4 id="Index"><a href="#Index" class="headerlink" title="Index"></a>Index</h4></blockquote>
+<h4 id="索引（Index）"><a href="#索引（Index）" class="headerlink" title="索引（Index）"></a>索引（Index）</h4></blockquote>
 <p>索引，包含一堆有相似结构的文档数据，比如可以有一个客户索引，商品分类索引，订单索引，索引有一个名称。一个index包含很多document，一个index就代表了一类类似的或者相同的document。比如说建立一个product index，商品索引，里面可能就存放了所有的商品数据，所有的商品document。</p>
 <p><code>相当于数据库</code></p>
 <blockquote>
-<h4 id="Type"><a href="#Type" class="headerlink" title="Type"></a>Type</h4></blockquote>
+<h4 id="类型（Type）"><a href="#类型（Type）" class="headerlink" title="类型（Type）"></a>类型（Type）</h4></blockquote>
 <p>类型，每个索引里都可以有一个或多个type，type是index中的一个逻辑数据分类，一个type下的document，都有相同的field，比如博客系统，有一个索引，可以定义用户数据type，博客数据type，评论数据type。</p>
 <p><code>相当于数据库中的表</code></p>
 <blockquote>
-<h4 id="shard"><a href="#shard" class="headerlink" title="shard"></a>shard</h4></blockquote>
+<h4 id="分片（shard）"><a href="#分片（shard）" class="headerlink" title="分片（shard）"></a>分片（shard）</h4></blockquote>
 <p>单台机器无法存储大量数据，es可以将一个索引中的数据切分为多个shard，分布在多台服务器上存储。有了shard就可以横向扩展，存储更多数据，让搜索和分析等操作分布到多台服务器上去执行，提升吞吐量和性能。每个shard都是一个lucene index。</p>
 <blockquote>
-<h4 id="replica"><a href="#replica" class="headerlink" title="replica"></a>replica</h4></blockquote>
+<h4 id="副本（replica）"><a href="#副本（replica）" class="headerlink" title="副本（replica）"></a>副本（replica）</h4></blockquote>
 <p>任何一个服务器随时可能故障或宕机，此时shard可能就会丢失，因此可以为每个shard创建多个replica副本。replica可以在shard故障时提供备用服务，保证数据不丢失，多个replica还可以提升搜索操作的吞吐量和性能</p>
+<blockquote>
+<h3 id="简单集群管理"><a href="#简单集群管理" class="headerlink" title="简单集群管理"></a>简单集群管理</h3></blockquote>
+<p>检查ES是否启动成功：<a target="_blank" rel="noopener" href="http://localhost:9200/?pretty">http://localhost:9200/?pretty</a></p>
+<p>Kibana Dev Tools界面：<a target="_blank" rel="noopener" href="http://localhost:5601/">http://localhost:5601/</a></p>
+<blockquote>
+<h4 id="cat-health-v"><a href="#cat-health-v" class="headerlink" title="_cat/health?v"></a>_cat/health?v</h4></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">epoch      timestamp cluster       status node.total node.data shards pri relo init unassign pending_tasks max_task_wait_time active_shards_percent
+1668700299 23:51:39  elasticsearch yellow          1         1      1   1    0    0        1             0                  -                 50.0%<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>此命令常见的用途一般有两个:<br>1、验证节点之间的健康状况是否一致，<br>2、跟踪大型集群随时间的故障恢复情况</p>
+<p><code>如何快速了解集群的健康状况？</code></p>
+<p>green：每个索引的primary shard和replica shard都是active状态的<br>yellow：每个索引的primary shard都是active状态的，但是部分replica shard不是active状态，处于不可用的状态<br>red：不是所有索引的primary shard都是active状态的，部分索引有数据丢失了</p>
+<blockquote>
+<h4 id="快速查看集群中有哪些索引"><a href="#快速查看集群中有哪些索引" class="headerlink" title="快速查看集群中有哪些索引"></a>快速查看集群中有哪些索引</h4></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">GET &#x2F;_cat&#x2F;indices?v
+health status index   uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+yellow open   .kibana OMzTLQtiTNiST9J_cxGhVg   1   1          1            0      3.1kb          3.1kb<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<h4 id="简单的索引操作"><a href="#简单的索引操作" class="headerlink" title="简单的索引操作"></a>简单的索引操作</h4></blockquote>
+<blockquote>
+<h5 id="创建索引：PUT-test-index-pretty"><a href="#创建索引：PUT-test-index-pretty" class="headerlink" title="创建索引：PUT /test_index?pretty"></a>创建索引：PUT /test_index?pretty</h5></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">PUT &#x2F;test_index?pretty
+&#123;
+  &quot;acknowledged&quot;: true,
+  &quot;shards_acknowledged&quot;: true
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<h5 id="删除索引：DELETE-test-index-pretty"><a href="#删除索引：DELETE-test-index-pretty" class="headerlink" title="删除索引：DELETE /test_index?pretty"></a>删除索引：DELETE /test_index?pretty</h5></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">DELETE &#x2F;test_index?pretty
+&#123;
+  &quot;acknowledged&quot;: true
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<h5 id="文档的增删改查"><a href="#文档的增删改查" class="headerlink" title="文档的增删改查"></a>文档的增删改查</h5></blockquote>
+<p>es会自动建立index和type，不需要提前创建，而且es默认会对document每个field都建立倒排索引，让其可以被搜索</p>
+<p>新增：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">PUT &#x2F;ecommerce&#x2F;product&#x2F;1
+&#123;
+    &quot;name&quot; : &quot;gaolujie yagao&quot;,
+    &quot;desc&quot; :  &quot;gaoxiao meibai&quot;,
+    &quot;price&quot; :  30,
+    &quot;producer&quot; :      &quot;gaolujie producer&quot;,
+    &quot;tags&quot;: [ &quot;meibai&quot;, &quot;fangzhu&quot; ]
+&#125;
+
+&#123;
+  &quot;_index&quot;: &quot;ecommerce&quot;,
+  &quot;_type&quot;: &quot;product&quot;,
+  &quot;_id&quot;: &quot;1&quot;,
+  &quot;_version&quot;: 1,
+  &quot;result&quot;: &quot;created&quot;,
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 2,
+    &quot;successful&quot;: 1,
+    &quot;failed&quot;: 0
+  &#125;,
+  &quot;created&quot;: true
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>查询：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">GET &#x2F;ecommerce&#x2F;product&#x2F;1
+    
+&#123;
+  &quot;_index&quot;: &quot;ecommerce&quot;,
+  &quot;_type&quot;: &quot;product&quot;,
+  &quot;_id&quot;: &quot;1&quot;,
+  &quot;_version&quot;: 1,
+  &quot;found&quot;: true,
+  &quot;_source&quot;: &#123;
+    &quot;name&quot;: &quot;gaolujie yagao&quot;,
+    &quot;desc&quot;: &quot;gaoxiao meibai&quot;,
+    &quot;price&quot;: 30,
+    &quot;producer&quot;: &quot;gaolujie producer&quot;,
+    &quot;tags&quot;: [
+      &quot;meibai&quot;,
+      &quot;fangzhu&quot;
+    ]
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>修改</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">PUT &#x2F;ecommerce&#x2F;product&#x2F;1
+&#123;
+    &quot;name&quot; : &quot;jiaqiangban1 gaolujie yagao&quot;,
+    &quot;desc&quot; :  &quot;gaoxiao meibai&quot;,
+    &quot;price&quot; :  30,
+    &quot;producer&quot; :      &quot;gaolujie producer&quot;,
+    &quot;tags&quot;: [ &quot;meibai&quot;, &quot;fangzhu&quot; ]
+&#125;
+
+&#123;
+  &quot;_index&quot;: &quot;ecommerce&quot;,
+  &quot;_type&quot;: &quot;product&quot;,
+  &quot;_id&quot;: &quot;1&quot;,
+  &quot;_version&quot;: 3,
+  &quot;result&quot;: &quot;updated&quot;,
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 2,
+    &quot;successful&quot;: 1,
+    &quot;failed&quot;: 0
+  &#125;,
+  &quot;created&quot;: false
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>替换方式有一个不好，即使必须带上所有的field，才能去进行信息的修改。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">POST &#x2F;ecommerce&#x2F;product&#x2F;1&#x2F;_update
+&#123;
+  &quot;doc&quot;: &#123;
+    &quot;name&quot;: &quot;rrc gaolujie yagao&quot;
+  &#125;
+&#125;
+
+&#123;
+  &quot;_index&quot;: &quot;ecommerce&quot;,
+  &quot;_type&quot;: &quot;product&quot;,
+  &quot;_id&quot;: &quot;1&quot;,
+  &quot;_version&quot;: 4,
+  &quot;result&quot;: &quot;updated&quot;,
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 2,
+    &quot;successful&quot;: 1,
+    &quot;failed&quot;: 0
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>删除</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">DELETE &#x2F;ecommerce&#x2F;product&#x2F;1
+    
+&#123;
+  &quot;found&quot;: true,
+  &quot;_index&quot;: &quot;ecommerce&quot;,
+  &quot;_type&quot;: &quot;product&quot;,
+  &quot;_id&quot;: &quot;1&quot;,
+  &quot;_version&quot;: 5,
+  &quot;result&quot;: &quot;deleted&quot;,
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 2,
+    &quot;successful&quot;: 1,
+    &quot;failed&quot;: 0
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<h4 id="多种搜索方式"><a href="#多种搜索方式" class="headerlink" title="多种搜索方式"></a>多种搜索方式</h4></blockquote>
+<blockquote>
+<h5 id="query-string-search"><a href="#query-string-search" class="headerlink" title="query string search"></a>query string search</h5></blockquote>
+<p><code>搜索全部商品</code></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">GET &#x2F;ecommerce&#x2F;product&#x2F;_search
+    
+&#123;
+  &quot;took&quot;: 2, &#x2F;&#x2F;耗费了几毫秒
+  &quot;timed_out&quot;: false, &#x2F;&#x2F;是否超时，这里是没有
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 5, &#x2F;&#x2F;数据拆成了5个分片，所以对于搜索请求，会打到所有的primary shard（或者是它的某个replica shard也可以）
+    &quot;successful&quot;: 5,
+    &quot;failed&quot;: 0
+  &#125;,
+  &quot;hits&quot;: &#123;
+    &quot;total&quot;: 3, &#x2F;&#x2F; 查询结果的数量，3个document
+    &quot;max_score&quot;: 1, &#x2F;&#x2F;score的含义，就是document对于一个search的相关度的匹配分数，越相关，就越匹配，分数也高
+    &quot;hits&quot;: [ &#x2F;&#x2F;包含了匹配搜索的document的详细数据
+      &#123;
+        &quot;_index&quot;: &quot;ecommerce&quot;,
+        &quot;_type&quot;: &quot;product&quot;,
+        &quot;_id&quot;: &quot;2&quot;,
+        &quot;_score&quot;: 1,
+        &quot;_source&quot;: &#123;
+          &quot;name&quot;: &quot;jiajieshi yagao&quot;,
+          &quot;desc&quot;: &quot;youxiao fangzhu&quot;,
+          &quot;price&quot;: 25,
+          &quot;producer&quot;: &quot;jiajieshi producer&quot;,
+          &quot;tags&quot;: [
+            &quot;fangzhu&quot;
+          ]
+        &#125;
+      &#125;,
+      &#123;
+        &quot;_index&quot;: &quot;ecommerce&quot;,
+        &quot;_type&quot;: &quot;product&quot;,
+        &quot;_id&quot;: &quot;1&quot;,
+        &quot;_score&quot;: 1,
+        &quot;_source&quot;: &#123;
+          &quot;name&quot;: &quot;gaolujie yagao&quot;,
+          &quot;desc&quot;: &quot;gaoxiao meibai&quot;,
+          &quot;price&quot;: 30,
+          &quot;producer&quot;: &quot;gaolujie producer&quot;,
+          &quot;tags&quot;: [
+            &quot;meibai&quot;,
+            &quot;fangzhu&quot;
+          ]
+        &#125;
+      &#125;,
+      &#123;
+        &quot;_index&quot;: &quot;ecommerce&quot;,
+        &quot;_type&quot;: &quot;product&quot;,
+        &quot;_id&quot;: &quot;3&quot;,
+        &quot;_score&quot;: 1,
+        &quot;_source&quot;: &#123;
+          &quot;name&quot;: &quot;zhonghua yagao&quot;,
+          &quot;desc&quot;: &quot;caoben zhiwu&quot;,
+          &quot;price&quot;: 40,
+          &quot;producer&quot;: &quot;zhonghua producer&quot;,
+          &quot;tags&quot;: [
+            &quot;qingxin&quot;
+          ]
+        &#125;
+      &#125;
+    ]
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>query string search的由来，因为search参数都是以http请求的query string来附带的</p>
+<p>搜索商品名称中包含yagao的商品，而且按照售价降序排序：GET /ecommerce/product/_search?q=name:yagao&amp;sort=price:desc</p>
+<p>适用于临时的在命令行使用一些工具，比如curl，快速的发出请求，来检索想要的信息；但是如果查询请求很复杂，是很难去构建的<br>在生产环境中，几乎很少使用query string search</p>
+<blockquote>
+<h5 id="query-DSL"><a href="#query-DSL" class="headerlink" title="query DSL"></a>query DSL</h5></blockquote>
+<p>查询所有的商品</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">GET &#x2F;ecommerce&#x2F;product&#x2F;_search
+&#123;
+  &quot;query&quot;: &#123; &quot;match_all&quot;: &#123;&#125; &#125;
+&#125;
+
+&#123;
+  &quot;took&quot;: 2,
+  &quot;timed_out&quot;: false,
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 5,
+    &quot;successful&quot;: 5,
+    &quot;failed&quot;: 0
+  &#125;,
+  &quot;hits&quot;: &#123;
+    &quot;total&quot;: 3,
+    &quot;max_score&quot;: 1,
+    &quot;hits&quot;: [
+      &#123;
+        &quot;_index&quot;: &quot;ecommerce&quot;,
+        &quot;_type&quot;: &quot;product&quot;,
+        &quot;_id&quot;: &quot;2&quot;,
+        &quot;_score&quot;: 1,
+        &quot;_source&quot;: &#123;
+          &quot;name&quot;: &quot;jiajieshi yagao&quot;,
+          &quot;desc&quot;: &quot;youxiao fangzhu&quot;,
+          &quot;price&quot;: 25,
+          &quot;producer&quot;: &quot;jiajieshi producer&quot;,
+          &quot;tags&quot;: [
+            &quot;fangzhu&quot;
+          ]
+        &#125;
+      &#125;,
+      &#123;
+        &quot;_index&quot;: &quot;ecommerce&quot;,
+        &quot;_type&quot;: &quot;product&quot;,
+        &quot;_id&quot;: &quot;1&quot;,
+        &quot;_score&quot;: 1,
+        &quot;_source&quot;: &#123;
+          &quot;name&quot;: &quot;gaolujie yagao&quot;,
+          &quot;desc&quot;: &quot;gaoxiao meibai&quot;,
+          &quot;price&quot;: 30,
+          &quot;producer&quot;: &quot;gaolujie producer&quot;,
+          &quot;tags&quot;: [
+            &quot;meibai&quot;,
+            &quot;fangzhu&quot;
+          ]
+        &#125;
+      &#125;,
+      &#123;
+        &quot;_index&quot;: &quot;ecommerce&quot;,
+        &quot;_type&quot;: &quot;product&quot;,
+        &quot;_id&quot;: &quot;3&quot;,
+        &quot;_score&quot;: 1,
+        &quot;_source&quot;: &#123;
+          &quot;name&quot;: &quot;zhonghua yagao&quot;,
+          &quot;desc&quot;: &quot;caoben zhiwu&quot;,
+          &quot;price&quot;: 40,
+          &quot;producer&quot;: &quot;zhonghua producer&quot;,
+          &quot;tags&quot;: [
+            &quot;qingxin&quot;
+          ]
+        &#125;
+      &#125;
+    ]
+  &#125;
+&#125;
+
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>查询名称包含yagao的商品，同时按照价格降序排序</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">GET &#x2F;ecommerce&#x2F;product&#x2F;_search
+&#123;
+    &quot;query&quot; : &#123;
+        &quot;match&quot; : &#123;
+            &quot;name&quot; : &quot;yagao&quot;
+        &#125;
+    &#125;,
+    &quot;sort&quot;: [
+        &#123; &quot;price&quot;: &quot;desc&quot; &#125;
+    ]
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>分页查询商品，总共3条商品，假设每页就显示1条商品，现在显示第2页，所以就查出来第2个商品</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">GET &#x2F;ecommerce&#x2F;product&#x2F;_search
+&#123;
+  &quot;query&quot;: &#123; &quot;match_all&quot;: &#123;&#125; &#125;,
+  &quot;from&quot;: 1,
+  &quot;size&quot;: 1
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>指定要查询出来商品的名称和价格就可以</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">GET &#x2F;ecommerce&#x2F;product&#x2F;_search
+&#123;
+  &quot;query&quot;: &#123; &quot;match_all&quot;: &#123;&#125; &#125;,
+  &quot;_source&quot;: [&quot;name&quot;, &quot;price&quot;]
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>更加适合生产环境的使用，可以构建复杂的查询</p>
+<blockquote>
+<h5 id="query-filter"><a href="#query-filter" class="headerlink" title="query filter"></a>query filter</h5></blockquote>
+<p>搜索商品名称包含yagao，而且售价大于25元的商品</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">GET &#x2F;ecommerce&#x2F;product&#x2F;_search
+&#123;
+    &quot;query&quot; : &#123;
+        &quot;bool&quot; : &#123;
+            &quot;must&quot; : &#123;
+                &quot;match&quot; : &#123;
+                    &quot;name&quot; : &quot;yagao&quot; 
+                &#125;
+            &#125;,
+            &quot;filter&quot; : &#123;
+                &quot;range&quot; : &#123;
+                    &quot;price&quot; : &#123; &quot;gt&quot; : 25 &#125; 
+                &#125;
+            &#125;
+        &#125;
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<h5 id="full-text-search（全文检索）"><a href="#full-text-search（全文检索）" class="headerlink" title="full-text search（全文检索）"></a>full-text search（全文检索）</h5></blockquote>
+<p>全文检索会将输入的搜索串拆解开来，去倒排索引里面去一一匹配，只要能匹配上任意一个拆解后的单词，就可以作为结果返回</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">GET &#x2F;ecommerce&#x2F;product&#x2F;_search
+&#123;
+    &quot;query&quot; : &#123;
+        &quot;match&quot; : &#123;
+            &quot;producer&quot; : &quot;yagao producer&quot;
+        &#125;
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<h5 id="phrase-search（短语搜索）"><a href="#phrase-search（短语搜索）" class="headerlink" title="phrase search（短语搜索）"></a>phrase search（短语搜索）</h5></blockquote>
+<p>phrase search，要求输入的搜索串，必须在指定的字段文本中，完全包含一模一样的，才可以算匹配，才能作为结果返回</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">GET &#x2F;ecommerce&#x2F;product&#x2F;_search
+&#123;
+    &quot;query&quot; : &#123;
+        &quot;match_phrase&quot; : &#123;
+            &quot;producer&quot; : &quot;yagao producer&quot;
+        &#125;
+    &#125;
+&#125;
+
+
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">GET &#x2F;ecommerce&#x2F;product&#x2F;_search
+&#123;
+  &quot;query&quot;: &#123;
+    &quot;match_phrase&quot;: &#123;
+      &quot;producer&quot;: &quot;jiajieshi producer&quot;
+    &#125;
+  &#125;,
+  &quot;highlight&quot;: &#123;
+    &quot;fields&quot;: &#123;
+      &quot;producer&quot;:&#123;&#125;
+    &#125;
+  &#125;
+&#125;
+
+&#123;
+  &quot;took&quot;: 56,
+  &quot;timed_out&quot;: false,
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 5,
+    &quot;successful&quot;: 5,
+    &quot;failed&quot;: 0
+  &#125;,
+  &quot;hits&quot;: &#123;
+    &quot;total&quot;: 1,
+    &quot;max_score&quot;: 0.51623213,
+    &quot;hits&quot;: [
+      &#123;
+        &quot;_index&quot;: &quot;ecommerce&quot;,
+        &quot;_type&quot;: &quot;product&quot;,
+        &quot;_id&quot;: &quot;2&quot;,
+        &quot;_score&quot;: 0.51623213,
+        &quot;_source&quot;: &#123;
+          &quot;name&quot;: &quot;jiajieshi yagao&quot;,
+          &quot;desc&quot;: &quot;youxiao fangzhu&quot;,
+          &quot;price&quot;: 25,
+          &quot;producer&quot;: &quot;jiajieshi producer&quot;,
+          &quot;tags&quot;: [
+            &quot;fangzhu&quot;
+          ]
+        &#125;,
+        &quot;highlight&quot;: &#123;
+          &quot;producer&quot;: [
+            &quot;&lt;em&gt;jiajieshi&lt;&#x2F;em&gt; &lt;em&gt;producer&lt;&#x2F;em&gt;&quot;
+          ]
+        &#125;
+      &#125;
+    ]
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<h5 id="highlight-search（高亮搜索结果）"><a href="#highlight-search（高亮搜索结果）" class="headerlink" title="highlight search（高亮搜索结果）"></a>highlight search（高亮搜索结果）</h5></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">GET &#x2F;ecommerce&#x2F;product&#x2F;_search
+&#123;
+    &quot;query&quot; : &#123;
+        &quot;match&quot; : &#123;
+            &quot;producer&quot; : &quot;producer&quot;
+        &#125;
+    &#125;,
+    &quot;highlight&quot;: &#123;
+        &quot;fields&quot; : &#123;
+            &quot;producer&quot; : &#123;&#125;
+        &#125;
+    &#125;
+&#125;
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
 
                 
             </div>
