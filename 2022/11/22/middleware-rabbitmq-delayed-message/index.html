@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="JAVA,JVM,JAVA虚拟机,工作总结">
+    <meta name="keywords" content="SpringBoot,rabbitmq">
     <meta name="description" content="失落时悄悄徘徊，伤感时默默遐想">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>工作总结-年轻代GC频繁 | 山西小魔头技术博客</title>
+    <title>RabbitMQ延迟队列 | 山西小魔头技术博客</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/2.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/15.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">工作总结-年轻代GC频繁</h1>
+                    <h1 class="description center-align post-title">RabbitMQ延迟队列</h1>
                 </div>
             </div>
         </div>
@@ -431,8 +431,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/nginx/">
-                                <span class="chip bg-color">nginx</span>
+                            <a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/">
+                                <span class="chip bg-color">中间件</span>
                             </a>
                         
                     </div>
@@ -443,8 +443,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/%E5%B7%A5%E4%BD%9C%E6%80%BB%E7%BB%93/" class="post-category">
-                                工作总结
+                            <a href="/categories/rabbitmq/" class="post-category">
+                                rabbitmq
                             </a>
                         
                     </div>
@@ -456,7 +456,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2022-11-16
+                    2022-11-22
                 </div>
                 
 
@@ -480,289 +480,106 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>服务器从阿里云ECS迁移到58容器，为了保证迁移的顺利，在58容器做了一个简单的压测，发现了年轻代GC频繁的问题，在此做一下记录。</p>
+                <p>RabbitMQ延迟队列</p>
 <span id="more"></span>
 
-<center><h1>工作总结-年轻代GC频繁</h1></center>
-
+<h3 id="【MQ中间件】RabbitMQ死信队列"><a href="#【MQ中间件】RabbitMQ死信队列" class="headerlink" title="【MQ中间件】RabbitMQ死信队列"></a>【MQ中间件】RabbitMQ死信队列</h3><blockquote>
+<h2 id="什么是延时队列"><a href="#什么是延时队列" class="headerlink" title="什么是延时队列"></a>什么是延时队列</h2></blockquote>
+<p><code>延时队列</code>，首先，它是一种队列，队列意味着内部的元素是有序的，元素出队和入队是有方向性的，元素从一端进入，从另一端取出。</p>
+<p>其次，延时队列最重要的特性就体现在它的延时属性上，跟普通的队列不一样的是，普通队列中的元素总是等着希望被早点取出处理，而延时队列中的元素则是希望被在指定时间得到取出和处理，所以延时队列中的元素是都是带时间属性的。</p>
+<p>简单来说，延时队列就是用来存放需要在指定时间被处理的元素的队列。</p>
 <blockquote>
-<h2 id="环境配置及相关监控"><a href="#环境配置及相关监控" class="headerlink" title="环境配置及相关监控"></a>环境配置及相关监控</h2></blockquote>
+<h2 id="延时队列使用场景"><a href="#延时队列使用场景" class="headerlink" title="延时队列使用场景"></a>延时队列使用场景</h2></blockquote>
+<p>那么什么时候需要用延时队列呢？考虑一下以下场景：</p>
+<ol>
+<li>订单在十分钟之内未支付则自动取消。</li>
+<li>新创建的店铺，如果在十天内都没有上传过商品，则自动发送消息提醒。</li>
+<li>账单在一周内未支付，则自动结算。</li>
+<li>用户注册成功后，如果三天内没有登陆则进行短信提醒。</li>
+<li>用户发起退款，如果三天内没有得到处理则通知相关运营人员。</li>
+<li>预定会议后，需要在预定的时间点前十分钟通知各个与会人员参加会议。</li>
+</ol>
+<p>对于少量数据，我们可以使用定时任务来完成相应的需求。</p>
+<p>但对于数据量比较大，并且时效性较强的场景，如：“订单十分钟内未支付则关闭“，短期内未支付的订单数据可能会有很多，活动期间甚至会达到百万甚至千万级别，对这么庞大的数据量仍旧使用轮询的方式显然是不可取的，很可能单位时间内无法完成所有订单的检查，同时会给数据库带来很大压力，无法满足业务要求而且性能低下。</p>
+<p>这时候，延时队列就可以闪亮登场了，以上场景，正是延时队列的用武之地。</p>
 <blockquote>
-<p>阿里云ECS配置</p>
-</blockquote>
-<p><img src="/2022/11/16/work-summary-jvm/aliyun.png" alt="阿里云ECS配置"></p>
+<h2 id="RabbitMQ中的TTL"><a href="#RabbitMQ中的TTL" class="headerlink" title="RabbitMQ中的TTL"></a>RabbitMQ中的TTL</h2></blockquote>
+<p><code>TTL</code>是RabbitMQ中一个消息或者队列的属性，表明一条消息或者该队列中的所有消息的最大存活时间，单位是毫秒。</p>
+<p>换句话说，如果一条消息设置了TTL属性或者进入了设置TTL属性的队列，那么这条消息如果在TTL设置的时间内没有被消费，则会成为“死信”（至于什么是死信，请翻看上一篇）。如果同时配置了队列的TTL和消息的TTL，那么较小的那个值将会被使用。</p>
+<p>那么，如何设置这个TTL值呢？有两种方式，第一种是在创建队列的时候设置队列的“x-message-ttl”属性，如下：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">Map&lt;String, Object&gt; args &#x3D; new HashMap&lt;String, Object&gt;();
+args.put(&quot;x-message-ttl&quot;, 6000);
+channel.queueDeclare(queueName, durable, exclusive, autoDelete, args);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>这样所有被投递到该队列的消息都最多不会存活超过6s。</p>
+<p>另一种方式便是针对每条消息设置TTL，代码如下：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">AMQP.BasicProperties.Builder builder &#x3D; new AMQP.BasicProperties.Builder();
+builder.expiration(&quot;6000&quot;);
+AMQP.BasicProperties properties &#x3D; builder.build();
+channel.basicPublish(exchangeName, routingKey, mandatory, properties, &quot;msg body&quot;.getBytes());<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>这样这条消息的过期时间也被设置成了6s。</p>
+<p>但这两种方式是有区别的，<strong>如果设置了队列的TTL属性，那么一旦消息过期，就会被队列丢弃，而第二种方式，消息即使过期，也不一定会被马上丢弃，因为消息是否过期是在即将投递到消费者之前判定的，如果当前队列有严重的消息积压情况，则已过期的消息也许还能存活较长时间。</strong></p>
+<p>另外，还需要注意的一点是，如果不设置TTL，表示消息永远不会过期，如果将TTL设置为0，则表示除非此时可以直接投递该消息到消费者，否则该消息将会被丢弃。</p>
 <blockquote>
-<p>阿里云ECS监控</p>
-</blockquote>
-<p><img src="/2022/11/16/work-summary-jvm/aliyun-jiankong.png" alt="阿里云ECS监控"></p>
+<h3 id="如何利用RabbitMQ实现延时队列"><a href="#如何利用RabbitMQ实现延时队列" class="headerlink" title="如何利用RabbitMQ实现延时队列"></a>如何利用RabbitMQ实现延时队列</h3></blockquote>
+<p><code>延时队列</code>，不就是想要消息延迟多久被处理吗，TTL则刚好能让消息在延迟多久之后成为死信，另一方面，成为死信的消息都会被投递到死信队列里，这样只需要消费者一直消费死信队列里的消息就万事大吉了，因为里面的消息都是希望被立即处理的消息。</p>
+<p><img src="/2022/11/22/middleware-rabbitmq-delayed-message/%E5%BB%B6%E8%BF%9F%E9%98%9F%E5%88%97.png" alt="延迟队列"></p>
+<p>生产者生产一条延时消息，根据需要延时时间的不同，利用不同的routingkey将消息路由到不同的延时队列，每个队列都设置了不同的TTL属性，并绑定在同一个死信交换机中，消息过期后，根据routingkey的不同，又会被路由到不同的死信队列中，消费者只需要监听对应的死信队列进行处理即可。</p>
+<p>不过，等等，如果这样使用的话，岂不是每增加一个新的时间需求，就要新增一个队列，这里只有6s和60s两个时间选项，如果需要一个小时后处理，那么就需要增加TTL为一个小时的队列，如果是预定会议室然后提前通知这样的场景，岂不是要增加无数个队列才能满足需求？？</p>
 <blockquote>
-<p>58容器</p>
-</blockquote>
-<p><img src="/2022/11/16/work-summary-jvm/58.png" alt="58容器配置"></p>
+<h3 id="RabbitMQ延时队列优化"><a href="#RabbitMQ延时队列优化" class="headerlink" title="RabbitMQ延时队列优化"></a>RabbitMQ延时队列优化</h3></blockquote>
 <blockquote>
-<h3 id="压测"><a href="#压测" class="headerlink" title="压测"></a>压测</h3></blockquote>
-<p>基于日常的NGINX日志重放做简单压测，58容器启动了两个POD，单台QPS在100/s左右。压测1小时之后的argus监控显示如下：</p>
-<p><img src="/2022/11/16/work-summary-jvm/argus1.png" alt="容器监控1"></p>
-<p><img src="/2022/11/16/work-summary-jvm/argus2.png" alt="容器监控2"></p>
+<h3 id="利用RabbitMQ插件实现延迟队列"><a href="#利用RabbitMQ插件实现延迟队列" class="headerlink" title="利用RabbitMQ插件实现延迟队列"></a>利用RabbitMQ插件实现延迟队列</h3></blockquote>
 <blockquote>
-<h3 id="现像"><a href="#现像" class="headerlink" title="现像"></a>现像</h3></blockquote>
-<p>5分钟之内的GC次数最高达到了63次，平均GC次数达到了41.2次。而GC时长最长高达812ms，平均GC时长519ms。为什么会频繁的发生GC呢。</p>
-<p>分析gc日志：<a target="_blank" rel="noopener" href="https://gceasy.ycrash.cn/gc-index.jsp">GC分析官网</a>，发现了一个惊讶的地方，如下：</p>
-<p><img src="/2022/11/16/work-summary-jvm/jvm-memory.png" alt="新生代与老年代内存容量"></p>
-<p><strong><code>新生代的内存竟然只有166M。</code></strong></p>
-<p>查看项目的jvm参数配置：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">work          45      14 24 00:28 ?        00:00:30 &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;bin&#x2F;java -Dsun.misc.URLClassPath.disableJarChecking&#x3D;true -DLOG_PATH&#x3D;&#x2F;mnt&#x2F;logs&#x2F;authority-api-jmeter -server -XX:MaxRAMPercentage&#x3D;30.0 -XX:InitialRAMPercentage&#x3D;30.0 -XX:MinRAMPercentage&#x3D;30.0 -verbose:gc -XX:+UseParNewGC -XX:+PrintHeapAtGC -XX:+PrintGCDetails -XX:ConcGCThreads&#x3D;2 -XX:GCLogFileSize&#x3D;50M -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+UseConcMarkSweepGC -XX:ParallelGCThreads&#x3D;2 -XX:NumberOfGCLogFiles&#x3D;1 -XX:+UseGCLogFileRotation -XX:+ScavengeBeforeFullGC -XX:+CMSScavengeBeforeRemark -XX:+CMSParallelRemarkEnabled -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintGCApplicationStoppedTime -Dsun.net.httpserver.maxReqTime&#x3D;30 -Dsun.net.httpserver.maxRspTime&#x3D;30 -XX:CMSInitiatingOccupancyFraction&#x3D;70 -Xloggc:&#x2F;mnt&#x2F;logs&#x2F;authority-api-jmeter&#x2F;jvm&#x2F;gc.log -XX:HeapDumpPath&#x3D;&#x2F;mnt&#x2F;logs&#x2F;authority-api-jmeter&#x2F;jvm -javaagent:&#x2F;usr&#x2F;local&#x2F;jmx-exporter&#x2F;jmx_prometheus_javaagent-0.14.0.jar&#x3D;9990:&#x2F;usr&#x2F;local&#x2F;jmx-exporter&#x2F;prometheus-jmx-config.yaml -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -jar &#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api-jmeter&#x2F;lib&#x2F;authority-api.jar --server.address&#x3D;0.0.0.0 --spring.config.location&#x3D;&#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api-jmeter&#x2F;conf&#x2F; --spring.profiles.active&#x3D;production --logging.config&#x3D;&#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api-jmeter&#x2F;conf&#x2F;log4j2.yml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h4 id="插件安装"><a href="#插件安装" class="headerlink" title="插件安装"></a>插件安装</h4></blockquote>
+<p><code>rabbitmq和延时插件的版本必须匹配</code></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">&#x2F;&#x2F; 查看rabbitmq版本号
+root@myrabbit:&#x2F;opt&#x2F;rabbitmq&#x2F;plugins# rabbitmqctl version
+3.9.11
+&#x2F;&#x2F; 进入插件目录    
+root@myrabbit:&#x2F;opt&#x2F;rabbitmq&#x2F;plugins# cd &#x2F;opt&#x2F;rabbitmq&#x2F;plugins
+&#x2F;&#x2F; 下载插件
+wget https:&#x2F;&#x2F;github.com&#x2F;rabbitmq&#x2F;rabbitmq-delayed-message-exchange&#x2F;releases&#x2F;download&#x2F;3.9.0&#x2F;rabbitmq_delayed_message_exchange-3.9.0.ez
+&#x2F;&#x2F; 安装
+root@myrabbit:&#x2F;opt&#x2F;rabbitmq&#x2F;plugins# rabbitmq-plugins enable rabbitmq_delayed_message_exchange
+Enabling plugins on node rabbit@myrabbit:
+rabbitmq_delayed_message_exchange
+The following plugins have been configured:
+  rabbitmq_delayed_message_exchange
+  rabbitmq_management
+  rabbitmq_management_agent
+  rabbitmq_mqtt
+  rabbitmq_prometheus
+  rabbitmq_web_dispatch
+Applying plugin configuration to rabbit@myrabbit...
+The following plugins have been enabled:
+  rabbitmq_delayed_message_exchange
 
-<p>容器模式下，我们可以给每个JVM实例所属的POD分配任意大小的内存上限。比如，给每个账户服务分配4G，给每个支付服务分配8G。如此一来，启动脚本就不好写成通用的了，指定3G也不是，指定6G也不是。</p>
-<p>但是有了这三个新增参数<strong>MaxRAMPercentage</strong>、<strong>InitialRAMPercentage</strong>、<strong>MinRAMPercentage</strong>，我们就可以在通用的启动脚本中指定堆的内存量百分比（-XX:MaxRAMPercentage=30 -XX:InitialRAMPercentage=30 -XX:MinRAMPercentage=30）。</p>
-<p>对于我们的8G内存，按照30%分配的话，我们就相当于设置了堆内存-Xmx2.4G -Xms2.4G，按照新生代与老年代的默认比例1：2来说。新生代的大小应该为0.8G，老年代1.6G。</p>
-<p>通过<code>jmap -heap</code>显示Java堆的如下信息：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-api-jmeter-v1-65c64db6c7-74z8p:~$ jmap -heap 45
-Attaching to process ID 45, please wait...
-Debugger attached successfully.
-Server compiler detected.
-JVM version is 25.222-b10
+started 1 plugins.
+root@myrabbit:&#x2F;opt&#x2F;rabbitmq&#x2F;plugins#
+&#x2F;&#x2F; 查看插件
+root@myrabbit:&#x2F;opt&#x2F;rabbitmq&#x2F;plugins# rabbitmq-plugins list
+Listing plugins with pattern &quot;.*&quot; ...
+ Configured: E &#x3D; explicitly enabled; e &#x3D; implicitly enabled
+ | Status: * &#x3D; running on rabbit@myrabbit
+ |&#x2F;
+[  ] rabbitmq_amqp1_0                  3.9.11
+[  ] rabbitmq_auth_backend_cache       3.9.11
+[  ] rabbitmq_auth_backend_http        3.9.11
+[  ] rabbitmq_auth_backend_ldap        3.9.11
+[  ] rabbitmq_auth_backend_oauth2      3.9.11
+[  ] rabbitmq_auth_mechanism_ssl       3.9.11
+[  ] rabbitmq_consistent_hash_exchange 3.9.11
+[E*] rabbitmq_delayed_message_exchange 3.9.0<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-using parallel threads in the new generation.
-using thread-local object allocation.
-Concurrent Mark-Sweep GC
-
-Heap Configuration:
-   MinHeapFreeRatio         &#x3D; 40
-   MaxHeapFreeRatio         &#x3D; 70
-   MaxHeapSize              &#x3D; 2577399808 (2458.0MB)
-   NewSize                  &#x3D; 174456832 (166.375MB)
-   MaxNewSize               &#x3D; 174456832 (166.375MB)
-   OldSize                  &#x3D; 2402942976 (2291.625MB)
-   NewRatio                 &#x3D; 2
-   SurvivorRatio            &#x3D; 8
-   MetaspaceSize            &#x3D; 21807104 (20.796875MB)
-   CompressedClassSpaceSize &#x3D; 1073741824 (1024.0MB)
-   MaxMetaspaceSize         &#x3D; 17592186044415 MB
-   G1HeapRegionSize         &#x3D; 0 (0.0MB)
-
-Heap Usage:
-New Generation (Eden + 1 Survivor Space):
-   capacity &#x3D; 157024256 (149.75MB)
-   used     &#x3D; 64436528 (61.45146179199219MB)
-   free     &#x3D; 92587728 (88.29853820800781MB)
-   41.03603458563752% used
-Eden Space:
-   capacity &#x3D; 139591680 (133.125MB)
-   used     &#x3D; 49245504 (46.96417236328125MB)
-   free     &#x3D; 90346176 (86.16082763671875MB)
-   35.27825154049296% used
-From Space:
-   capacity &#x3D; 17432576 (16.625MB)
-   used     &#x3D; 15191024 (14.487289428710938MB)
-   free     &#x3D; 2241552 (2.1377105712890625MB)
-   87.14159054863721% used
-To Space:
-   capacity &#x3D; 17432576 (16.625MB)
-   used     &#x3D; 0 (0.0MB)
-   free     &#x3D; 17432576 (16.625MB)
-   0.0% used
-concurrent mark-sweep generation:
-   capacity &#x3D; 2402942976 (2291.625MB)
-   used     &#x3D; 52197864 (49.779762268066406MB)
-   free     &#x3D; 2350745112 (2241.8452377319336MB)
-   2.1722473034665972% used
-
- 30750 interned Strings occupying 3569720 bytes.<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>可以看到实际新生代的大小与日志分析结果相同为166.4 mb（Eden<code>133.125MB</code> + 2 Survivor Space<code>16.625MB</code>）</p>
-<p>经过查找资料发现：新生代的大小为：</p>
-<p><strong>max_heap/(NewRatio+1) 和 ScaleForWordSize(young_gen_per_worker * parallel_gc_threads) 中较小的那个</strong></p>
-<p>max_heap/(NewRatio+1) 这个我们都了解，就是按照 默认NewRatio 为2来计算，新生代的大小应该为0.8G。</p>
-<p><img src="/2022/11/16/work-summary-jvm/scaleForWordSize.png" alt="ScaleForWordSize 的定义"></p>
-<p>而ScaleForWordSize最终的计算公式是</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">机器硬件决定(x86位64M) * 并行线程数(-XX:ParallelGCThreads指定的值) * 13 &#x2F; 10<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>由于我们指定了<code>-XX:ParallelGCThreads=2</code>,按照这个公式64M * <em>2</em> * 13 / 10=166.4M。</p>
-<p>所以二者之间取小值，我们最终的新生代的大小为166.4M。验证了现像。</p>
-<p>总结：所以我们在使用CMS收集器模式时，一定要指定新生代的大小，完整参数如下：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">-XX:+UseConcMarkSweepGC -XX:NewRatio&#x3D;2 -XX:ParallelGCThreads&#x3D;2 -XX:CICompilerCount&#x3D;2 <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
+<p>重启容器</p>
+<p><img src="/2022/11/22/middleware-rabbitmq-delayed-message/delay-exchange.png" alt="交换机选项"></p>
 <blockquote>
-<h3 id="调整"><a href="#调整" class="headerlink" title="调整"></a>调整</h3></blockquote>
-<p>发现生产环境很多服务都存在此问题</p>
-<p><img src="/2022/11/16/work-summary-jvm/gc-old.png" alt="生产环境未调整设置的GC情况"></p>
-<p><img src="/2022/11/16/work-summary-jvm/gc-after.png" alt="生产环境调整之后的GC情况"></p>
-<p>打印heap参数：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-api-v1-dc978c6b5-kb8f9:~$ jmap -heap 47
-Attaching to process ID 47, please wait...
-Debugger attached successfully.
-Server compiler detected.
-JVM version is 25.222-b10
-
-using parallel threads in the new generation.
-using thread-local object allocation.
-Concurrent Mark-Sweep GC
-
-Heap Configuration:
-   MinHeapFreeRatio         &#x3D; 40
-   MaxHeapFreeRatio         &#x3D; 70
-   MaxHeapSize              &#x3D; 2577399808 (2458.0MB)
-   NewSize                  &#x3D; 859111424 (819.3125MB)
-   MaxNewSize               &#x3D; 859111424 (819.3125MB)
-   OldSize                  &#x3D; 1718288384 (1638.6875MB)
-   NewRatio                 &#x3D; 2
-   SurvivorRatio            &#x3D; 8
-   MetaspaceSize            &#x3D; 21807104 (20.796875MB)
-   CompressedClassSpaceSize &#x3D; 1073741824 (1024.0MB)
-   MaxMetaspaceSize         &#x3D; 17592186044415 MB
-   G1HeapRegionSize         &#x3D; 0 (0.0MB)
-
-Heap Usage:
-New Generation (Eden + 1 Survivor Space):
-   capacity &#x3D; 773259264 (737.4375MB)
-   used     &#x3D; 594538992 (566.9965667724609MB)
-   free     &#x3D; 178720272 (170.44093322753906MB)
-   76.88740629171434% used
-Eden Space:
-   capacity &#x3D; 687407104 (655.5625MB)
-   used     &#x3D; 593315240 (565.8295059204102MB)
-   free     &#x3D; 94091864 (89.73299407958984MB)
-   86.31206115670285% used
-From Space:
-   capacity &#x3D; 85852160 (81.875MB)
-   used     &#x3D; 1223752 (1.1670608520507812MB)
-   free     &#x3D; 84628408 (80.70793914794922MB)
-   1.4254178345658397% used
-To Space:
-   capacity &#x3D; 85852160 (81.875MB)
-   used     &#x3D; 0 (0.0MB)
-   free     &#x3D; 85852160 (81.875MB)
-   0.0% used
-concurrent mark-sweep generation:
-   capacity &#x3D; 1718288384 (1638.6875MB)
-   used     &#x3D; 104572760 (99.72835540771484MB)
-   free     &#x3D; 1613715624 (1538.9591445922852MB)
-   6.085867830670268% used
-
-52552 interned Strings occupying 5734440 bytes.
-work@authority-api-v1-dc978c6b5-kb8f9:~$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>确认堆新生代已经调整为819.3125MB。</p>
-<blockquote>
-<h3 id="后续跟进"><a href="#后续跟进" class="headerlink" title="后续跟进"></a>后续跟进</h3></blockquote>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">[~]$ jmap -heap 24433
-Attaching to process ID 24433, please wait...
-Debugger attached successfully.
-Server compiler detected.
-JVM version is 25.74-b02
-
-using parallel threads in the new generation.
-using thread-local object allocation.
-Concurrent Mark-Sweep GC
-
-Heap Configuration:
-   MinHeapFreeRatio         &#x3D; 40
-   MaxHeapFreeRatio         &#x3D; 70
-   MaxHeapSize              &#x3D; 2147483648 (2048.0MB)
-   NewSize                  &#x3D; 357892096 (341.3125MB)
-   MaxNewSize               &#x3D; 715784192 (682.625MB)
-   OldSize                  &#x3D; 715849728 (682.6875MB)
-   NewRatio                 &#x3D; 2
-   SurvivorRatio            &#x3D; 8
-   MetaspaceSize            &#x3D; 21807104 (20.796875MB)
-   CompressedClassSpaceSize &#x3D; 1073741824 (1024.0MB)
-   MaxMetaspaceSize         &#x3D; 268435456 (256.0MB)
-   G1HeapRegionSize         &#x3D; 0 (0.0MB)
-
-Heap Usage:
-New Generation (Eden + 1 Survivor Space):
-   capacity &#x3D; 322109440 (307.1875MB)
-   used     &#x3D; 226564424 (216.06867218017578MB)
-   free     &#x3D; 95545016 (91.11882781982422MB)
-   70.33771627431969% used
-Eden Space:
-   capacity &#x3D; 286326784 (273.0625MB)
-   used     &#x3D; 221015664 (210.77696228027344MB)
-   free     &#x3D; 65311120 (62.28553771972656MB)
-   77.19000678609235% used
-From Space:
-   capacity &#x3D; 35782656 (34.125MB)
-   used     &#x3D; 5548760 (5.291709899902344MB)
-   free     &#x3D; 30233896 (28.833290100097656MB)
-   15.506842197516026% used
-To Space:
-   capacity &#x3D; 35782656 (34.125MB)
-   used     &#x3D; 0 (0.0MB)
-   free     &#x3D; 35782656 (34.125MB)
-   0.0% used
-concurrent mark-sweep generation:
-   capacity &#x3D; 715849728 (682.6875MB)
-   used     &#x3D; 69264248 (66.05553436279297MB)
-   free     &#x3D; 646585480 (616.631965637207MB)
-   9.675808384186464% used
-
-41925 interned Strings occupying 4788072 bytes.
-[work@线上-业务运营-车源-c1_UserCenter_API-01 ~]$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>发现<code>Eden Space</code>的空间依旧不足，而且自己已经设置了-XX:NewRatio=2，查看JVM参数有<code>-Xms1024m -Xmx2048m</code>，也就是初始阶段新生代的内存分配为：1024M / 3 = 341M (<code>Eden 273.0625</code> + <code>Survivor 34.125</code> * 2)</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">[work@线上-业务运营-车源-c1_UserCenter_API-00 ~]$ jmap -heap 23078
-Attaching to process ID 23078, please wait...
-Debugger attached successfully.
-Server compiler detected.
-JVM version is 25.74-b02
-
-using parallel threads in the new generation.
-using thread-local object allocation.
-Concurrent Mark-Sweep GC
-
-Heap Configuration:
-   MinHeapFreeRatio         &#x3D; 40
-   MaxHeapFreeRatio         &#x3D; 70
-   MaxHeapSize              &#x3D; 2147483648 (2048.0MB)
-   NewSize                  &#x3D; 715784192 (682.625MB)
-   MaxNewSize               &#x3D; 715784192 (682.625MB)
-   OldSize                  &#x3D; 1431699456 (1365.375MB)
-   NewRatio                 &#x3D; 2
-   SurvivorRatio            &#x3D; 8
-   MetaspaceSize            &#x3D; 21807104 (20.796875MB)
-   CompressedClassSpaceSize &#x3D; 1073741824 (1024.0MB)
-   MaxMetaspaceSize         &#x3D; 268435456 (256.0MB)
-   G1HeapRegionSize         &#x3D; 0 (0.0MB)
-
-Heap Usage:
-New Generation (Eden + 1 Survivor Space):
-   capacity &#x3D; 644218880 (614.375MB)
-   used     &#x3D; 453082096 (432.09275817871094MB)
-   free     &#x3D; 191136784 (182.28224182128906MB)
-   70.33045911352364% used
-Eden Space:
-   capacity &#x3D; 572653568 (546.125MB)
-   used     &#x3D; 415579960 (396.3279342651367MB)
-   free     &#x3D; 157073608 (149.79706573486328MB)
-   72.57091952669018% used
-From Space:
-   capacity &#x3D; 71565312 (68.25MB)
-   used     &#x3D; 37502136 (35.76482391357422MB)
-   free     &#x3D; 34063176 (32.48517608642578MB)
-   52.40267240084135% used
-To Space:
-   capacity &#x3D; 71565312 (68.25MB)
-   used     &#x3D; 0 (0.0MB)
-   free     &#x3D; 71565312 (68.25MB)
-   0.0% used
-concurrent mark-sweep generation:
-   capacity &#x3D; 1431699456 (1365.375MB)
-   used     &#x3D; 45248776 (43.15259552001953MB)
-   free     &#x3D; 1386450680 (1322.2224044799805MB)
-   3.1604940415651033% used
-
-40553 interned Strings occupying 4633272 bytes.
-[work@线上-业务运营-车源-c1_UserCenter_API-00 ~]$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>生产环境Xms和Xmx配置为相等，因为生产环境意味着一台机器或者一个容器只有一个服务，独占机器意味着没有必要调整jvm大小，直接分配Xmx就行了。否则每一次调整都可能会有开销。初始堆大小-Xms与最大堆大小-Xmx是不等的，那么JVM就会根据堆内存的使用情况，动态的向操作系统申请内存，扩大或者是缩小，以-Xmx和-Xms的值为上下界，这里的每一次调整都会产生一定的系统开销，</p>
-<blockquote>
-<p>引用</p>
-</blockquote>
-<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/832fc4d4cb53">CMS GC 默认新生代是多大</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.51cto.com/u_14410880/2824970">JVM新生代、老年代的默认比值真的是1:2吗？</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/matt8/article/details/122732697">jvm gc调优-新生代的默认值</a></p>
-<p><a target="_blank" rel="noopener" href="https://developer.aliyun.com/article/844267">JVM的Xms和Xmx参数设置为相同值有什么好处？</a></p>
+<h3 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h3></blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.jb51.net/article/248469.htm#_label2">Docker安装RabbitMQ并安装延时队列插件</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/sy2022/p/16513056.html">MQ高级</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/mfrank/p/11260355.html">一文带你搞定RabbitMQ延迟队列</a></p>
 
                 
             </div>
@@ -789,7 +606,7 @@ concurrent mark-sweep generation:
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://qinglei1989.github.io/2022/11/16/work-summary-jvm/">https://qinglei1989.github.io/2022/11/16/work-summary-jvm/</a>
+                    <a href="https://qinglei1989.github.io/2022/11/22/middleware-rabbitmq-delayed-message/">https://qinglei1989.github.io/2022/11/22/middleware-rabbitmq-delayed-message/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -827,8 +644,8 @@ concurrent mark-sweep generation:
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/nginx/">
-                                    <span class="chip bg-color">nginx</span>
+                                <a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/">
+                                    <span class="chip bg-color">中间件</span>
                                 </a>
                             
                         </div>
@@ -1000,29 +817,30 @@ concurrent mark-sweep generation:
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
-                <a href="/2022/11/20/middleware-rabbitmq-deadletter/">
+                <a href="/2022/11/22/middleware-rabbitmq-delayed-message/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/20.jpg" class="responsive-img" alt="RabbitMQ死信队列">
+                        <img src="/medias/featureimages/15.jpg" class="responsive-img" alt="RabbitMQ延迟队列">
                         
-                        <span class="card-title">RabbitMQ死信队列</span>
+                        <span class="card-title">RabbitMQ延迟队列</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            RabbitMQ死信队列
+                            RabbitMQ延迟队列
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2022-11-20
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-11-22
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -1035,6 +853,7 @@ concurrent mark-sweep generation:
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -1053,31 +872,31 @@ concurrent mark-sweep generation:
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2022/11/16/elasticsearch-introduction/">
+                <a href="/2022/11/20/middleware-rabbitmq-deadletter/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="Elasticsearch核心概念">
+                        <img src="/medias/featureimages/20.jpg" class="responsive-img" alt="RabbitMQ死信队列">
                         
-                        <span class="card-title">Elasticsearch核心概念</span>
+                        <span class="card-title">RabbitMQ死信队列</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            Elasticsearch核心概念。
+                            RabbitMQ死信队列
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-11-16
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-11-20
                             </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="post-category">
-                                    中间件
+                            <a href="/categories/rabbitmq/" class="post-category">
+                                    rabbitmq
                                 </a>
                             
                             
@@ -1087,8 +906,8 @@ concurrent mark-sweep generation:
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/Elasticsearch/">
-                        <span class="chip bg-color">Elasticsearch</span>
+                    <a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/">
+                        <span class="chip bg-color">中间件</span>
                     </a>
                     
                 </div>
