@@ -645,7 +645,8 @@ work@authority-api-v1-dc978c6b5-kb8f9:~$<span aria-hidden="true" class="line-num
 
 <p>确认堆新生代已经调整为819.3125MB。</p>
 <blockquote>
-<h3 id="后续跟进"><a href="#后续跟进" class="headerlink" title="后续跟进"></a>后续跟进</h3></blockquote>
+<h3 id="后续"><a href="#后续" class="headerlink" title="后续"></a>后续</h3></blockquote>
+<p>今天又收到了其他部门反馈接口偶发超时问题，下午将容器服务引入了Wtrace，等后续出现接口超时问题时来查看耗时原因，同时依然查看JVM参数，做响应的优化。查看内存分配情况</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">[~]$ jmap -heap 24433
 Attaching to process ID 24433, please wait...
 Debugger attached successfully.
@@ -700,7 +701,7 @@ concurrent mark-sweep generation:
 41925 interned Strings occupying 4788072 bytes.
 [work@线上-业务运营-车源-c1_UserCenter_API-01 ~]$<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p>发现<code>Eden Space</code>的空间依旧不足，而且自己已经设置了-XX:NewRatio=2，查看JVM参数有<code>-Xms1024m -Xmx2048m</code>，也就是初始阶段新生代的内存分配为：1024M / 3 = 341M (<code>Eden 273.0625</code> + <code>Survivor 34.125</code> * 2)</p>
+<p>因为为发现<code>Eden Space</code>的空间依旧不足，而且自己已经设置了-XX:NewRatio=2，查看JVM参数有<code>-Xms1024m -Xmx2048m</code>，也就是初始阶段新生代的内存分配为：1024M / 3 = 341M (<code>Eden 273.0625</code> + <code>Survivor 34.125 * 2</code>)。于是JVM参数<code>-Xms</code>调整为2048M。</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">[work@线上-业务运营-车源-c1_UserCenter_API-00 ~]$ jmap -heap 23078
 Attaching to process ID 23078, please wait...
 Debugger attached successfully.

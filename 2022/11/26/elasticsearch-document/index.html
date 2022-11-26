@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="SpringBoot,rabbitmq">
+    <meta name="keywords" content="Elasticsearch">
     <meta name="description" content="失落时悄悄徘徊，伤感时默默遐想">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>RabbitMQ延迟队列 | 山西小魔头技术博客</title>
+    <title>elasticsearch文档知识点 | 山西小魔头技术博客</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/15.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/23.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">RabbitMQ延迟队列</h1>
+                    <h1 class="description center-align post-title">elasticsearch文档知识点</h1>
                 </div>
             </div>
         </div>
@@ -431,8 +431,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/">
-                                <span class="chip bg-color">中间件</span>
+                            <a href="/tags/Elasticsearch/">
+                                <span class="chip bg-color">Elasticsearch</span>
                             </a>
                         
                     </div>
@@ -443,8 +443,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/rabbitmq/" class="post-category">
-                                rabbitmq
+                            <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="post-category">
+                                中间件
                             </a>
                         
                     </div>
@@ -456,7 +456,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2022-11-22
+                    2022-11-26
                 </div>
                 
 
@@ -480,106 +480,497 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>RabbitMQ延迟队列</p>
+                <p>Elasticsearch document知识点。</p>
 <span id="more"></span>
 
-<h3 id="【MQ中间件】RabbitMQ死信队列"><a href="#【MQ中间件】RabbitMQ死信队列" class="headerlink" title="【MQ中间件】RabbitMQ死信队列"></a>【MQ中间件】RabbitMQ死信队列</h3><blockquote>
-<h2 id="什么是延时队列"><a href="#什么是延时队列" class="headerlink" title="什么是延时队列"></a>什么是延时队列</h2></blockquote>
-<p><code>延时队列</code>，首先，它是一种队列，队列意味着内部的元素是有序的，元素出队和入队是有方向性的，元素从一端进入，从另一端取出。</p>
-<p>其次，延时队列最重要的特性就体现在它的延时属性上，跟普通的队列不一样的是，普通队列中的元素总是等着希望被早点取出处理，而延时队列中的元素则是希望被在指定时间得到取出和处理，所以延时队列中的元素是都是带时间属性的。</p>
-<p>简单来说，延时队列就是用来存放需要在指定时间被处理的元素的队列。</p>
-<blockquote>
-<h2 id="延时队列使用场景"><a href="#延时队列使用场景" class="headerlink" title="延时队列使用场景"></a>延时队列使用场景</h2></blockquote>
-<p>那么什么时候需要用延时队列呢？考虑一下以下场景：</p>
-<ol>
-<li>订单在十分钟之内未支付则自动取消。</li>
-<li>新创建的店铺，如果在十天内都没有上传过商品，则自动发送消息提醒。</li>
-<li>账单在一周内未支付，则自动结算。</li>
-<li>用户注册成功后，如果三天内没有登陆则进行短信提醒。</li>
-<li>用户发起退款，如果三天内没有得到处理则通知相关运营人员。</li>
-<li>预定会议后，需要在预定的时间点前十分钟通知各个与会人员参加会议。</li>
-</ol>
-<p>对于少量数据，我们可以使用定时任务来完成相应的需求。</p>
-<p>但对于数据量比较大，并且时效性较强的场景，如：“订单十分钟内未支付则关闭“，短期内未支付的订单数据可能会有很多，活动期间甚至会达到百万甚至千万级别，对这么庞大的数据量仍旧使用轮询的方式显然是不可取的，很可能单位时间内无法完成所有订单的检查，同时会给数据库带来很大压力，无法满足业务要求而且性能低下。</p>
-<p>这时候，延时队列就可以闪亮登场了，以上场景，正是延时队列的用武之地。</p>
-<blockquote>
-<h2 id="RabbitMQ中的TTL"><a href="#RabbitMQ中的TTL" class="headerlink" title="RabbitMQ中的TTL"></a>RabbitMQ中的TTL</h2></blockquote>
-<p><code>TTL</code>是RabbitMQ中一个消息或者队列的属性，表明一条消息或者该队列中的所有消息的最大存活时间，单位是毫秒。</p>
-<p>换句话说，如果一条消息设置了TTL属性或者进入了设置TTL属性的队列，那么这条消息如果在TTL设置的时间内没有被消费，则会成为“死信”（至于什么是死信，请翻看上一篇）。如果同时配置了队列的TTL和消息的TTL，那么较小的那个值将会被使用。</p>
-<p>那么，如何设置这个TTL值呢？有两种方式，第一种是在创建队列的时候设置队列的“x-message-ttl”属性，如下：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">Map&lt;String, Object&gt; args &#x3D; new HashMap&lt;String, Object&gt;();
-args.put(&quot;x-message-ttl&quot;, 6000);
-channel.queueDeclare(queueName, durable, exclusive, autoDelete, args);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<center><h2>Elasticsearch文档</h2></center>  
 
-<p>这样所有被投递到该队列的消息都最多不会存活超过6s。</p>
-<p>另一种方式便是针对每条消息设置TTL，代码如下：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">AMQP.BasicProperties.Builder builder &#x3D; new AMQP.BasicProperties.Builder();
-builder.expiration(&quot;6000&quot;);
-AMQP.BasicProperties properties &#x3D; builder.build();
-channel.basicPublish(exchangeName, routingKey, mandatory, properties, &quot;msg body&quot;.getBytes());<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">&#123;
+  &quot;_index&quot;: &quot;rrc&quot;,
+  &quot;_type&quot;: &quot;user&quot;,
+  &quot;_id&quot;: &quot;1&quot;,
+  &quot;_version&quot;: 2,
+  &quot;found&quot;: true,
+  &quot;_source&quot;: &#123;
+    &quot;num&quot;: 1,
+    &quot;tags&quot;: []
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p>这样这条消息的过期时间也被设置成了6s。</p>
-<p>但这两种方式是有区别的，<strong>如果设置了队列的TTL属性，那么一旦消息过期，就会被队列丢弃，而第二种方式，消息即使过期，也不一定会被马上丢弃，因为消息是否过期是在即将投递到消费者之前判定的，如果当前队列有严重的消息积压情况，则已过期的消息也许还能存活较长时间。</strong></p>
-<p>另外，还需要注意的一点是，如果不设置TTL，表示消息永远不会过期，如果将TTL设置为0，则表示除非此时可以直接投递该消息到消费者，否则该消息将会被丢弃。</p>
 <blockquote>
-<h3 id="如何利用RabbitMQ实现延时队列"><a href="#如何利用RabbitMQ实现延时队列" class="headerlink" title="如何利用RabbitMQ实现延时队列"></a>如何利用RabbitMQ实现延时队列</h3></blockquote>
-<p><code>延时队列</code>，不就是想要消息延迟多久被处理吗，TTL则刚好能让消息在延迟多久之后成为死信，另一方面，成为死信的消息都会被投递到死信队列里，这样只需要消费者一直消费死信队列里的消息就万事大吉了，因为里面的消息都是希望被立即处理的消息。</p>
-<p><img src="/2022/11/22/middleware-rabbitmq-delayed-message/%E5%BB%B6%E8%BF%9F%E9%98%9F%E5%88%97.png" alt="延迟队列"></p>
-<p>生产者生产一条延时消息，根据需要延时时间的不同，利用不同的routingkey将消息路由到不同的延时队列，每个队列都设置了不同的TTL属性，并绑定在同一个死信交换机中，消息过期后，根据routingkey的不同，又会被路由到不同的死信队列中，消费者只需要监听对应的死信队列进行处理即可。</p>
-<p>不过，等等，如果这样使用的话，岂不是每增加一个新的时间需求，就要新增一个队列，这里只有6s和60s两个时间选项，如果需要一个小时后处理，那么就需要增加TTL为一个小时的队列，如果是预定会议室然后提前通知这样的场景，岂不是要增加无数个队列才能满足需求？？</p>
+<h3 id="index索引元数据"><a href="#index索引元数据" class="headerlink" title="_index索引元数据"></a>_index索引元数据</h3></blockquote>
+<p>代表一个document存放在哪个索引中</p>
+<p>索引名称必须是小写的，不能用下划线开头，不能包含逗号。</p>
 <blockquote>
-<h3 id="RabbitMQ延时队列优化"><a href="#RabbitMQ延时队列优化" class="headerlink" title="RabbitMQ延时队列优化"></a>RabbitMQ延时队列优化</h3></blockquote>
+<h3 id="type元类型数据"><a href="#type元类型数据" class="headerlink" title="_type元类型数据"></a>_type元类型数据</h3></blockquote>
+<p>代表document属于index中的哪个类别<br>type名称可以是大写或者小写，但是同时不能用下划线开头，不能包含逗号</p>
 <blockquote>
-<h3 id="利用RabbitMQ插件实现延迟队列"><a href="#利用RabbitMQ插件实现延迟队列" class="headerlink" title="利用RabbitMQ插件实现延迟队列"></a>利用RabbitMQ插件实现延迟队列</h3></blockquote>
+<h3 id="id元数据"><a href="#id元数据" class="headerlink" title="_id元数据"></a>_id元数据</h3></blockquote>
+<p>代表document的唯一标识，与index和type一起，可以唯一标识和定位一个document<br>我们可以手动指定document的id（put /index/type/id），也可以不指定，由es自动为我们创建一个id</p>
 <blockquote>
-<h4 id="插件安装"><a href="#插件安装" class="headerlink" title="插件安装"></a>插件安装</h4></blockquote>
-<p><code>rabbitmq和延时插件的版本必须匹配</code></p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">&#x2F;&#x2F; 查看rabbitmq版本号
-root@myrabbit:&#x2F;opt&#x2F;rabbitmq&#x2F;plugins# rabbitmqctl version
-3.9.11
-&#x2F;&#x2F; 进入插件目录    
-root@myrabbit:&#x2F;opt&#x2F;rabbitmq&#x2F;plugins# cd &#x2F;opt&#x2F;rabbitmq&#x2F;plugins
-&#x2F;&#x2F; 下载插件
-wget https:&#x2F;&#x2F;github.com&#x2F;rabbitmq&#x2F;rabbitmq-delayed-message-exchange&#x2F;releases&#x2F;download&#x2F;3.9.0&#x2F;rabbitmq_delayed_message_exchange-3.9.0.ez
-&#x2F;&#x2F; 安装
-root@myrabbit:&#x2F;opt&#x2F;rabbitmq&#x2F;plugins# rabbitmq-plugins enable rabbitmq_delayed_message_exchange
-Enabling plugins on node rabbit@myrabbit:
-rabbitmq_delayed_message_exchange
-The following plugins have been configured:
-  rabbitmq_delayed_message_exchange
-  rabbitmq_management
-  rabbitmq_management_agent
-  rabbitmq_mqtt
-  rabbitmq_prometheus
-  rabbitmq_web_dispatch
-Applying plugin configuration to rabbit@myrabbit...
-The following plugins have been enabled:
-  rabbitmq_delayed_message_exchange
+<h3 id="id生成策略"><a href="#id生成策略" class="headerlink" title="id生成策略"></a>id生成策略</h3></blockquote>
+<blockquote>
+<h4 id="手动指定document-id"><a href="#手动指定document-id" class="headerlink" title="手动指定document id"></a>手动指定document id</h4></blockquote>
+<p>根据应用情况来说，是否满足手动指定document id的前提：</p>
+<p>一般来说从某些其他的系统中导入一些数据到es，会采取这种方式，就是使用系统中已有数据的唯一标识，作为es中document的id。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">PUT &#x2F;rrc&#x2F;user&#x2F;11
+&#123;
+  &quot;name&quot;:&quot;wang&quot;,
+  &quot;price&quot;:30
+&#125;
 
-started 1 plugins.
-root@myrabbit:&#x2F;opt&#x2F;rabbitmq&#x2F;plugins#
-&#x2F;&#x2F; 查看插件
-root@myrabbit:&#x2F;opt&#x2F;rabbitmq&#x2F;plugins# rabbitmq-plugins list
-Listing plugins with pattern &quot;.*&quot; ...
- Configured: E &#x3D; explicitly enabled; e &#x3D; implicitly enabled
- | Status: * &#x3D; running on rabbit@myrabbit
- |&#x2F;
-[  ] rabbitmq_amqp1_0                  3.9.11
-[  ] rabbitmq_auth_backend_cache       3.9.11
-[  ] rabbitmq_auth_backend_http        3.9.11
-[  ] rabbitmq_auth_backend_ldap        3.9.11
-[  ] rabbitmq_auth_backend_oauth2      3.9.11
-[  ] rabbitmq_auth_mechanism_ssl       3.9.11
-[  ] rabbitmq_consistent_hash_exchange 3.9.11
-[E*] rabbitmq_delayed_message_exchange 3.9.0<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+&#123;
+  &quot;_index&quot;: &quot;rrc&quot;,
+  &quot;_type&quot;: &quot;user&quot;,
+  &quot;_id&quot;: &quot;11&quot;,
+  &quot;_version&quot;: 1,
+  &quot;result&quot;: &quot;created&quot;,
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 2,
+    &quot;successful&quot;: 1,
+    &quot;failed&quot;: 0
+  &#125;,
+  &quot;created&quot;: true
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p>重启容器</p>
-<p><img src="/2022/11/22/middleware-rabbitmq-delayed-message/delay-exchange.png" alt="交换机选项"></p>
 <blockquote>
-<h3 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h3></blockquote>
-<p><a target="_blank" rel="noopener" href="https://www.jb51.net/article/248469.htm#_label2">Docker安装RabbitMQ并安装延时队列插件</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/sy2022/p/16513056.html">MQ高级</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/mfrank/p/11260355.html">一文带你搞定RabbitMQ延迟队列</a></p>
+<h4 id="自动生成document-id"><a href="#自动生成document-id" class="headerlink" title="自动生成document id"></a>自动生成document id</h4></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">POST &#x2F;rrc&#x2F;user
+&#123;
+  &quot;name&quot;:&quot;wangql&quot;,
+  &quot;price&quot;:30
+&#125;
+
+&#123;
+  &quot;_index&quot;: &quot;rrc&quot;,
+  &quot;_type&quot;: &quot;user&quot;,
+  &quot;_id&quot;: &quot;AYSyqRvxLAoa11ADX7JR&quot;,
+  &quot;_version&quot;: 1,
+  &quot;result&quot;: &quot;created&quot;,
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 2,
+    &quot;successful&quot;: 1,
+    &quot;failed&quot;: 0
+  &#125;,
+  &quot;created&quot;: true
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>自动生成的id，长度为20个字符，URL安全，base64编码，GUID算法，分布式系统并行生成时不可能会发生冲突</p>
+<blockquote>
+<h3 id="source元数据"><a href="#source元数据" class="headerlink" title="_source元数据"></a>_source元数据</h3></blockquote>
+<p>在创建一个document的时候，使用的那个放在request body中的json串，默认情况下，在get的时候，会原封不动的给我们返回回来。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">get &#x2F;rrc&#x2F;user&#x2F;11
+    
+&#123;
+  &quot;_index&quot;: &quot;rrc&quot;,
+  &quot;_type&quot;: &quot;user&quot;,
+  &quot;_id&quot;: &quot;11&quot;,
+  &quot;_version&quot;: 1,
+  &quot;found&quot;: true,
+  &quot;_source&quot;: &#123;
+    &quot;name&quot;: &quot;wang&quot;,
+    &quot;price&quot;: 30
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>定制返回结果</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">get &#x2F;rrc&#x2F;user&#x2F;11?_source&#x3D;name
+
+&#123;
+  &quot;_index&quot;: &quot;rrc&quot;,
+  &quot;_type&quot;: &quot;user&quot;,
+  &quot;_id&quot;: &quot;11&quot;,
+  &quot;_version&quot;: 1,
+  &quot;found&quot;: true,
+  &quot;_source&quot;: &#123;
+    &quot;name&quot;: &quot;wangql&quot;
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<h3 id="乐观锁并发控制方案"><a href="#乐观锁并发控制方案" class="headerlink" title="乐观锁并发控制方案"></a>乐观锁并发控制方案</h3></blockquote>
+<p>Elasticsearch内部如何基于_version进行乐观锁并发控制</p>
+<p>第一次创建一个document的时候，它的version内部版本号就是1；以后，每次对这个document执行修改或者删除操作，都会对这个_version版本号自动加1；哪怕是删除，也会对这条数据的版本号加1</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">PUT &#x2F;rrc&#x2F;user&#x2F;4
+&#123;
+  &quot;name&quot;:&quot;tie&#39;dan&quot;,
+  &quot;price&quot;:30
+&#125;
+# 首次插入version为1
+&#123;
+  &quot;_index&quot;: &quot;rrc&quot;,
+  &quot;_type&quot;: &quot;user&quot;,
+  &quot;_id&quot;: &quot;4&quot;,
+  &quot;_version&quot;: 1,
+  &quot;result&quot;: &quot;created&quot;,
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 2,
+    &quot;successful&quot;: 1,
+    &quot;failed&quot;: 0
+  &#125;,
+  &quot;created&quot;: true
+&#125;
+
+DELETE &#x2F;rrc&#x2F;user&#x2F;4
+# 执行删除操作 version为2 
+&#123;
+  &quot;found&quot;: true,
+  &quot;_index&quot;: &quot;rrc&quot;,
+  &quot;_type&quot;: &quot;user&quot;,
+  &quot;_id&quot;: &quot;4&quot;,
+  &quot;_version&quot;: 2,
+  &quot;result&quot;: &quot;deleted&quot;,
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 2,
+    &quot;successful&quot;: 1,
+    &quot;failed&quot;: 0
+  &#125;
+&#125;
+
+&#x2F;&#x2F;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>我们会发现，在删除一个document之后，可以从一个侧面证明，它不是立即物理删除掉的，因为它的一些版本号等信息还是保留着的。先删除一条document，再重新创建这条document，其实会在delete version基础之上，再把version号加1。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"># 重新创建document
+PUT &#x2F;rrc&#x2F;user&#x2F;4
+&#123;
+  &quot;name&quot;:&quot;tie&#39;dan&quot;,
+  &quot;price&quot;:30
+&#125;
+# 版本号增加到3
+&#123;
+  &quot;_index&quot;: &quot;rrc&quot;,
+  &quot;_type&quot;: &quot;user&quot;,
+  &quot;_id&quot;: &quot;4&quot;,
+  &quot;_version&quot;: 3,
+  &quot;result&quot;: &quot;created&quot;,
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 2,
+    &quot;successful&quot;: 1,
+    &quot;failed&quot;: 0
+  &#125;,
+  &quot;created&quot;: true
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<h4 id="基于-version进行乐观锁并发控制"><a href="#基于-version进行乐观锁并发控制" class="headerlink" title="基于_version进行乐观锁并发控制"></a>基于_version进行乐观锁并发控制</h4></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"># 构建数据
+PUT &#x2F;rrc&#x2F;user&#x2F;9
+&#123;
+  &quot;name&quot;:&quot;tie&#39;dan&quot;,
+  &quot;price&quot;:30
+&#125;
+
+&#123;
+  &quot;_index&quot;: &quot;rrc&quot;,
+  &quot;_type&quot;: &quot;user&quot;,
+  &quot;_id&quot;: &quot;9&quot;,
+  &quot;_version&quot;: 1,
+  &quot;result&quot;: &quot;created&quot;,
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 2,
+    &quot;successful&quot;: 1,
+    &quot;failed&quot;: 0
+  &#125;,
+  &quot;created&quot;: true
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>基于version字段进行更新</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">post &#x2F;rrc&#x2F;user&#x2F;9&#x2F;_update?version&#x3D;1
+&#123;
+  &quot;doc&quot;:&#123;
+    &quot;name&quot;:&quot;goudan&quot;
+  &#125;
+&#125;
+
+# 查询数据 版本号变更2
+GET &#x2F;rrc&#x2F;user&#x2F;9
+&#123;
+  &quot;_index&quot;: &quot;rrc&quot;,
+  &quot;_type&quot;: &quot;user&quot;,
+  &quot;_id&quot;: &quot;9&quot;,
+  &quot;_version&quot;: 2,
+  &quot;found&quot;: true,
+  &quot;_source&quot;: &#123;
+    &quot;name&quot;: &quot;goudan&quot;,
+    &quot;price&quot;: 30
+  &#125;
+&#125;
+
+# 如果此时依然有其他的客户端基于version&#x3D;1进行修改操作
+post &#x2F;rrc&#x2F;user&#x2F;9&#x2F;_update?version&#x3D;1
+&#123;
+  &quot;doc&quot;:&#123;
+    &quot;name&quot;:&quot;goudan&quot;
+  &#125;
+&#125;
+# 会有相应的提示信息 当前的版本号为2 更新不成功
+&#123;
+  &quot;error&quot;: &#123;
+    &quot;root_cause&quot;: [
+      &#123;
+        &quot;type&quot;: &quot;version_conflict_engine_exception&quot;,
+        &quot;reason&quot;: &quot;[user][9]: version conflict, current version [2] is different than the one provided [1]&quot;,
+        &quot;index_uuid&quot;: &quot;uUbcg5zwTxmrq6qWNjMRUw&quot;,
+        &quot;shard&quot;: &quot;1&quot;,
+        &quot;index&quot;: &quot;rrc&quot;
+      &#125;
+    ],
+    &quot;type&quot;: &quot;version_conflict_engine_exception&quot;,
+    &quot;reason&quot;: &quot;[user][9]: version conflict, current version [2] is different than the one provided [1]&quot;,
+    &quot;index_uuid&quot;: &quot;uUbcg5zwTxmrq6qWNjMRUw&quot;,
+    &quot;shard&quot;: &quot;1&quot;,
+    &quot;index&quot;: &quot;rrc&quot;
+  &#125;,
+  &quot;status&quot;: 409
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<h4 id="基于external-version进行乐观锁并发控制"><a href="#基于external-version进行乐观锁并发控制" class="headerlink" title="基于external version进行乐观锁并发控制"></a>基于external version进行乐观锁并发控制</h4></blockquote>
+<p><strong>ES内部版本控制</strong><br>version=1<br><strong>自定义版本控制</strong><br>?version=1&amp;version_type=external</p>
+<p>ES提供了一个feature，就是说，你可以不用它提供的内部version版本号来进行并发控制，可以基于你自己维护的一个版本号来进行并发控制。</p>
+<p>version_type=external，唯一的区别在于，version，只有当你提供的version与es中的version一模一样的时候，才可以进行修改，只要不一样，就报错；当version_type=external的时候，只有当你提供的version比es中的_version大的时候，才能完成修改</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"># 获取数据 此时版本号为2
+GET &#x2F;rrc&#x2F;user&#x2F;9
+    
+&#123;
+  &quot;_index&quot;: &quot;rrc&quot;,
+  &quot;_type&quot;: &quot;user&quot;,
+  &quot;_id&quot;: &quot;9&quot;,
+  &quot;_version&quot;: 2,
+  &quot;found&quot;: true,
+  &quot;_source&quot;: &#123;
+    &quot;name&quot;: &quot;goudan&quot;,
+    &quot;price&quot;: 30
+  &#125;
+&#125;
+
+# 我们基于external version进行局部更新
+post &#x2F;rrc&#x2F;user&#x2F;9&#x2F;_update?version&#x3D;10&amp;version_type&#x3D;external
+&#123;
+  &quot;doc&quot;:&#123;
+    &quot;name&quot;:&quot;goudan&quot;
+  &#125;
+&#125;
+# 根据报错可以发现external version不支持ES局部更新
+&#123;
+  &quot;error&quot;: &#123;
+    &quot;root_cause&quot;: [
+      &#123;
+        &quot;type&quot;: &quot;action_request_validation_exception&quot;,
+        &quot;reason&quot;: &quot;Validation Failed: 1: version type [EXTERNAL] is not supported by the update API;&quot;
+      &#125;
+    ],
+    &quot;type&quot;: &quot;action_request_validation_exception&quot;,
+    &quot;reason&quot;: &quot;Validation Failed: 1: version type [EXTERNAL] is not supported by the update API;&quot;
+  &#125;,
+  &quot;status&quot;: 400
+&#125;
+
+# 我们基于external version进行更新操作
+PUT &#x2F;rrc&#x2F;user&#x2F;9?version&#x3D;10&amp;version_type&#x3D;external
+&#123;
+  &quot;name&quot;:&quot;tiedan&quot;,
+  &quot;price&quot;:99
+&#125;
+
+# 此时数据修改成功 版本号变成了10    
+&#123;
+  &quot;_index&quot;: &quot;rrc&quot;,
+  &quot;_type&quot;: &quot;user&quot;,
+  &quot;_id&quot;: &quot;9&quot;,
+  &quot;_version&quot;: 10,
+  &quot;result&quot;: &quot;updated&quot;,
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 2,
+    &quot;successful&quot;: 1,
+    &quot;failed&quot;: 0
+  &#125;,
+  &quot;created&quot;: false
+&#125;
+# 如果此时依然有其他的客户端基于version&#x3D;9进行修改操作
+PUT &#x2F;rrc&#x2F;user&#x2F;9?version&#x3D;9&amp;version_type&#x3D;external
+&#123;
+  &quot;name&quot;:&quot;tiedan&quot;,
+  &quot;price&quot;:99
+&#125;
+
+# 此时报版本冲突 当前版本号为10
+&#123;
+  &quot;error&quot;: &#123;
+    &quot;root_cause&quot;: [
+      &#123;
+        &quot;type&quot;: &quot;version_conflict_engine_exception&quot;,
+        &quot;reason&quot;: &quot;[user][9]: version conflict, current version [10] is higher or equal to the one provided [9]&quot;,
+        &quot;index_uuid&quot;: &quot;uUbcg5zwTxmrq6qWNjMRUw&quot;,
+        &quot;shard&quot;: &quot;1&quot;,
+        &quot;index&quot;: &quot;rrc&quot;
+      &#125;
+    ],
+    &quot;type&quot;: &quot;version_conflict_engine_exception&quot;,
+    &quot;reason&quot;: &quot;[user][9]: version conflict, current version [10] is higher or equal to the one provided [9]&quot;,
+    &quot;index_uuid&quot;: &quot;uUbcg5zwTxmrq6qWNjMRUw&quot;,
+    &quot;shard&quot;: &quot;1&quot;,
+    &quot;index&quot;: &quot;rrc&quot;
+  &#125;,
+  &quot;status&quot;: 409
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<h3 id="部分更新partial-update"><a href="#部分更新partial-update" class="headerlink" title="部分更新partial update"></a>部分更新partial update</h3></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"># 部分更新
+POST &#x2F;rrc&#x2F;user&#x2F;9&#x2F;_update
+&#123;
+  &quot;doc&quot;: &#123;
+    &quot;name&quot;: &quot;test2&quot;
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>部分更新内置乐观锁并发控制</p>
+<p>可以通过添加<code>retry_on_conflict</code>参数来控制重试次数。</p>
+<blockquote>
+<h4 id="基于groovy脚本进行partial-update"><a href="#基于groovy脚本进行partial-update" class="headerlink" title="基于groovy脚本进行partial update"></a>基于groovy脚本进行partial update</h4></blockquote>
+<p>es，其实是有个内置的脚本支持的，可以基于groovy脚本实现各种各样的复杂操作</p>
+<p>基于groovy脚本执行partial update</p>
+<blockquote>
+<h4 id="内置脚本更新"><a href="#内置脚本更新" class="headerlink" title="内置脚本更新"></a>内置脚本更新</h4></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">GET &#x2F;rrc&#x2F;user&#x2F;9
+    
+&#123;
+  &quot;_index&quot;: &quot;rrc&quot;,
+  &quot;_type&quot;: &quot;user&quot;,
+  &quot;_id&quot;: &quot;9&quot;,
+  &quot;_version&quot;: 10,
+  &quot;found&quot;: true,
+  &quot;_source&quot;: &#123;
+    &quot;name&quot;: &quot;tiedan&quot;,
+    &quot;price&quot;: 99
+  &#125;
+&#125;
+
+# 内置脚本更新
+POST &#x2F;rrc&#x2F;user&#x2F;9&#x2F;_update
+&#123;
+  &quot;script&quot;: &quot;ctx._source.price +&#x3D; 1&quot;
+&#125;
+
+# 查询document
+GET &#x2F;rrc&#x2F;user&#x2F;9
+
+&#123;
+  &quot;_index&quot;: &quot;rrc&quot;,
+  &quot;_type&quot;: &quot;user&quot;,
+  &quot;_id&quot;: &quot;9&quot;,
+  &quot;_version&quot;: 11,
+  &quot;found&quot;: true,
+  &quot;_source&quot;: &#123;
+    &quot;name&quot;: &quot;tiedan&quot;,
+    &quot;price&quot;: 100
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<h4 id="外部脚本更新"><a href="#外部脚本更新" class="headerlink" title="外部脚本更新"></a>外部脚本更新</h4></blockquote>
+<p>外部脚本位置：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">elasticsearch安装路径&#x2F;config&#x2F;scripts<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>脚本命名：test-add-tags.groovy，内容如下：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">ctx._source.price+&#x3D;new_price<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>脚本调用</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">POST &#x2F;rrc&#x2F;user&#x2F;9&#x2F;_update
+&#123;
+  &quot;script&quot;: &#123;
+    &quot;lang&quot;: &quot;groovy&quot;, 
+    &quot;file&quot;: &quot;test-add-tags&quot;,
+    &quot;params&quot;: &#123;
+      &quot;new_price&quot;: 99
+    &#125;
+  &#125;
+&#125;
+
+# 调用结果
+&#123;
+  &quot;_index&quot;: &quot;rrc&quot;,
+  &quot;_type&quot;: &quot;user&quot;,
+  &quot;_id&quot;: &quot;9&quot;,
+  &quot;_version&quot;: 28,
+  &quot;result&quot;: &quot;updated&quot;,
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 2,
+    &quot;successful&quot;: 1,
+    &quot;failed&quot;: 0
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<h4 id="用脚本删除"><a href="#用脚本删除" class="headerlink" title="用脚本删除"></a>用脚本删除</h4></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">ctx.op &#x3D; ctx._source.num &#x3D;&#x3D; count ? &#39;delete&#39; : &#39;none&#39;
+
+POST &#x2F;rrc&#x2F;user&#x2F;9&#x2F;_update
+&#123;
+  &quot;script&quot;: &#123;
+    &quot;lang&quot;: &quot;groovy&quot;,
+    &quot;file&quot;: &quot;test-delete-document&quot;,
+    &quot;params&quot;: &#123;
+      &quot;count&quot;: 1
+    &#125;
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>upsert操作</p>
+</blockquote>
+<p>如果指定的document不存在，就执行upsert中的初始化操作；如果指定的document存在，就执行doc或者script指定的partial update操作</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"># document不存在
+POST &#x2F;rrc&#x2F;user&#x2F;999&#x2F;_update
+&#123;
+   &quot;script&quot; : &quot;ctx._source.num+&#x3D;1&quot;,
+   &quot;upsert&quot;: &#123;
+       &quot;num&quot;: 0,
+       &quot;tags&quot;: []
+   &#125;
+&#125;
+
+# document不存在 执行初始化操作
+&#123;
+  &quot;_index&quot;: &quot;rrc&quot;,
+  &quot;_type&quot;: &quot;user&quot;,
+  &quot;_id&quot;: &quot;999&quot;,
+  &quot;_version&quot;: 1,
+  &quot;result&quot;: &quot;created&quot;,
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 2,
+    &quot;successful&quot;: 1,
+    &quot;failed&quot;: 0
+  &#125;
+&#125;
+
+# 再次执行 此时document已经存在
+POST &#x2F;rrc&#x2F;user&#x2F;999&#x2F;_update
+&#123;
+   &quot;script&quot; : &quot;ctx._source.num+&#x3D;1&quot;,
+   &quot;upsert&quot;: &#123;
+       &quot;num&quot;: 0,
+       &quot;tags&quot;: []
+   &#125;
+&#125;
+
+# 此时执行的是update操作
+&#123;
+  &quot;_index&quot;: &quot;rrc&quot;,
+  &quot;_type&quot;: &quot;user&quot;,
+  &quot;_id&quot;: &quot;999&quot;,
+  &quot;_version&quot;: 2,
+  &quot;result&quot;: &quot;updated&quot;,
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 2,
+    &quot;successful&quot;: 1,
+    &quot;failed&quot;: 0
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
 
                 
             </div>
@@ -606,7 +997,7 @@ Listing plugins with pattern &quot;.*&quot; ...
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://qinglei1989.github.io/2022/11/22/middleware-rabbitmq-delayed-message/">https://qinglei1989.github.io/2022/11/22/middleware-rabbitmq-delayed-message/</a>
+                    <a href="https://qinglei1989.github.io/2022/11/26/elasticsearch-document/">https://qinglei1989.github.io/2022/11/26/elasticsearch-document/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -644,8 +1035,8 @@ Listing plugins with pattern &quot;.*&quot; ...
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/">
-                                    <span class="chip bg-color">中间件</span>
+                                <a href="/tags/Elasticsearch/">
+                                    <span class="chip bg-color">Elasticsearch</span>
                                 </a>
                             
                         </div>
@@ -817,9 +1208,10 @@ Listing plugins with pattern &quot;.*&quot; ...
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/2022/11/26/elasticsearch-document/">
                     <div class="card-image">
@@ -837,9 +1229,9 @@ Listing plugins with pattern &quot;.*&quot; ...
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2022-11-26
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-11-26
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -852,6 +1244,7 @@ Listing plugins with pattern &quot;.*&quot; ...
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -870,24 +1263,24 @@ Listing plugins with pattern &quot;.*&quot; ...
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2022/11/20/middleware-rabbitmq-deadletter/">
+                <a href="/2022/11/22/middleware-rabbitmq-delayed-message/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/20.jpg" class="responsive-img" alt="RabbitMQ死信队列">
+                        <img src="/medias/featureimages/15.jpg" class="responsive-img" alt="RabbitMQ延迟队列">
                         
-                        <span class="card-title">RabbitMQ死信队列</span>
+                        <span class="card-title">RabbitMQ延迟队列</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            RabbitMQ死信队列
+                            RabbitMQ延迟队列
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-11-20
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-11-22
                             </span>
                         <span class="publish-author">
                             
