@@ -483,7 +483,7 @@
                 <p>RabbitMQ延迟队列</p>
 <span id="more"></span>
 
-<h3 id="【MQ中间件】RabbitMQ死信队列"><a href="#【MQ中间件】RabbitMQ死信队列" class="headerlink" title="【MQ中间件】RabbitMQ死信队列"></a>【MQ中间件】RabbitMQ死信队列</h3><blockquote>
+<h3 id="【MQ中间件】RabbitMQ延迟队列"><a href="#【MQ中间件】RabbitMQ延迟队列" class="headerlink" title="【MQ中间件】RabbitMQ延迟队列"></a>【MQ中间件】RabbitMQ延迟队列</h3><blockquote>
 <h2 id="什么是延时队列"><a href="#什么是延时队列" class="headerlink" title="什么是延时队列"></a>什么是延时队列</h2></blockquote>
 <p><code>延时队列</code>，首先，它是一种队列，队列意味着内部的元素是有序的，元素出队和入队是有方向性的，元素从一端进入，从另一端取出。</p>
 <p>其次，延时队列最重要的特性就体现在它的延时属性上，跟普通的队列不一样的是，普通队列中的元素总是等着希望被早点取出处理，而延时队列中的元素则是希望被在指定时间得到取出和处理，所以延时队列中的元素是都是带时间属性的。</p>
@@ -526,6 +526,141 @@ channel.basicPublish(exchangeName, routingKey, mandatory, properties, &quot;msg 
 <p><code>延时队列</code>，不就是想要消息延迟多久被处理吗，TTL则刚好能让消息在延迟多久之后成为死信，另一方面，成为死信的消息都会被投递到死信队列里，这样只需要消费者一直消费死信队列里的消息就万事大吉了，因为里面的消息都是希望被立即处理的消息。</p>
 <p><img src="/2022/11/22/middleware-rabbitmq-delayed-message/%E5%BB%B6%E8%BF%9F%E9%98%9F%E5%88%97.png" alt="延迟队列"></p>
 <p>生产者生产一条延时消息，根据需要延时时间的不同，利用不同的routingkey将消息路由到不同的延时队列，每个队列都设置了不同的TTL属性，并绑定在同一个死信交换机中，消息过期后，根据routingkey的不同，又会被路由到不同的死信队列中，消费者只需要监听对应的死信队列进行处理即可。</p>
+<p>相关代码：</p>
+<p>先声明交换机、队列以及他们的绑定关系：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">
+@Configuration
+public class RabbitMQConfig &#123;
+
+    public static final String DELAY_EXCHANGE_NAME &#x3D; &quot;delay.queue.demo.business.exchange&quot;;
+    public static final String DELAY_QUEUEA_NAME &#x3D; &quot;delay.queue.demo.business.queuea&quot;;
+    public static final String DELAY_QUEUEB_NAME &#x3D; &quot;delay.queue.demo.business.queueb&quot;;
+    public static final String DELAY_QUEUEA_ROUTING_KEY &#x3D; &quot;delay.queue.demo.business.queuea.routingkey&quot;;
+    public static final String DELAY_QUEUEB_ROUTING_KEY &#x3D; &quot;delay.queue.demo.business.queueb.routingkey&quot;;
+    public static final String DEAD_LETTER_EXCHANGE &#x3D; &quot;delay.queue.demo.deadletter.exchange&quot;;
+    public static final String DEAD_LETTER_QUEUEA_ROUTING_KEY &#x3D; &quot;delay.queue.demo.deadletter.delay_10s.routingkey&quot;;
+    public static final String DEAD_LETTER_QUEUEB_ROUTING_KEY &#x3D; &quot;delay.queue.demo.deadletter.delay_60s.routingkey&quot;;
+    public static final String DEAD_LETTER_QUEUEA_NAME &#x3D; &quot;delay.queue.demo.deadletter.queuea&quot;;
+    public static final String DEAD_LETTER_QUEUEB_NAME &#x3D; &quot;delay.queue.demo.deadletter.queueb&quot;;
+
+    &#x2F;&#x2F; 声明延时Exchange
+    @Bean(&quot;delayExchange&quot;)
+    public DirectExchange delayExchange()&#123;
+        return new DirectExchange(DELAY_EXCHANGE_NAME);
+    &#125;
+
+    &#x2F;&#x2F; 声明死信Exchange
+    @Bean(&quot;deadLetterExchange&quot;)
+    public DirectExchange deadLetterExchange()&#123;
+        return new DirectExchange(DEAD_LETTER_EXCHANGE);
+    &#125;
+
+    &#x2F;&#x2F; 声明延时队列A 延时10s
+    &#x2F;&#x2F; 并绑定到对应的死信交换机
+    @Bean(&quot;delayQueueA&quot;)
+    public Queue delayQueueA()&#123;
+        Map&lt;String, Object&gt; args &#x3D; new HashMap&lt;&gt;(2);
+        &#x2F;&#x2F; x-dead-letter-exchange    这里声明当前队列绑定的死信交换机
+        args.put(&quot;x-dead-letter-exchange&quot;, DEAD_LETTER_EXCHANGE);
+        &#x2F;&#x2F; x-dead-letter-routing-key  这里声明当前队列的死信路由key
+        args.put(&quot;x-dead-letter-routing-key&quot;, DEAD_LETTER_QUEUEA_ROUTING_KEY);
+        &#x2F;&#x2F; x-message-ttl  声明队列的TTL
+        args.put(&quot;x-message-ttl&quot;, 6000);
+        return QueueBuilder.durable(DELAY_QUEUEA_NAME).withArguments(args).build();
+    &#125;
+
+    &#x2F;&#x2F; 声明延时队列B 延时 60s
+    &#x2F;&#x2F; 并绑定到对应的死信交换机
+    @Bean(&quot;delayQueueB&quot;)
+    public Queue delayQueueB()&#123;
+        Map&lt;String, Object&gt; args &#x3D; new HashMap&lt;&gt;(2);
+        &#x2F;&#x2F; x-dead-letter-exchange    这里声明当前队列绑定的死信交换机
+        args.put(&quot;x-dead-letter-exchange&quot;, DEAD_LETTER_EXCHANGE);
+        &#x2F;&#x2F; x-dead-letter-routing-key  这里声明当前队列的死信路由key
+        args.put(&quot;x-dead-letter-routing-key&quot;, DEAD_LETTER_QUEUEB_ROUTING_KEY);
+        &#x2F;&#x2F; x-message-ttl  声明队列的TTL
+        args.put(&quot;x-message-ttl&quot;, 60000);
+        return QueueBuilder.durable(DELAY_QUEUEB_NAME).withArguments(args).build();
+    &#125;
+
+    &#x2F;&#x2F; 声明死信队列A 用于接收延时10s处理的消息
+    @Bean(&quot;deadLetterQueueA&quot;)
+    public Queue deadLetterQueueA()&#123;
+        return new Queue(DEAD_LETTER_QUEUEA_NAME);
+    &#125;
+
+    &#x2F;&#x2F; 声明死信队列B 用于接收延时60s处理的消息
+    @Bean(&quot;deadLetterQueueB&quot;)
+    public Queue deadLetterQueueB()&#123;
+        return new Queue(DEAD_LETTER_QUEUEB_NAME);
+    &#125;
+
+    &#x2F;&#x2F; 声明延时队列A绑定关系
+    @Bean
+    public Binding delayBindingA(@Qualifier(&quot;delayQueueA&quot;) Queue queue,
+                                    @Qualifier(&quot;delayExchange&quot;) DirectExchange exchange)&#123;
+        return BindingBuilder.bind(queue).to(exchange).with(DELAY_QUEUEA_ROUTING_KEY);
+    &#125;
+
+    &#x2F;&#x2F; 声明业务队列B绑定关系
+    @Bean
+    public Binding delayBindingB(@Qualifier(&quot;delayQueueB&quot;) Queue queue,
+                                    @Qualifier(&quot;delayExchange&quot;) DirectExchange exchange)&#123;
+        return BindingBuilder.bind(queue).to(exchange).with(DELAY_QUEUEB_ROUTING_KEY);
+    &#125;
+
+    &#x2F;&#x2F; 声明死信队列A绑定关系
+    @Bean
+    public Binding deadLetterBindingA(@Qualifier(&quot;deadLetterQueueA&quot;) Queue queue,
+                                    @Qualifier(&quot;deadLetterExchange&quot;) DirectExchange exchange)&#123;
+        return BindingBuilder.bind(queue).to(exchange).with(DEAD_LETTER_QUEUEA_ROUTING_KEY);
+    &#125;
+
+    &#x2F;&#x2F; 声明死信队列B绑定关系
+    @Bean
+    public Binding deadLetterBindingB(@Qualifier(&quot;deadLetterQueueB&quot;) Queue queue,
+                                      @Qualifier(&quot;deadLetterExchange&quot;) DirectExchange exchange)&#123;
+        return BindingBuilder.bind(queue).to(exchange).with(DEAD_LETTER_QUEUEB_ROUTING_KEY);
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>接下来，创建两个消费者，分别对两个死信队列的消息进行消费：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">
+@Slf4j
+@Component
+public class DeadLetterQueueConsumer &#123;
+
+    @RabbitListener(queues &#x3D; DEAD_LETTER_QUEUEA_NAME)
+    public void receiveA(Message message, Channel channel) throws IOException &#123;
+        String msg &#x3D; new String(message.getBody());
+        log.info(&quot;当前时间：&#123;&#125;,死信队列A收到消息：&#123;&#125;&quot;, new Date().toString(), msg);
+        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+    &#125;
+
+    @RabbitListener(queues &#x3D; DEAD_LETTER_QUEUEB_NAME)
+    public void receiveB(Message message, Channel channel) throws IOException &#123;
+        String msg &#x3D; new String(message.getBody());
+        log.info(&quot;当前时间：&#123;&#125;,死信队列B收到消息：&#123;&#125;&quot;, new Date().toString(), msg);
+        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>发送消息</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@Override
+public void sendDelayMessage(String msg, String type) &#123;
+    if (&quot;delay10&quot;.equals(type)) &#123;
+        rabbitTemplate.convertAndSend(DELAY_EXCHANGE_NAME, DELAY_QUEUEA_ROUTING_KEY, msg);
+        return;
+    &#125;
+
+    rabbitTemplate.convertAndSend(DELAY_EXCHANGE_NAME, DELAY_QUEUEB_ROUTING_KEY, msg);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>发送测试消息</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">http:&#x2F;&#x2F;localhost:8080&#x2F;rabbitmq&#x2F;sendmsg?msg&#x3D;testMsg1&amp;type&#x3D;delay10
+http:&#x2F;&#x2F;localhost:8080&#x2F;rabbitmq&#x2F;sendmsg?msg&#x3D;testMsg2&amp;type&#x3D;delay60<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>第一条消息在6s后变成了死信消息，然后被消费者消费掉，第二条消息在60s之后变成了死信消息，然后被消费掉，这样，一个还算ok的延时队列就打造完成了。</p>
 <p>不过，等等，如果这样使用的话，岂不是每增加一个新的时间需求，就要新增一个队列，这里只有6s和60s两个时间选项，如果需要一个小时后处理，那么就需要增加TTL为一个小时的队列，如果是预定会议室然后提前通知这样的场景，岂不是要增加无数个队列才能满足需求？？</p>
 <blockquote>
 <h3 id="RabbitMQ延时队列优化"><a href="#RabbitMQ延时队列优化" class="headerlink" title="RabbitMQ延时队列优化"></a>RabbitMQ延时队列优化</h3></blockquote>
@@ -575,6 +710,74 @@ Listing plugins with pattern &quot;.*&quot; ...
 
 <p>重启容器</p>
 <p><img src="/2022/11/22/middleware-rabbitmq-delayed-message/delay-exchange.png" alt="交换机选项"></p>
+<blockquote>
+<h4 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h4></blockquote>
+<p>如果不能实现在消息粒度上添加TTL，并使其在设置的TTL时间及时死亡，就无法设计成一个通用的延时队列。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">
+@Configuration
+public class DelayedRabbitMQConfig &#123;
+    public static final String DELAYED_QUEUE_NAME &#x3D; &quot;delay.queue.demo.delay.queue&quot;;
+    public static final String DELAYED_EXCHANGE_NAME &#x3D; &quot;delay.queue.demo.delay.exchange&quot;;
+    public static final String DELAYED_ROUTING_KEY &#x3D; &quot;delay.queue.demo.delay.routingkey&quot;;
+
+    @Bean
+    public Queue immediateQueue() &#123;
+        return new Queue(DELAYED_QUEUE_NAME);
+    &#125;
+
+    @Bean
+    public CustomExchange customExchange() &#123;
+        Map&lt;String, Object&gt; args &#x3D; new HashMap&lt;&gt;();
+        args.put(&quot;x-delayed-type&quot;, &quot;direct&quot;);
+        return new CustomExchange(DELAYED_EXCHANGE_NAME, &quot;x-delayed-message&quot;, true, false, args);
+    &#125;
+
+    @Bean
+    public Binding bindingNotify(@Qualifier(&quot;immediateQueue&quot;) Queue queue,
+                                 @Qualifier(&quot;customExchange&quot;) CustomExchange customExchange) &#123;
+        return BindingBuilder.bind(queue).to(customExchange).with(DELAYED_ROUTING_KEY).noargs();
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>controller层再添加一个入口：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@GetMapping(&quot;&#x2F;sendDelayLetterMessage&quot;)
+public String sendDelayLetterMessage(String msg, Integer delayTime) &#123;
+    rabbitMQService.sendDelayLetterMessage(msg, delayTime);
+    return &quot;ok&quot;;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>消息发送者ServiceImpl实现类：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@Override
+public void sendDelayLetterMessage(String msg, Integer delayTime) &#123;
+    rabbitTemplate.convertAndSend(DELAYED_EXCHANGE_NAME, DELAYED_ROUTING_KEY, msg, a -&gt;&#123;
+        a.getMessageProperties().setDelay(delayTime);
+        return a;
+    &#125;);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>消息接收者</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@Slf4j
+@Component
+public class DelayMessageReceiver &#123;
+    @RabbitListener(queues &#x3D; DELAYED_QUEUE_NAME)
+    public void receiveD(Message message, Channel channel) throws IOException &#123;
+        String msg &#x3D; new String(message.getBody());
+        log.info(&quot;当前时间：&#123;&#125;,延时队列收到消息：&#123;&#125;&quot;, new Date().toString(), msg);
+        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>请求连接：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">http:&#x2F;&#x2F;localhost:8080&#x2F;&#x2F;system&#x2F;rabbitmq&#x2F;&#x2F;sendDelayLetterMessage?msg&#x3D;delay20000&amp;delayTime&#x3D;20000
+http:&#x2F;&#x2F;localhost:8080&#x2F;&#x2F;system&#x2F;rabbitmq&#x2F;&#x2F;sendDelayLetterMessage?msg&#x3D;delay2000&amp;delayTime&#x3D;2000<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>相关日志打印：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">[TRACEID:0ef19c49ad984cc5b5730df0a55c7523] 2022-11-27 00:58:16.403 [http-nio-8080-exec-11-67] INFO  com.wql.aspect.WebLogAspect 67 doAfterReturning - WebLogAspect.doAfterReturning()
+[TRACEID:] 2022-11-27 00:58:18.410 [org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#4-1-26] INFO  c.wql.consumer.DelayMessageReceiver 26 receiveD - 当前时间：Sun Nov 27 00:58:18 CST 2022,延时队列收到消息：delay2000
+[TRACEID:] 2022-11-27 00:58:35.005 [org.springframework.amqp.rabbit.RabbitListenerEndpointContainer#4-1-26] INFO  c.wql.consumer.DelayMessageReceiver 26 receiveD - 当前时间：Sun Nov 27 00:58:35 CST 2022,延时队列收到消息：delay20000
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>第二个消息被先消费掉了，符合预期。至此，RabbitMQ实现延时队列的部分就完结了。</p>
 <blockquote>
 <h3 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h3></blockquote>
 <p><a target="_blank" rel="noopener" href="https://www.jb51.net/article/248469.htm#_label2">Docker安装RabbitMQ并安装延时队列插件</a></p>
