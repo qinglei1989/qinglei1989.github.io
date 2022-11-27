@@ -969,8 +969,115 @@ POST &#x2F;rrc&#x2F;user&#x2F;999&#x2F;_update
   &#125;
 &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
+<blockquote>
+<h3 id="批量查询mget"><a href="#批量查询mget" class="headerlink" title="批量查询mget"></a>批量查询mget</h3></blockquote>
+<p>相对于一条一条的数据查询，如果我们要查询100条数据，那么就要发送100次网络请求。但是如果我们使用批量查询，查询100条数据，就只需要发送1次网络请求，网络请求的性能开销缩减100倍。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"># 查询不同index下的数据
+GET &#x2F;_mget
+&#123;
+  &quot;docs&quot; : [
+      &#123;
+         &quot;_index&quot; : &quot;rrc&quot;,
+         &quot;_type&quot; :  &quot;user&quot;,
+         &quot;_id&quot; :    1
+      &#125;,
+      &#123;
+         &quot;_index&quot; : &quot;rrc&quot;,
+         &quot;_type&quot; :  &quot;user&quot;,
+         &quot;_id&quot; :    999
+      &#125;
+   ]
+&#125;
 
+&#123;
+  &quot;docs&quot;: [
+    &#123;
+      &quot;_index&quot;: &quot;rrc&quot;,
+      &quot;_type&quot;: &quot;user&quot;,
+      &quot;_id&quot;: &quot;1&quot;,
+      &quot;_version&quot;: 2,
+      &quot;found&quot;: true,
+      &quot;_source&quot;: &#123;
+        &quot;num&quot;: 1,
+        &quot;tags&quot;: []
+      &#125;
+    &#125;,
+    &#123;
+      &quot;_index&quot;: &quot;rrc&quot;,
+      &quot;_type&quot;: &quot;user&quot;,
+      &quot;_id&quot;: &quot;999&quot;,
+      &quot;_version&quot;: 2,
+      &quot;found&quot;: true,
+      &quot;_source&quot;: &#123;
+        &quot;num&quot;: 1,
+        &quot;tags&quot;: []
+      &#125;
+    &#125;
+  ]
+&#125;
 
+# 查询同一个index下的数据
+GET &#x2F;rrc&#x2F;_mget
+&#123;
+  &quot;docs&quot; : [
+      &#123;
+         &quot;_type&quot; :  &quot;user&quot;,
+         &quot;_id&quot; :    1
+      &#125;,
+      &#123;
+         &quot;_type&quot; :  &quot;user&quot;,
+         &quot;_id&quot; :    999
+      &#125;
+   ]
+&#125;
+
+&#123;
+  &quot;docs&quot;: [
+    &#123;
+      &quot;_index&quot;: &quot;rrc&quot;,
+      &quot;_type&quot;: &quot;user&quot;,
+      &quot;_id&quot;: &quot;1&quot;,
+      &quot;_version&quot;: 2,
+      &quot;found&quot;: true,
+      &quot;_source&quot;: &#123;
+        &quot;num&quot;: 1,
+        &quot;tags&quot;: []
+      &#125;
+    &#125;,
+    &#123;
+      &quot;_index&quot;: &quot;rrc&quot;,
+      &quot;_type&quot;: &quot;user&quot;,
+      &quot;_id&quot;: &quot;999&quot;,
+      &quot;_version&quot;: 2,
+      &quot;found&quot;: true,
+      &quot;_source&quot;: &#123;
+        &quot;num&quot;: 1,
+        &quot;tags&quot;: []
+      &#125;
+    &#125;
+  ]
+&#125;
+
+# 查询同一个type下的数据
+GET &#x2F;rrc&#x2F;user&#x2F;_mget
+&#123;
+  &quot;docs&quot; : [
+      &#123;
+         &quot;_id&quot; :    1
+      &#125;,
+      &#123;
+         &quot;_id&quot; :    999
+      &#125;
+   ]
+&#125;
+
+# 简写
+GET &#x2F;rrc&#x2F;user&#x2F;_mget
+&#123;
+   &quot;ids&quot;: [1, 2]
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>一般来说，在进行查询的时候，如果一次性要查询多条数据的话，那么一定要用batch批量操作的api，尽可能减少网络开销次数，提升系统性能。</p>
 
                 
             </div>
