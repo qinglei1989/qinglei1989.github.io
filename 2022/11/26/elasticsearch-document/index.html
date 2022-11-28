@@ -1078,6 +1078,157 @@ GET &#x2F;rrc&#x2F;user&#x2F;_mget
 &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>一般来说，在进行查询的时候，如果一次性要查询多条数据的话，那么一定要用batch批量操作的api，尽可能减少网络开销次数，提升系统性能。</p>
+<blockquote>
+<h3 id="批量操作bulk"><a href="#批量操作bulk" class="headerlink" title="批量操作bulk"></a>批量操作bulk</h3></blockquote>
+<p><code>bulk</code>是<code>es</code>提供的一种<code>批量增删改</code>的操作</p>
+<p><code>bulk</code>对<code>JSON串</code>的有着严格的要求。每个JSON串<code>不能换行</code>，只能放在同一行，同时，<code>相邻的JSON串之间必须要有换行</code>（Linux下是\n；Window下是\r\n）。bulk的每个操作必须要<code>一对JSON串</code>（delete语法除外）。</p>
+<p>语法：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">POST &#x2F;_bulk
+&#123; action: &#123; metadata &#125;&#125;
+&#123; request body        &#125;
+&#123; action: &#123; metadata &#125;&#125;
+&#123; request body        &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p> bulk的操作类型</p>
+<ul>
+<li><code>create</code> 如果文档不存在就创建，但如果文档存在就返回错误</li>
+<li><code>index</code> 如果文档不存在就创建，如果文档存在就更新</li>
+<li><code>update</code> 更新一个文档，如果文档不存在就返回错误</li>
+<li><code>delete</code> 删除一个文档，如果要删除的文档id不存在，就返回错误</li>
+</ul>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">POST &#x2F;_bulk
+&#123; &quot;index&quot;:  &#123;&quot;_index&quot;: &quot;rrc&quot;, &quot;_type&quot;:&quot;user&quot;, &quot;_id&quot;:&quot;1&quot;&#125;&#125;
+&#123;&quot;name&quot;: &quot;test1&quot;, &quot;price&quot;: 50&#125;
+
+&#123;
+  &quot;took&quot;: 47,
+  &quot;errors&quot;: false,
+  &quot;items&quot;: [
+    &#123;
+      &quot;index&quot;: &#123;
+        &quot;_index&quot;: &quot;rrc&quot;,
+        &quot;_type&quot;: &quot;user&quot;,
+        &quot;_id&quot;: &quot;1&quot;,
+        &quot;_version&quot;: 7,
+        &quot;result&quot;: &quot;updated&quot;,
+        &quot;_shards&quot;: &#123;
+          &quot;total&quot;: 2,
+          &quot;successful&quot;: 1,
+          &quot;failed&quot;: 0
+        &#125;,
+        &quot;created&quot;: false,
+        &quot;status&quot;: 200
+      &#125;
+    &#125;
+  ]
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>批量操作：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">POST &#x2F;_bulk
+&#123; &quot;delete&quot;: &#123; &quot;_index&quot;: &quot;test_index&quot;, &quot;_type&quot;: &quot;test_type&quot;, &quot;_id&quot;: &quot;3&quot; &#125;&#125; 
+&#123; &quot;create&quot;: &#123; &quot;_index&quot;: &quot;test_index&quot;, &quot;_type&quot;: &quot;test_type&quot;, &quot;_id&quot;: &quot;12&quot; &#125;&#125;
+&#123; &quot;test_field&quot;:    &quot;test12&quot; &#125;
+&#123; &quot;index&quot;:  &#123; &quot;_index&quot;: &quot;test_index&quot;, &quot;_type&quot;: &quot;test_type&quot;, &quot;_id&quot;: &quot;2&quot; &#125;&#125;
+&#123; &quot;test_field&quot;:    &quot;replaced test2&quot; &#125;
+&#123; &quot;update&quot;: &#123; &quot;_index&quot;: &quot;test_index&quot;, &quot;_type&quot;: &quot;test_type&quot;, &quot;_id&quot;: &quot;1&quot;, &quot;_retry_on_conflict&quot; : 3&#125; &#125;
+&#123; &quot;doc&quot; : &#123;&quot;test_field2&quot; : &quot;bulk test1&quot;&#125; &#125;
+
+
+&#123;
+  &quot;took&quot;: 33,
+  &quot;errors&quot;: true,
+  &quot;items&quot;: [
+    &#123;
+      &quot;delete&quot;: &#123;
+        &quot;found&quot;: false,
+        &quot;_index&quot;: &quot;test_index&quot;,
+        &quot;_type&quot;: &quot;test_type&quot;,
+        &quot;_id&quot;: &quot;3&quot;,
+        &quot;_version&quot;: 1,
+        &quot;result&quot;: &quot;not_found&quot;,
+        &quot;_shards&quot;: &#123;
+          &quot;total&quot;: 2,
+          &quot;successful&quot;: 1,
+          &quot;failed&quot;: 0
+        &#125;,
+        &quot;status&quot;: 404
+      &#125;
+    &#125;,
+    &#123;
+      &quot;create&quot;: &#123;
+        &quot;_index&quot;: &quot;test_index&quot;,
+        &quot;_type&quot;: &quot;test_type&quot;,
+        &quot;_id&quot;: &quot;12&quot;,
+        &quot;status&quot;: 409,
+        &quot;error&quot;: &#123;
+          &quot;type&quot;: &quot;version_conflict_engine_exception&quot;,
+          &quot;reason&quot;: &quot;[test_type][12]: version conflict, document already exists (current version [1])&quot;,
+          &quot;index_uuid&quot;: &quot;OrzYgLkZTnCiHq6FBDSOoQ&quot;,
+          &quot;shard&quot;: &quot;1&quot;,
+          &quot;index&quot;: &quot;test_index&quot;
+        &#125;
+      &#125;
+    &#125;,
+    &#123;
+      &quot;index&quot;: &#123;
+        &quot;_index&quot;: &quot;test_index&quot;,
+        &quot;_type&quot;: &quot;test_type&quot;,
+        &quot;_id&quot;: &quot;2&quot;,
+        &quot;_version&quot;: 17,
+        &quot;result&quot;: &quot;updated&quot;,
+        &quot;_shards&quot;: &#123;
+          &quot;total&quot;: 2,
+          &quot;successful&quot;: 1,
+          &quot;failed&quot;: 0
+        &#125;,
+        &quot;created&quot;: false,
+        &quot;status&quot;: 200
+      &#125;
+    &#125;,
+    &#123;
+      &quot;update&quot;: &#123;
+        &quot;_index&quot;: &quot;test_index&quot;,
+        &quot;_type&quot;: &quot;test_type&quot;,
+        &quot;_id&quot;: &quot;1&quot;,
+        &quot;status&quot;: 404,
+        &quot;error&quot;: &#123;
+          &quot;type&quot;: &quot;document_missing_exception&quot;,
+          &quot;reason&quot;: &quot;[test_type][1]: document missing&quot;,
+          &quot;index_uuid&quot;: &quot;OrzYgLkZTnCiHq6FBDSOoQ&quot;,
+          &quot;shard&quot;: &quot;3&quot;,
+          &quot;index&quot;: &quot;test_index&quot;
+        &#125;
+      &#125;
+    &#125;
+  ]
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>bulk操作中，任意一个操作失败，是不会影响其他的操作的，但是在返回结果里，会告诉你异常日志</p>
+<blockquote>
+<h3 id="document数据路由原理"><a href="#document数据路由原理" class="headerlink" title="document数据路由原理"></a>document数据路由原理</h3></blockquote>
+<p>1个index的数据会被分配到多个shard中，1个document只会被放到其中1个primary shard中</p>
+<p>也就是说，当我们创建document的时候，es就要决定这个document是放在这个index的哪个shard上，这个过程就称为document routing(数据路由)。</p>
+<blockquote>
+<h4 id="路由算法"><a href="#路由算法" class="headerlink" title="路由算法"></a>路由算法</h4></blockquote>
+<p>公式：shard=hash(routing)%number_of_primary_shards</p>
+<p>每次增删改查一个document的时候，都会带过来一个routing，默认就是这个document的id，也就说会默认会根据id来路由</p>
+<p>举个例子，1个index有3个primary shard(P1,P2,P3)，_id是1</p>
+<p>hash(1)假如等于22，hash值对primary shard数量求余22%3=1，那这个document由es决定放在P1上。</p>
+<blockquote>
+<h4 id="使用默认routing或手动指定routing"><a href="#使用默认routing或手动指定routing" class="headerlink" title="使用默认routing或手动指定routing"></a>使用默认routing或手动指定routing</h4></blockquote>
+<p>默认的routing就是_id</p>
+<p>也可以在写入document的时候指定routing，语法为</p>
+<pre class="line-numbers language-delphi" data-language="delphi"><code class="language-delphi">put &#x2F;index&#x2F;type&#x2F;id?routing&#x3D;user_id<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<blockquote>
+<h4 id="通过协调节点进行增删改的内部原理"><a href="#通过协调节点进行增删改的内部原理" class="headerlink" title="通过协调节点进行增删改的内部原理"></a>通过协调节点进行增删改的内部原理</h4></blockquote>
+<p>前面讲了数据路由原理，这里要讲的是document是在哪里进行路由，那么就要引出一个概念：协调节点。简单地说所有的shard都是协调节点。java客户端可以往任何一个shard发送请求，因为任何一个shard都知道每个document在哪个shard上。下面讲一下增删改的流程/内部原理：</p>
+<p>(1) 请求会从协调节点被转发到最终的primary shard上去处理。</p>
+<p>(2) 然后primary shard将document同步到replica shard上。</p>
+<p>(3) 协调节点发现路由到的所有primary shard和对应的replica shard都处理完请求后，就返回响应结果给客户端。</p>
+<blockquote>
+<h4 id="通过协调节点进行查询的内部原理"><a href="#通过协调节点进行查询的内部原理" class="headerlink" title="通过协调节点进行查询的内部原理"></a>通过协调节点进行查询的内部原理</h4></blockquote>
+<p>与增删改不同的是，协调节点会把查询请求路由到涉及到的document的其中一个primary shard或replica shard上，具体会使用round-robin随机轮询算法，使读请求负载均衡。</p>
 
                 
             </div>
