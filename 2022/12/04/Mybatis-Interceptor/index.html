@@ -429,12 +429,25 @@
             <div class="row tag-cate">
                 <div class="col s7">
                     
-                          <div class="article-tag">
-                            <span class="chip bg-color">无标签</span>
-                          </div>
+                    <div class="article-tag">
+                        
+                            <a href="/tags/MyBatis/">
+                                <span class="chip bg-color">MyBatis</span>
+                            </a>
+                        
+                    </div>
                     
                 </div>
                 <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/%E6%8C%81%E4%B9%85%E5%B1%82/" class="post-category">
+                                持久层
+                            </a>
+                        
+                    </div>
                     
                 </div>
             </div>
@@ -467,10 +480,162 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p><img src="webp.webp" alt="webp"></p>
-<p><img src="Dingtalk_20221204020055.jpg" alt="Dingtalk_20221204020055"></p>
-<h2 id="hexo-asset-image"><a href="#hexo-asset-image" class="headerlink" title="hexo-asset-image"></a>hexo-asset-image</h2><p><img src="D:\hexoBlog\source_posts\Mybatis-Interceptor\Dingtalk_20221204020055.jpg" alt="222222"></p>
-<p><img src="n_v31bffd7becf854a9b8f2e76e09889d892.png" alt="n_v31bffd7becf854a9b8f2e76e09889d892.png"></p>
+                <p>插件（plugins）</p>
+<span id="more"></span>
+
+<center><h1>MyBatis plugins</h1></center>
+
+<blockquote>
+<h3 id="插件（plugins）"><a href="#插件（plugins）" class="headerlink" title="插件（plugins）"></a>插件（plugins）</h3></blockquote>
+<p>MyBatis 允许你在映射语句执行过程中的某一点进行拦截调用。默认情况下，MyBatis 允许使用插件来拦截的方法调用包括：</p>
+<ul>
+<li>Executor (update, query, flushStatements, commit, rollback, getTransaction, close, isClosed)     拦截执行器的方法</li>
+<li>ParameterHandler (getParameterObject, setParameters)                                                                   拦截参数的处理</li>
+<li>ResultSetHandler (handleResultSets, handleOutputParameters)                                                       拦截结果集的处理</li>
+<li>StatementHandler (prepare, parameterize, batch, update, query)                                                     拦截Sql语法构建的处理</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://mybatis.org/mybatis-3/zh/configuration.html#plugins">官方文档地址</a></p>
+<p><strong>提示</strong> 覆盖配置类</p>
+<p>除了用插件来修改 MyBatis 核心行为以外，还可以通过完全覆盖配置类来达到目的。只需继承配置类后覆盖其中的某个方法，再把它传递到 SqlSessionFactoryBuilder.build(myConfig) 方法即可。再次重申，这可能会极大影响 MyBatis 的行为，务请慎之又慎。</p>
+<ol>
+<li>拦截执行器的方法</li>
+<li>拦截参数的处理</li>
+<li>拦截结果集的处理</li>
+<li>拦截Sql语法构建的处理</li>
+</ol>
+<blockquote>
+<h3 id="拦截器使用"><a href="#拦截器使用" class="headerlink" title="拦截器使用"></a>拦截器使用</h3></blockquote>
+<p>工作中遇到一个需求，为服务的数据表增加逻辑删除功能，服务本身技术栈为（SpringBoot+Mybatis）当时自己考虑到了两个方法：</p>
+<ol>
+<li>将项目的Mybatis升级到Mybatis-Plus，然后增加逻辑删除字段</li>
+<li>编写Mybatis插件，将所有的查询语句增加状态值判断，将Delete语句转换为逻辑删除Update。</li>
+</ol>
+<p>Mybatis-Plus官方说明中很重要的一点是逻辑删除”只对自动注入的 sql 起效”，也就是说XML中自定义的SQL不会自动拼接逻辑删除条件也不会将物理删除更改为逻辑删除。如果依然修改XML升级就没有意义。</p>
+<p>于是考虑第二种方案，拦截SQL将delete语句修改为逻辑删除，在Select语句中添加逻辑删除判断。但是后来证明自己有明显的考虑不足之处。因为复杂嵌套SQL拼接where条件十分难搞。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">package com.rrc.authority.base.interceptor;
+
+import com.rrc.authority.base.utils.JsqlparserUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.ibatis.executor.statement.StatementHandler;
+import org.apache.ibatis.mapping.BoundSql;
+import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.SqlCommandType;
+import org.apache.ibatis.plugin.*;
+import org.apache.ibatis.reflection.DefaultReflectorFactory;
+import org.apache.ibatis.reflection.MetaObject;
+import org.apache.ibatis.reflection.SystemMetaObject;
+
+import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Intercepts(&#123;@Signature(type &#x3D; StatementHandler.class, method &#x3D; &quot;prepare&quot;, args &#x3D; &#123;Connection.class, Integer.class&#125;)&#125;)
+public class LogicDeleteInterceptor implements Interceptor &#123;
+
+    @Override
+    public Object intercept(Invocation invocation) throws Throwable &#123;
+        StatementHandler statementHandler &#x3D; (StatementHandler) invocation.getTarget();
+
+        &#x2F;&#x2F; 通过MetaObject优雅访问对象的属性，这里是访问statementHandler的属性;：MetaObject是Mybatis提供的一个用于方便、
+        &#x2F;&#x2F; 优雅访问对象属性的对象，通过它可以简化代码、不需要try&#x2F;catch各种reflect异常，同时它支持对JavaBean、Collection、Map三种类型对象的操作。
+        MetaObject metaObject &#x3D; MetaObject.forObject(statementHandler, SystemMetaObject.DEFAULT_OBJECT_FACTORY, SystemMetaObject.DEFAULT_OBJECT_WRAPPER_FACTORY,
+                new DefaultReflectorFactory());
+
+        &#x2F;&#x2F; 先拦截到RoutingStatementHandler，里面有个StatementHandler类型的delegate变量，其实现类是			    BaseStatementHandler，然后就到BaseStatementHandler的成员变量mappedStatement
+        MappedStatement mappedStatement &#x3D; (MappedStatement) metaObject.getValue(&quot;delegate.mappedStatement&quot;);
+		&#x2F;&#x2F; id为执行的mapper方法的全路径名，如com.cq.UserMapper.insertUser， 便于后续使用反射
+        String id &#x3D; mappedStatement.getId();
+        &#x2F;&#x2F; sql语句类型 select、delete、insert、update
+        String sqlCommandType &#x3D; mappedStatement.getSqlCommandType().toString();
+        
+        &#x2F;&#x2F; 数据库连接信息
+        Configuration configuration &#x3D; mappedStatement.getConfiguration();
+        DataSource dataSource &#x3D; configuration.getEnvironment().getDataSource();
+        
+        BoundSql boundSql &#x3D; statementHandler.getBoundSql();
+        &#x2F;&#x2F; 获取到原始sql语句
+        String sql &#x3D; boundSql.getSql().toLowerCase();
+        log.info(&quot;请求SQL语句 &#123;&#125;&quot;, sql);
+       	&#x2F;&#x2F; 具体处理逻辑
+		&#x2F;&#x2F;通过反射修改sql语句
+        Field field &#x3D; boundSql.getClass().getDeclaredField(&quot;sql&quot;);
+        field.setAccessible(true);
+        field.set(boundSql, sql);
+        
+        return invocation.proceed();
+    &#125;
+
+    @Override
+    public Object plugin(Object target) &#123;
+        if (target instanceof StatementHandler) &#123;
+            return Plugin.wrap(target, this);
+        &#125; else &#123;
+            return target;
+        &#125;
+    &#125;
+
+    @Override
+    public void setProperties(Properties properties) &#123;
+        &#x2F;&#x2F; 空方法
+    &#125;
+&#125;
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<h3 id="Jsqlparser解析SQL"><a href="#Jsqlparser解析SQL" class="headerlink" title="Jsqlparser解析SQL"></a>Jsqlparser解析SQL</h3></blockquote>
+<p>从SQL中提取表名</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">String sql &#x3D; &quot;SELECT * FROM TABLE1&quot;;
+Statement statement &#x3D; CCJSqlParserUtil.parse(sql);
+TablesNamesFinder tablesNamesFinder &#x3D; new TablesNamesFinder();
+List&lt;String&gt; tableList &#x3D; tablesNamesFinder.getTableList(statement);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>提取SQL中的表别名</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">
+&#x2F;**
+ * 获取SQL中的全部表别名
+ *
+ * @param sql sql语句
+ * @return String
+ *&#x2F;
+public static Map&lt;String,String&gt; getMainJoinTableAlias(String sql) throws JSQLParserException &#123;
+    Map&lt;String,String&gt; map &#x3D; new HashMap&lt;&gt;();
+    PlainSelect plainSelect &#x3D; (PlainSelect)((Select) CCJSqlParserUtil.parse(sql)).getSelectBody();
+
+    Table table &#x3D; (Table)plainSelect.getFromItem();
+
+    if(Objects.nonNull(table.getAlias()))&#123;
+        map.put(table.getName(), table.getAlias().getName());
+    &#125;
+
+    if (Objects.nonNull(plainSelect.getJoins())) &#123;
+        for (Join join: plainSelect.getJoins()) &#123;
+            table &#x3D; (Table)join.getRightItem();
+            if(Objects.nonNull(table.getAlias()))&#123;
+                map.put(table.getName(), table.getAlias().getName());
+            &#125;
+        &#125;
+    &#125;
+
+    return map;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+
+
+<blockquote>
+<h3 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h3></blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_36881887/article/details/111593617">细粒度权限，用户只能看到自己相关的数据</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/1d5afe4a602b">mybatis-插件拦截器动态替换表名</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jb51.net/article/267850.htm">关于JSqlparser使用攻略(高效的SQL解析工具)</a></p>
+<p><a target="_blank" rel="noopener" href="https://mybatis.org/mybatis-3/zh/">mybatis</a></p>
+<p><a target="_blank" rel="noopener" href="https://mybatis.org/spring-boot-starter/">mybatis-spring-boot</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/yougewe/p/10072740.html">https://www.cnblogs.com/yougewe/p/10072740.html</a>   下次学习这个</p>
 
                 
             </div>
@@ -534,7 +699,11 @@
                 <div class="post-meta__tag-list" style="display: inline-block;">
                     
                         <div class="article-tag">
-                            <span class="chip bg-color">无标签</span>
+                            
+                                <a href="/tags/MyBatis/">
+                                    <span class="chip bg-color">MyBatis</span>
+                                </a>
+                            
                         </div>
                     
                 </div>

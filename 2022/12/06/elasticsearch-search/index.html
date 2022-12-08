@@ -487,10 +487,143 @@
 
 <blockquote>
 <h3 id="search结果分析"><a href="#search结果分析" class="headerlink" title="search结果分析"></a>search结果分析</h3></blockquote>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">GET _search
 
+&#123;
+  &quot;took&quot;: 4,
+  &quot;timed_out&quot;: false,
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 21,
+    &quot;successful&quot;: 21,
+    &quot;failed&quot;: 0
+  &#125;,
+  &quot;hits&quot;: &#123;
+    &quot;total&quot;: 1,
+    &quot;max_score&quot;: 1,
+    &quot;hits&quot;: [
+      &#123;
+        &quot;_index&quot;: &quot;.kibana&quot;,
+        &quot;_type&quot;: &quot;config&quot;,
+        &quot;_id&quot;: &quot;5.2.0&quot;,
+        &quot;_score&quot;: 1,
+        &quot;_source&quot;: &#123;
+          &quot;buildNum&quot;: 14695
+        &#125;
+      &#125;
+    ]
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
+<p>took：整个搜索请求花费了1毫秒</p>
+<p>hits.total：本次搜索，返回了1条结果（es官方默认限制索引查询最多只能查询10000条数据）</p>
+<p>hits.max_score：本次搜索的所有结果中，最大的相关度分数是多少</p>
+<p>hits.hits：默认查询前10条数据，完整数据，按_score降序排序</p>
+<p>shards：这次查询路由到的primary shard和replica shard</p>
+<p>timeout：默认无timeout，可以手动指定timeout，走timeout查询执行机制</p>
+<blockquote>
+<h3 id="search的timeout机制"><a href="#search的timeout机制" class="headerlink" title="search的timeout机制"></a>search的timeout机制</h3></blockquote>
+<p>有些搜索应用对时间是很敏感的，比如说我们的电商网站，你不能说让用户等10分钟，才能等到一次搜索请求的结果，如果那样的话人家早走了，不来买东西了。</p>
+<p>而timeout机制，就是指定每个shard只能在timeout时间范围内将搜索到的部分数据(也可能全都搜索到了)直接返回给client，而不是等所有的数据全部搜索出来以后再返回。</p>
+<p>比如，有2个shard，每个shard要搜索出来1000条数据需要1分钟，此时我们指定timeout=10ms，每个shard运行到10ms的时候可能就搜索出10条，那么这个请求本来应该在1分钟后总共拿到2000条数据，但是指定timeout后，就会在10ms拿到20条数据返回给客户端。</p>
+<p>这样就可以确保一次搜索请求可以在指定的timeout时长内完成。为一些时间敏感的搜索应用提供良好的支持。</p>
+<p>timeout的语法：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">GET &#x2F;_search?timeout&#x3D;10m<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
+<p>timeout的单位：ms(毫秒),s(秒),m(分钟)</p>
+<blockquote>
+<h3 id="multi-index-amp-multi-type搜索模式"><a href="#multi-index-amp-multi-type搜索模式" class="headerlink" title="multi-index&amp;multi-type搜索模式"></a>multi-index&amp;multi-type搜索模式</h3></blockquote>
+<p>(1) /_search：所有索引，所有type下的所有数据都搜索出来<br>(2) /index1/_search：指定一个index，搜索其下所有type的数据<br>(3) /index1,index2/_search：同时搜索两个index下的数据<br>(4) /*1,*2/_search：按照通配符去匹配多个索引<br>(5) /index1/type1/_search：搜索一个index下指定的type的数据<br>(6) /index1/type1,type2/_search：可以搜索一个index下多个type的数据<br>(7) /index1,index2/type1,type2/_search：搜索多个index下的多个type的数据<br>(8) /_all/type1,type2/_search：_all，可以代表搜索所有index下的指定type的数据</p>
+<p><strong>备注</strong>：中间不要带空格</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">GET &#x2F;rrc,rrs&#x2F;index1,user&#x2F;_search
+
+&#123;
+  &quot;error&quot;: &#123;
+    &quot;root_cause&quot;: [
+      &#123;
+        &quot;type&quot;: &quot;index_not_found_exception&quot;,
+        &quot;reason&quot;: &quot;no such index&quot;,
+        &quot;resource.type&quot;: &quot;index_or_alias&quot;,
+        &quot;resource.id&quot;: &quot;rrs&quot;,
+        &quot;index_uuid&quot;: &quot;_na_&quot;,
+        &quot;index&quot;: &quot;rrs&quot;
+      &#125;
+    ],
+    &quot;type&quot;: &quot;index_not_found_exception&quot;,
+    &quot;reason&quot;: &quot;no such index&quot;,
+    &quot;resource.type&quot;: &quot;index_or_alias&quot;,
+    &quot;resource.id&quot;: &quot;rrs&quot;,
+    &quot;index_uuid&quot;: &quot;_na_&quot;,
+    &quot;index&quot;: &quot;rrs&quot;
+  &#125;,
+  &quot;status&quot;: 404
+&#125;
+
+# ?怎么和老师讲的有点出入，百度中：https:&#x2F;&#x2F;stackoverflow.com&#x2F;questions&#x2F;45461096&#x2F;elasticsearch-returns-404-while-multi-index-multi-type-search
+GET &#x2F;rrc,index2&#x2F;user,type2&#x2F;_search?ignore_unavailable
+
+&#123;
+  &quot;took&quot;: 1,
+  &quot;timed_out&quot;: false,
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 5,
+    &quot;successful&quot;: 5,
+    &quot;failed&quot;: 0
+  &#125;,
+  &quot;hits&quot;: &#123;
+    &quot;total&quot;: 1,
+    &quot;max_score&quot;: 1,
+    &quot;hits&quot;: [
+      &#123;
+        &quot;_index&quot;: &quot;rrc&quot;,
+        &quot;_type&quot;: &quot;user&quot;,
+        &quot;_id&quot;: &quot;9&quot;,
+        &quot;_score&quot;: 1,
+        &quot;_source&quot;: &#123;
+          &quot;name&quot;: &quot;tiedan&quot;,
+          &quot;price&quot;: 1764
+        &#125;
+      &#125;
+    ]
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<h3 id="ES分页"><a href="#ES分页" class="headerlink" title="ES分页"></a>ES分页</h3></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">GET _search
+&quot;hits&quot;: &#123;
+    &quot;total&quot;: 17,
+    &quot;max_score&quot;: 1
+&#125;
+
+# 作分页查询
+GET _search?from&#x3D;0&amp;size&#x3D;1
+    
+&#123;
+  &quot;took&quot;: 1,
+  &quot;timed_out&quot;: false,
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 21,
+    &quot;successful&quot;: 21,
+    &quot;failed&quot;: 0
+  &#125;,
+  &quot;hits&quot;: &#123;
+    &quot;total&quot;: 17,
+    &quot;max_score&quot;: 1,
+    &quot;hits&quot;: [
+      &#123;
+        &quot;_index&quot;: &quot;.kibana&quot;,
+        &quot;_type&quot;: &quot;config&quot;,
+        &quot;_id&quot;: &quot;5.2.0&quot;,
+        &quot;_score&quot;: 1,
+        &quot;_source&quot;: &#123;
+          &quot;buildNum&quot;: 14695
+        &#125;
+      &#125;
+    ]
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>关注深度分页问题，是一个归并排序的过程。</p>
 
                 
             </div>
@@ -793,7 +926,7 @@
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            
+                            插件（plugins）
                         
                     </div>
                     <div class="publish-info">
@@ -802,11 +935,23 @@
                             </span>
                         <span class="publish-author">
                             
-                            <i class="fas fa-user fa-fw"></i>
-                            WangQingLei
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E6%8C%81%E4%B9%85%E5%B1%82/" class="post-category">
+                                    持久层
+                                </a>
+                            
                             
                         </span>
                     </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/MyBatis/">
+                        <span class="chip bg-color">MyBatis</span>
+                    </a>
+                    
                 </div>
                 
             </div>
