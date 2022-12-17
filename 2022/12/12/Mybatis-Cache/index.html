@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="Elasticsearch">
+    <meta name="keywords" content="Mybatis-Cache, JAVA">
     <meta name="description" content="失落时悄悄徘徊，伤感时默默遐想">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>elasticsearch-consistency | 山西小魔头技术博客</title>
+    <title>Mybatis-Cache | 山西小魔头技术博客</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/8.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/0.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">elasticsearch-consistency</h1>
+                    <h1 class="description center-align post-title">Mybatis-Cache</h1>
                 </div>
             </div>
         </div>
@@ -431,8 +431,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/Elasticsearch/">
-                                <span class="chip bg-color">Elasticsearch</span>
+                            <a href="/tags/MyBatis/">
+                                <span class="chip bg-color">MyBatis</span>
                             </a>
                         
                     </div>
@@ -443,8 +443,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="post-category">
-                                中间件
+                            <a href="/categories/%E6%8C%81%E4%B9%85%E5%B1%82/" class="post-category">
+                                持久层
                             </a>
                         
                     </div>
@@ -456,7 +456,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2022-12-06
+                    2022-12-12
                 </div>
                 
 
@@ -480,75 +480,426 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>ES中primary shard写完，会同步到replica shard上，两者最终可能会出现不一致的情况。那es是如何确定主副分片的写一致性的呢？</p>
+                <p>Mybatis一级缓存与二级缓存学习</p>
 <span id="more"></span>
 
-<center><h2>Elasticsearch写一致性</h2></center>  
+<center><h1>MyBatis Cache</h1></center>
 
 <blockquote>
-<h3 id="ES5-0之前"><a href="#ES5-0之前" class="headerlink" title="ES5.0之前"></a>ES5.0之前</h3></blockquote>
-<p>写入前检查存活shard的方式</p>
-<blockquote>
-<h4 id="consistency"><a href="#consistency" class="headerlink" title="consistency"></a>consistency</h4></blockquote>
-<p>我们在发送任何一个增删改请求的时候，比如说put /product/book/id，都可以带上一个consistency参数，指明我们想要的写一致性类型</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">put &#x2F;product&#x2F;book&#x2F;1?consistency&#x3D;quorum<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h3 id="一级缓存"><a href="#一级缓存" class="headerlink" title="一级缓存"></a>一级缓存</h3></blockquote>
+<p>Mybatis默认的情况下，它只开启了一级缓存。</p>
+<p>所以在参数和 SQL 完全一样的情况下，我们使用同一个 SqlSession 对象调用同一个Mapper 的方法，往往只执行一次 SQL，因为使用 SqlSession 第一次查询后，MyBatis 会将其放在缓存中，以后再查询的时候，如果没有声明需要刷新，并且缓存没超时的情况下.SqlSession 都只会取出当前缓存的数据，而不会再次发送Sql到数据库。<br>但是如果你使用的是不同的 SqlSesion 对象，因为不同的 SqlSession 都是相互隔离的，所以用相同的 Mapper、参数和方法，它还是会再次发送 SOL 到数据库去执行，返回结果。</p>
+<p>SqlSessionFactoryUtil工具类</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">package com.wql.utils;
 
-<p>consistency有三个可选值：</p>
-<p>one：只要有1个primary shard是可用的，就可以进行写操作</p>
-<p>all：必须所有的primary shard和replica shard都是可用的，才可以进行写操作</p>
-<p>quorum：默认值。要求所有的shard中，必须大部分shard都是可用的，才可以进行写操作</p>
-<blockquote>
-<h4 id="quorum机制"><a href="#quorum机制" class="headerlink" title="quorum机制"></a>quorum机制</h4></blockquote>
-<p>写之前必须确保大多数shard都是可用的，具体公式如下：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">Available shard &gt;&#x3D; (primary shard数量 + replica shard份数) &#x2F; 2 + 1
-例子：
-有3个primary shard，replica shard份数为1时，按公式计算 (3 + 3 * 1) &#x2F; 2 + 1 &#x3D; 3
+import com.wql.mapper.SysUserMyBatisMapper;
+import org.apache.ibatis.datasource.pooled.PooledDataSource;
+import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.ibatis.transaction.TransactionFactory;
+import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 
-所以，要求6个shard中至少有3个shard是可用的，才可以执行这个写操作<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+import java.util.Objects;
 
-<p>有种特殊情况，比如es只有1个节点，index有1个primary shard和1个replica shard，这种情况replica shard实际上是无法分配到节点上的，存活shard只有1个，而quorum=(1+1)/2+1=2,按公式算的话最终会无法写入，不过es对这种情况做了例外处理是可以正常写入的。</p>
-<p>有3个primary shard，replica shard份数为1，总共有3+3*1=6个shard</p>
-<p>quorum=(3+1)/2+1=3</p>
-<p>所以，要求6个shard中至少有3个shard是可用的，才可以执行这个写操作</p>
-<p>有种特殊情况，比如es只有1个节点，index有1个primary shard和1个replica shard，这种情况replica shard实际上是无法分配到节点上的，存活shard只有1个，而quorum=(1+1)/2+1=2,按公式算的话最终会无法写入，不过es对这种情况做了例外处理是可以正常写入的。</p>
-<blockquote>
-<h4 id="quorum不齐全时不会直接拒绝写入"><a href="#quorum不齐全时不会直接拒绝写入" class="headerlink" title="quorum不齐全时不会直接拒绝写入"></a>quorum不齐全时不会直接拒绝写入</h4></blockquote>
-<p>当quorum不齐全时，会默认等待1分钟，看等待期间可用的shard有没有增加到quorum的数量，等待时间结束若还不满足，则拒绝写入。比如我在写入时手动指定30秒等待(超时)时间，语法为</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">put &#x2F;product&#x2F;book&#x2F;1?timeout&#x3D;30<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+public class SqlSessionFactoryUtil &#123;
+    &#x2F;&#x2F; SqlSessionFactory对象
+    private static SqlSessionFactory sqlSessionFactory &#x3D; null;
+    &#x2F;&#x2F; 类线程锁
+    private static final Class CLASS_LOCK &#x3D; SqlSessionFactoryUtil.class;
+    &#x2F;**
+     * 私有构造函数
+     *&#x2F;
+    private SqlSessionFactoryUtil() &#123;
 
-<blockquote>
-<h3 id="ES5-0之后"><a href="#ES5-0之后" class="headerlink" title="ES5.0之后"></a>ES5.0之后</h3></blockquote>
-<p>consistency检查是在put之前做的。然而虽然检查的时候，可用shard数量满足quorum数量，但是真正从primary shard写到replica shard之前，仍然会出现shard挂掉的可能，但update api会返回succeed。因此，这个检查并不能保证replica shard成功写入，甚至这个primary shard是否能成功写入也未必能保证。</p>
-<p>因此es5.0后修改了语法，用wait_for_active_shards代替原来的consistency</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">#写入完1个primary shard就返回客户端
-PUT &#x2F;product&#x2F;book&#x2F;1?wait_for_active_shards&#x3D;1<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<p>也可以在建索引的时候指定write.wait_for_active_shards</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">PUT &#x2F;product
-&#123; &quot;mappings&quot;: &#123;
-    &quot;properties&quot;: &#123;
-      &quot;text&quot;: &#123;
-        &quot;type&quot;: &quot;text&quot;,
-        &quot;store&quot; : true
-       &#125;,
-       &quot;fullname&quot;: &#123;
-        &quot;type&quot;: &quot;text&quot;
-      &#125;
     &#125;
-  &#125;,
-  &quot;settings&quot; : &#123;
-    &quot;index&quot; : &#123;
-      &quot;number_of_shards&quot; : 1,
-      &quot;number_of_replicas&quot; : 2,
-      &quot;write.wait_for_active_shards&quot;:3
+
+    public static SqlSessionFactory initSqlSessionFactory() &#123;
+        synchronized(CLASS_LOCK) &#123;
+            if (Objects.nonNull(sqlSessionFactory)) &#123;
+                return sqlSessionFactory;
+            &#125;
+
+            &#x2F;&#x2F; 构建数据库连接池
+            PooledDataSource dataSource &#x3D; new PooledDataSource();
+
+            dataSource.setDriver(&quot;com.mysql.cj.jdbc.Driver&quot;);
+            dataSource.setUrl(&quot;jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;tudou?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf8&amp;serverTimezone&#x3D;UTC&amp;useSSL&#x3D;false&amp;allowPublicKeyRetrieval&#x3D;true&quot;);
+            dataSource.setUsername(&quot;root&quot;);
+            dataSource.setPassword(&quot;&quot;);
+
+            &#x2F;&#x2F; 构建数据库事务方式
+            TransactionFactory transactionalFactory &#x3D; new JdbcTransactionFactory();
+
+            &#x2F;&#x2F; 创建数据库运行环境
+            Environment environment &#x3D; new Environment(&quot;development&quot;, transactionalFactory, dataSource);
+
+            &#x2F;&#x2F;构建config对象
+            Configuration config &#x3D; new Configuration(environment);
+            &#x2F;&#x2F; 加入映射器
+            config.addMapper(SysUserMyBatisMapper.class);
+            sqlSessionFactory &#x3D; new SqlSessionFactoryBuilder().build(config);
+
+            return sqlSessionFactory;
+        &#125;
+    &#125;
+
+    &#x2F;**
+     * 打开SqlSession
+     *&#x2F;
+    public static SqlSession openSqlSession() &#123;
+        if (sqlSessionFactory &#x3D;&#x3D; null) &#123;
+            initSqlSessionFactory();
+        &#125;
+
+        return sqlSessionFactory.openSession();
+    &#125;
+
+&#125;
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>SysUserMyBatisMapper类</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">public interface SysUserMyBatisMapper &#123;
+    SysUser queryById(Long id);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>SysUserMyBatisMapper XML</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot; ?&gt;
+&lt;!DOCTYPE mapper PUBLIC &quot;-&#x2F;&#x2F;mybatis.org&#x2F;&#x2F;DTD Mapper 3.0&#x2F;&#x2F;EN&quot;
+		&quot;http:&#x2F;&#x2F;mybatis.org&#x2F;dtd&#x2F;mybatis-3-mapper.dtd&quot;&gt;
+&lt;mapper namespace&#x3D;&quot;com.wql.mapper.SysUserMyBatisMapper&quot;&gt;
+	&lt;sql id&#x3D;&quot;BaseColumn&quot;&gt;
+		 id, job_number,user_name, pass_word, phone
+	&lt;&#x2F;sql&gt;
+
+	&lt;resultMap id&#x3D;&quot;CityAreaResultMap&quot; type&#x3D;&quot;com.wql.domain.SysUser&quot;&gt;
+		&lt;id column&#x3D;&quot;id&quot; property&#x3D;&quot;id&quot;&#x2F;&gt;
+		&lt;id column&#x3D;&quot;job_number&quot; property&#x3D;&quot;jobNumber&quot;&#x2F;&gt;
+		&lt;id column&#x3D;&quot;user_name&quot; property&#x3D;&quot;userName&quot;&#x2F;&gt;
+		&lt;id column&#x3D;&quot;pass_word&quot; property&#x3D;&quot;passWord&quot;&#x2F;&gt;
+	&lt;&#x2F;resultMap&gt;
+
+	&lt;select id&#x3D;&quot;queryById&quot; resultMap&#x3D;&quot;CityAreaResultMap&quot;&gt;
+		SELECT &lt;include refid&#x3D;&quot;BaseColumn&quot;&#x2F;&gt; FROM sys_user WHERE id &#x3D; #&#123;id&#125;
+	&lt;&#x2F;select&gt;
+
+&lt;&#x2F;mapper&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>单元测试类</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@Slf4j
+@SpringBootTest(webEnvironment &#x3D; SpringBootTest.WebEnvironment.DEFINED_PORT)
+class SysUserServiceImplTest &#123;
+
+    @Test
+    public void testCache() &#123;
+        SqlSession sqlSession &#x3D; SqlSessionFactoryUtil.openSqlSession();
+        SysUserMyBatisMapper sysUserMyBatisMapper &#x3D; sqlSession.getMapper(SysUserMyBatisMapper.class);
+        SysUser sysUser &#x3D; sysUserMyBatisMapper.queryById(1L);
+
+        System.out.println(sysUser);
+
+        sysUser &#x3D; sysUserMyBatisMapper.queryById(1L);
+
+        System.out.println(sysUser);
+    &#125;
+
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>日志打印：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">Opening JDBC Connection
+Created connection 309167705.
+Setting autocommit to false on JDBC Connection [com.mysql.cj.jdbc.ConnectionImpl@126d8659]
+&#x3D;&#x3D;&gt;  Preparing: SELECT id, job_number,user_name, pass_word, phone FROM sys_user WHERE id &#x3D; ? 
+&#x3D;&#x3D;&gt; Parameters: 1(Long)
+&lt;&#x3D;&#x3D;    Columns: id, job_number, user_name, pass_word, phone
+&lt;&#x3D;&#x3D;        Row: 1, , 33, 33, 33
+&lt;&#x3D;&#x3D;      Total: 1
+SysUser(id&#x3D;1, jobNumber&#x3D;, idCard&#x3D;null, userName&#x3D;33, passWord&#x3D;33, phone&#x3D;33, userStatus&#x3D;null)
+SysUser(id&#x3D;1, jobNumber&#x3D;, idCard&#x3D;null, userName&#x3D;33, passWord&#x3D;33, phone&#x3D;33, userStatus&#x3D;null)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>只打印了一次SQL，说明使用到了Mybatis的一级缓存。</p>
+<h4 id="一级缓存配置"><a href="#一级缓存配置" class="headerlink" title="一级缓存配置"></a>一级缓存配置</h4><p>开发者只需在MyBatis的配置文件中，添加如下语句，就可以使用一级缓存。共有两个选项，<code>SESSION</code>或者<code>STATEMENT</code>，默认是<code>SESSION</code>级别，即在一个MyBatis会话中执行的所有语句，都会共享这一个缓存。一种是<code>STATEMENT</code>级别不使用一级缓存，此级别下每次执行完一个Mapper中的语句后都会将一级缓存清除。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">protected LocalCacheScope localCacheScope &#x3D; LocalCacheScope.SESSION; &#x2F;&#x2F;默认配置
+&#x2F;&#x2F; 在SqlSessionFactoryUtil中加入配置
+config.setLocalCacheScope(LocalCacheScope.STATEMENT);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>再次执行单元测试</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">Opening JDBC Connection
+Created connection 1351814143.
+Setting autocommit to false on JDBC Connection [com.mysql.cj.jdbc.ConnectionImpl@50930bff]
+&#x3D;&#x3D;&gt;  Preparing: SELECT id, job_number,user_name, pass_word, phone FROM sys_user WHERE id &#x3D; ? 
+&#x3D;&#x3D;&gt; Parameters: 1(Long)
+&lt;&#x3D;&#x3D;    Columns: id, job_number, user_name, pass_word, phone
+&lt;&#x3D;&#x3D;        Row: 1, , 33, 33, 33
+&lt;&#x3D;&#x3D;      Total: 1
+SysUser(id&#x3D;1, jobNumber&#x3D;, idCard&#x3D;null, userName&#x3D;33, passWord&#x3D;33, phone&#x3D;33, userStatus&#x3D;null)
+&#x3D;&#x3D;&gt;  Preparing: SELECT id, job_number,user_name, pass_word, phone FROM sys_user WHERE id &#x3D; ? 
+&#x3D;&#x3D;&gt; Parameters: 1(Long)
+&lt;&#x3D;&#x3D;    Columns: id, job_number, user_name, pass_word, phone
+&lt;&#x3D;&#x3D;        Row: 1, , 33, 33, 33
+&lt;&#x3D;&#x3D;      Total: 1
+SysUser(id&#x3D;1, jobNumber&#x3D;, idCard&#x3D;null, userName&#x3D;33, passWord&#x3D;33, phone&#x3D;33, userStatus&#x3D;null)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><code>对于SESSION级别缓存消失的情况有：</code></p>
+<ul>
+<li>select会被缓存</li>
+<li>insert ，update，delete语句会刷新缓存</li>
+<li>sqlSession.clearCache();手动清理缓存</li>
+</ul>
+<p>在两次查询中间加入<code>sqlSession.clearCache();</code></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">SysUser sysUser &#x3D; sysUserMyBatisMapper.queryById(1L);
+
+System.out.println(sysUser);
+sqlSession.clearCache();
+sysUser &#x3D; sysUserMyBatisMapper.queryById(1L);
+System.out.println(sysUser);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>日志打印：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">Opening JDBC Connection
+Created connection 525119867.
+Setting autocommit to false on JDBC Connection [com.mysql.cj.jdbc.ConnectionImpl@1f4cb17b]
+&#x3D;&#x3D;&gt;  Preparing: SELECT id, job_number,user_name, pass_word, phone FROM sys_user WHERE id &#x3D; ? 
+&#x3D;&#x3D;&gt; Parameters: 1(Long)
+&lt;&#x3D;&#x3D;    Columns: id, job_number, user_name, pass_word, phone
+&lt;&#x3D;&#x3D;        Row: 1, , 33, 33, 33
+&lt;&#x3D;&#x3D;      Total: 1
+SysUser(id&#x3D;1, jobNumber&#x3D;, idCard&#x3D;null, userName&#x3D;33, passWord&#x3D;33, phone&#x3D;33, userStatus&#x3D;null)
+&#x3D;&#x3D;&gt;  Preparing: SELECT id, job_number,user_name, pass_word, phone FROM sys_user WHERE id &#x3D; ? 
+&#x3D;&#x3D;&gt; Parameters: 1(Long)
+&lt;&#x3D;&#x3D;    Columns: id, job_number, user_name, pass_word, phone
+&lt;&#x3D;&#x3D;        Row: 1, , 33, 33, 33
+&lt;&#x3D;&#x3D;      Total: 1
+SysUser(id&#x3D;1, jobNumber&#x3D;, idCard&#x3D;null, userName&#x3D;33, passWord&#x3D;33, phone&#x3D;33, userStatus&#x3D;null)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>打印了两次SQL</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@2e9dcdd3] was not registered for synchronization because synchronization is not active
+[TRACEID:] 2022-12-12 00:57:37.168 [main-994] INFO  c.alibaba.druid.pool.DruidDataSource 994 init - &#123;dataSource-1&#125; inited
+JDBC Connection [com.alibaba.druid.proxy.jdbc.ConnectionProxyImpl@760c777d] will not be managed by Spring
+&#x3D;&#x3D;&gt;  Preparing: SELECT id,job_number,user_name,pass_word,phone,user_status,create_date,create_user,update_date,update_user,extra_info,del_flag FROM sys_user WHERE id&#x3D;? AND del_flag&#x3D;1 
+&#x3D;&#x3D;&gt; Parameters: 1(Integer)
+&lt;&#x3D;&#x3D;    Columns: id, job_number, user_name, pass_word, phone, user_status, create_date, create_user, update_date, update_user, extra_info, del_flag
+&lt;&#x3D;&#x3D;        Row: 1, , 33, 33, 33, 1, 2021-12-02 23:36:44, 33, 2021-12-12 22:25:13, 33, 33, 1
+&lt;&#x3D;&#x3D;      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@2e9dcdd3]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@70bc9070] was not registered for synchronization because synchronization is not active
+JDBC Connection [com.alibaba.druid.proxy.jdbc.ConnectionProxyImpl@760c777d] will not be managed by Spring
+&#x3D;&#x3D;&gt;  Preparing: SELECT id,job_number,user_name,pass_word,phone,user_status,create_date,create_user,update_date,update_user,extra_info,del_flag FROM sys_user WHERE id&#x3D;? AND del_flag&#x3D;1 
+&#x3D;&#x3D;&gt; Parameters: 1(Integer)
+&lt;&#x3D;&#x3D;    Columns: id, job_number, user_name, pass_word, phone, user_status, create_date, create_user, update_date, update_user, extra_info, del_flag
+&lt;&#x3D;&#x3D;        Row: 1, , 33, 33, 33, 1, 2021-12-02 23:36:44, 33, 2021-12-12 22:25:13, 33, 33, 1
+&lt;&#x3D;&#x3D;      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@70bc9070]<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="一级缓存工作流程和源码分析"><a href="#一级缓存工作流程和源码分析" class="headerlink" title="一级缓存工作流程和源码分析"></a>一级缓存工作流程和源码分析</h4><p><img src="6e38df6a.jpg" alt="一级缓存工作原理"></p>
+<p>每个SqlSession中持有了Executor，每个Executor中有一个LocalCache。当用户发起查询时，MyBatis根据当前执行的语句生成<code>MappedStatement</code>，在Local Cache进行查询，如果缓存命中的话，直接返回结果给用户，如果缓存没有命中的话，查询数据库，结果写入<code>Local Cache</code>，最后返回结果给用户。</p>
+<p><img src="L1Cache.png" alt="一级缓存工作流程"></p>
+<p><strong>源码解析：</strong></p>
+<p><strong>SqlSession</strong>： 对外提供了用户和数据库之间交互需要的所有方法，隐藏了底层的细节。默认实现类是<code>DefaultSqlSession</code>。</p>
+<p><img src="image-20221217201846998.png" alt="SqlSession"></p>
+<p><strong>Executor</strong>： <code>SqlSession</code>向用户提供操作数据库的方法，但和数据库操作有关的职责都会委托给Executor。</p>
+<p><img src="image-20221217202634648.png" alt="Executor 执行器体系"></p>
+<p>接口继承关系</p>
+<p><img src="executor.png" alt="Executor"></p>
+<p><img src="ExecutorLoad.png" alt="在这里插入图片描述"></p>
+<p>Executor 有3个子类，父类中的抽象方法doQuery就是让三个子类去重写，实现各自的功能。</p>
+<h4 id="简单执行器-SimpleExecutor"><a href="#简单执行器-SimpleExecutor" class="headerlink" title="简单执行器 -SimpleExecutor"></a>简单执行器 -SimpleExecutor</h4><p>简单执行器是默认的执行器。一个Statement只执行一次，执行完毕后则进行销毁。 </p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">protected ExecutorType defaultExecutorType &#x3D; ExecutorType.SIMPLE;
+
+@Override
+public SqlSession openSession() &#123;
+    return openSessionFromDataSource(configuration.getDefaultExecutorType(), null, false);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@Override
+public &lt;E&gt; List&lt;E&gt; doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) throws SQLException &#123;
+    Statement stmt &#x3D; null;
+    try &#123;
+      Configuration configuration &#x3D; ms.getConfiguration();
+      StatementHandler handler &#x3D; configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql);
+      stmt &#x3D; prepareStatement(handler, ms.getStatementLog());
+      return handler.query(stmt, resultHandler);
+    &#125; finally &#123;
+      closeStatement(stmt);
     &#125;
   &#125;
-&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
+  private Statement prepareStatement(StatementHandler handler, Log statementLog) throws SQLException &#123;
+    Statement stmt;
+    Connection connection &#x3D; getConnection(statementLog);
+    stmt &#x3D; handler.prepare(connection, transaction.getTimeout());
+    handler.parameterize(stmt);
+    return stmt;
+  &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>参数解读</p>
+<p>MappedStatement ： 映射SQL</p>
+<p>Object parameter ： SQL中的动态参数</p>
+<p>RowBounds：分页用的，默认不分页 RowBounds.DEFAULT ， 可参考 org.apache.ibatis.session.RowBounds</p>
+<p>ResultHandler： 自定义处理返回结果 ，不使用写 Executor.NO_RESULT_HANDLER</p>
+<p>BoundSql ： 绑定的SQL</p>
+<p><img src="SimpleExecutor.png" alt="参数解读"></p>
+<ol>
+<li>获取大管家 Configuration</li>
+<li>每次都要newStatementHandler ，这个StatementHandler 后面我们重点将，是专门处理JDBC的</li>
+<li>prepareStatement –&gt; BaseStatementHandler #prepare 方法</li>
+<li>调用SimpleStatementHandler#query</li>
+</ol>
+<p>相同的SQL每次调用都会预编译 ，我们期望的结果是相同的SQL只要编译一次即可，那SimpleExecutor不支持</p>
+<h4 id="ReuseExecutor-重用执行器"><a href="#ReuseExecutor-重用执行器" class="headerlink" title="ReuseExecutor-重用执行器"></a>ReuseExecutor-重用执行器</h4><pre class="line-numbers language-java" data-language="java"><code class="language-java">@Override
+public &lt;E&gt; List&lt;E&gt; doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) throws SQLException &#123;
+  Configuration configuration &#x3D; ms.getConfiguration();
+  StatementHandler handler &#x3D; configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql);
+  Statement stmt &#x3D; prepareStatement(handler, ms.getStatementLog());
+  return handler.query(stmt, resultHandler);
+&#125;
+&#x2F;&#x2F; 先判断本地缓存statementMap是否有数据，有的话从statementMap获取，没有的话建立Statement，并存入本地缓存statementMap     &#x2F;&#x2F; 注意这个缓存的声明周期 是仅限于本次会话。 会话结束后，这些缓存都会被销毁掉。
+&#x2F;&#x2F; 区别于SimpleExecutor的实现，多了个本地缓存。 推荐使用ReuseExecutor 。
+private Statement prepareStatement(StatementHandler handler, Log statementLog) throws SQLException &#123;
+  Statement stmt;
+  BoundSql boundSql &#x3D; handler.getBoundSql();
+  String sql &#x3D; boundSql.getSql();
+  if (hasStatementFor(sql)) &#123;
+    stmt &#x3D; getStatement(sql);
+    applyTransactionTimeout(stmt);
+  &#125; else &#123;
+    Connection connection &#x3D; getConnection(statementLog);
+    stmt &#x3D; handler.prepare(connection, transaction.getTimeout());
+    putStatement(sql, stmt);
+  &#125;
+  handler.parameterize(stmt);
+  return stmt;
+&#125;
+
+&#x2F;&#x2F; 相同的SQL语句会缓存对应的PrepareStatement , 缓存的生命周期： 会话有效期 
+private boolean hasStatementFor(String sql) &#123;
+  try &#123;
+    return statementMap.keySet().contains(sql) &amp;&amp; !statementMap.get(sql).getConnection().isClosed();
+  &#125; catch (SQLException e) &#123;
+    return false;
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="BatchExecutor-批处理执行器"><a href="#BatchExecutor-批处理执行器" class="headerlink" title="BatchExecutor-批处理执行器"></a>BatchExecutor-批处理执行器</h4><p>优点：可以向数据库发送多条不同的ＳＱＬ语句。<br>缺点：没有预编译，存在sql注入风险，且当sql只有参数不同时，也需要重复多次，冗余。</p>
+<h4 id="一级缓存-1"><a href="#一级缓存-1" class="headerlink" title="一级缓存"></a>一级缓存</h4><pre class="line-numbers language-java" data-language="java"><code class="language-java">public abstract class BaseExecutor implements Executor &#123;
+  protected PerpetualCache localOutputParameterCache;
+    
+&#x2F;&#x2F; BaseExecutor成员变量之一的PerpetualCache，是对Cache接口最基本的实现，其实现非常简单，内部持有HashMap，对一级缓存的操作实则是对HashMap的操作。   
+public class PerpetualCache implements Cache &#123;
+
+  private final String id;
+
+  private final Map&lt;Object, Object&gt; cache &#x3D; new HashMap&lt;&gt;();<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>在源码分析的最后，我们确认一下，如果是<code>insert/delete/update</code>方法，缓存就会刷新的原因。</p>
+<p><code>SqlSession</code>的<code>insert</code>方法和<code>delete</code>方法，都会统一走<code>update</code>的流程。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>MyBatis一级缓存的生命周期和SqlSession一致。</li>
+<li>MyBatis一级缓存内部设计简单，只是一个没有容量限定的HashMap，在缓存的功能性上有所欠缺。</li>
+<li>MyBatis的一级缓存最大范围是SqlSession内部，有多个SqlSession或者分布式的环境下，数据库写操作会引起脏数据，建议设定缓存级别为Statement。</li>
+</ol>
+<blockquote>
+<h4 id="mybatis-spring"><a href="#mybatis-spring" class="headerlink" title="mybatis-spring"></a>mybatis-spring</h4></blockquote>
+<p>在MyBatis中，使用sqlsessionFactory创建一个sqlsession。但是在mybatis-spring中，我们不再需要直接使用sqlsessionFactory。而是使用SqlSessionTemplate，它实现了sqlsession，作为代码中任何现有使用sqlsession的替代品。sqlsessionTemplate是线程安全的，可以由多个DAO或Mapper共享。</p>
+<p>官网文档：<a target="_blank" rel="noopener" href="http://www.mybatis.org/spring/sqlsession.html#">mybatis-spring官方文档</a></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">private class SqlSessionInterceptor implements InvocationHandler &#123;
+        private SqlSessionInterceptor() &#123;
+        &#125;
+
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable &#123;
+            &#x2F;&#x2F; 1.创建一个SqlSession
+            SqlSession sqlSession &#x3D; SqlSessionUtils.getSqlSession(SqlSessionTemplate.this.sqlSessionFactory, SqlSessionTemplate.this.executorType, SqlSessionTemplate.this.exceptionTranslator);
+
+            Object unwrapped;
+            try &#123;
+                &#x2F;&#x2F; 2.调用原始函数
+                Object result &#x3D; method.invoke(sqlSession, args);
+                &#x2F;&#x2F; 如果不是事务，关闭当前的SqlSession
+                if (!SqlSessionUtils.isSqlSessionTransactional(sqlSession, SqlSessionTemplate.this.sqlSessionFactory)) &#123;
+                    sqlSession.commit(true);
+                &#125;
+
+                unwrapped &#x3D; result;
+            &#125; catch (Throwable var11) &#123;
+                unwrapped &#x3D; ExceptionUtil.unwrapThrowable(var11);
+                if (SqlSessionTemplate.this.exceptionTranslator !&#x3D; null &amp;&amp; unwrapped instanceof PersistenceException) &#123;
+                    SqlSessionUtils.closeSqlSession(sqlSession, SqlSessionTemplate.this.sqlSessionFactory);
+                    sqlSession &#x3D; null;
+                    Throwable translated &#x3D; SqlSessionTemplate.this.exceptionTranslator.translateExceptionIfPossible((PersistenceException)unwrapped);
+                    if (translated !&#x3D; null) &#123;
+                        unwrapped &#x3D; translated;
+                    &#125;
+                &#125;
+
+                throw (Throwable)unwrapped;
+            &#125; finally &#123;
+                if (sqlSession !&#x3D; null) &#123;
+                    SqlSessionUtils.closeSqlSession(sqlSession, SqlSessionTemplate.this.sqlSessionFactory);
+                &#125;
+
+            &#125;
+
+            return unwrapped;
+        &#125;
+    &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>如果没有添加<strong>Transactional注解</strong>的话，每次都会创建一个新的<code>SqlSession</code>并且在执行完毕之后，还会将事务提交、关闭<code>SqlSession</code>。因此多次请求之间无法通过<code>SqlSession</code>来共享缓存。</p>
+<blockquote>
+<h3 id="二级缓存"><a href="#二级缓存" class="headerlink" title="二级缓存"></a>二级缓存</h3></blockquote>
+<p>二级缓存默认是不开启的，需要手动开启二级缓存，实现二级缓存的时候，MyBatis要求返回的POJO必须是可序列化的。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">&lt;settings&gt;
+	&lt;setting name &#x3D; &quot;cacheEnabled&quot; value &#x3D; &quot;true&quot; &#x2F;&gt;
+&lt;&#x2F;settings&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>来开启二级缓存，还需要在 Mapper 的xml 配置文件中加入 <code>&lt;cache&gt;</code> 标签</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">&lt;!-- 表示表查询结果保存到二级缓存(共享缓存) --&gt;
+&lt;cache&#x2F;&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>设置 cache 标签的属性</p>
+<p>cache 标签有多个属性，一起来看一些这些属性分别代表什么意义</p>
+<p><strong>eviction: 缓存回收策略，有这几种回收策略</strong></p>
+<ul>
+<li><code>LRU</code> - 最近最少回收，移除最长时间不被使用的对象</li>
+<li><code>FIFO</code> - 先进先出，按照缓存进入的顺序来移除它们</li>
+<li><code>SOFT</code> - 软引用，移除基于垃圾回收器状态和软引用规则的对象</li>
+<li><code>WEAK</code> - 弱引用，更积极的移除基于垃圾收集器和弱引用规则的对象</li>
+</ul>
+<p><strong>默认是 LRU 最近最少回收策略</strong></p>
+<ul>
+<li><code>flushinterval</code> 缓存刷新间隔，缓存多长时间刷新一次，默认不清空，设置一个毫秒值</li>
+<li><code>readOnly</code>: 是否只读；true 只读，MyBatis 认为所有从缓存中获取数据的操作都是只读操作，不会修改数据。MyBatis 为了加快获取数据，直接就会将数据在缓存中的引用交给用户。不安全，速度快。读写(默认)：MyBatis 觉得数据可能会被修改</li>
+<li><code>size</code> : 缓存存放多少个元素</li>
+<li><code>type</code>: 指定自定义缓存的全类名(实现Cache 接口即可)</li>
+<li><code>blocking</code>： 若缓存中找不到对应的key，是否会一直blocking，直到有对应的数据进入缓存。</li>
+</ul>
+<h4 id="二级缓存失效的条件"><a href="#二级缓存失效的条件" class="headerlink" title="二级缓存失效的条件"></a>二级缓存失效的条件</h4><ul>
+<li>第一次SqlSession 未提交</li>
+</ul>
+<p>​        SqlSession 在未提交的时候，SQL 语句产生的查询结果还没有放入二级缓存中，这个时候 SqlSession2 在查询的时候是感受不到二级缓存的存在的</p>
+<ul>
+<li>更新对二级缓存影响</li>
+</ul>
+<p>​        同一个命名空间下的更新操作会使二级缓存失效</p>
+<ul>
+<li><p>多表操作对二级缓存的影响</p>
+<p>多表查询更新跨命名空间极大可能会出现脏数据。使用 <code>&lt;cache-ref&gt;</code>来把一个命名空间指向另外一个命名空间，从而消除上述的影响</p>
+</li>
+</ul>
+<p>总结：</p>
+<ol>
+<li>MyBatis的二级缓存相对于一级缓存来说，实现了<code>SqlSession</code>之间缓存数据的共享，同时粒度更加的细，能够到<code>namespace</code>级别，通过Cache接口实现类不同的组合，对Cache的可控性也更强。</li>
+<li>MyBatis在多表查询时，极大可能会出现脏数据，有设计上的缺陷，安全使用二级缓存的条件比较苛刻。</li>
+<li>在分布式环境下，由于默认的MyBatis Cache实现都是基于本地的，分布式环境下必然会出现读取到脏数据，需要使用集中式缓存将MyBatis的Cache接口实现，有一定的开发成本，直接使用Redis、Memcached等分布式缓存可能成本更低，安全性也更高。</li>
+</ol>
 <blockquote>
 <h3 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h3></blockquote>
-<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/bailiyuchuyuan/p/13441322.html">跟我学Elasticsearch(15) 主副分片写一致性原理以及quorum机制 </a></p>
-<p><a target="_blank" rel="noopener" href="https://developer.aliyun.com/article/797309">Elasticsearch分布式一致性</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jb51.net/article/200820.htm">解决spring结合mybatis时一级缓存失效的问题</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_21383435/category_7509936.html">框架-myBatis</a></p>
+<p><a target="_blank" rel="noopener" href="https://tech.meituan.com/2018/01/19/mybatis-cache.html">聊聊MyBatis缓存机制</a></p>
+<p><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844904182789439495">MyBatis源码解析（一） Executor执行器</a></p>
 
                 
             </div>
@@ -575,7 +926,7 @@ PUT &#x2F;product&#x2F;book&#x2F;1?wait_for_active_shards&#x3D;1<span aria-hidde
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://qinglei1989.github.io/2022/12/06/elasticsearch-consistency/">https://qinglei1989.github.io/2022/12/06/elasticsearch-consistency/</a>
+                    <a href="https://qinglei1989.github.io/2022/12/12/Mybatis-Cache/">https://qinglei1989.github.io/2022/12/12/Mybatis-Cache/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -613,8 +964,8 @@ PUT &#x2F;product&#x2F;book&#x2F;1?wait_for_active_shards&#x3D;1<span aria-hidde
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/Elasticsearch/">
-                                    <span class="chip bg-color">Elasticsearch</span>
+                                <a href="/tags/MyBatis/">
+                                    <span class="chip bg-color">MyBatis</span>
                                 </a>
                             
                         </div>
@@ -786,9 +1137,10 @@ PUT &#x2F;product&#x2F;book&#x2F;1?wait_for_active_shards&#x3D;1<span aria-hidde
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
                 <a href="/2022/12/12/Mybatis-Cache/">
                     <div class="card-image">
@@ -806,9 +1158,9 @@ PUT &#x2F;product&#x2F;book&#x2F;1?wait_for_active_shards&#x3D;1<span aria-hidde
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2022-12-12
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-12-12
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -821,6 +1173,7 @@ PUT &#x2F;product&#x2F;book&#x2F;1?wait_for_active_shards&#x3D;1<span aria-hidde
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -839,19 +1192,19 @@ PUT &#x2F;product&#x2F;book&#x2F;1?wait_for_active_shards&#x3D;1<span aria-hidde
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2022/12/06/elasticsearch-search/">
+                <a href="/2022/12/06/elasticsearch-consistency/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/16.jpg" class="responsive-img" alt="elasticsearch-search">
+                        <img src="/medias/featureimages/8.jpg" class="responsive-img" alt="elasticsearch-consistency">
                         
-                        <span class="card-title">elasticsearch-search</span>
+                        <span class="card-title">elasticsearch-consistency</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            Elasticsearch-search知识点。
+                            ES中primary shard写完，会同步到replica shard上，两者最终可能会出现不一致的情况。那es是如何确定主副分片的写一致性的呢？
                         
                     </div>
                     <div class="publish-info">
