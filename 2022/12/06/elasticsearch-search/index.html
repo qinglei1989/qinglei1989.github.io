@@ -624,6 +624,177 @@ GET _search?from&#x3D;0&amp;size&#x3D;1
 &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>关注深度分页问题，是一个归并排序的过程。</p>
+<blockquote>
+<h3 id="query-string基础语法"><a href="#query-string基础语法" class="headerlink" title="query string基础语法"></a>query string基础语法</h3></blockquote>
+<p>q=field:search content的语法，还有一个是掌握+和-的含义</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">GET &#x2F;test_index&#x2F;test_type&#x2F;_search?q&#x3D;test_field:test12
+
+&#123;
+  &quot;took&quot;: 1,
+  &quot;timed_out&quot;: false,
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 5,
+    &quot;successful&quot;: 5,
+    &quot;failed&quot;: 0
+  &#125;,
+  &quot;hits&quot;: &#123;
+    &quot;total&quot;: 1,
+    &quot;max_score&quot;: 0.2876821,
+    &quot;hits&quot;: [
+      &#123;
+        &quot;_index&quot;: &quot;test_index&quot;,
+        &quot;_type&quot;: &quot;test_type&quot;,
+        &quot;_id&quot;: &quot;12&quot;,
+        &quot;_score&quot;: 0.2876821,
+        &quot;_source&quot;: &#123;
+          &quot;test_field&quot;: &quot;test12&quot;
+        &#125;
+      &#125;
+    ]
+  &#125;
+&#125;
+
+
+GET &#x2F;test_index&#x2F;test_type&#x2F;_search?q&#x3D;+test_field:test12
+
+&#123;
+  &quot;took&quot;: 1,
+  &quot;timed_out&quot;: false,
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 5,
+    &quot;successful&quot;: 5,
+    &quot;failed&quot;: 0
+  &#125;,
+  &quot;hits&quot;: &#123;
+    &quot;total&quot;: 1,
+    &quot;max_score&quot;: 0.2876821,
+    &quot;hits&quot;: [
+      &#123;
+        &quot;_index&quot;: &quot;test_index&quot;,
+        &quot;_type&quot;: &quot;test_type&quot;,
+        &quot;_id&quot;: &quot;12&quot;,
+        &quot;_score&quot;: 0.2876821,
+        &quot;_source&quot;: &#123;
+          &quot;test_field&quot;: &quot;test12&quot;
+        &#125;
+      &#125;
+    ]
+  &#125;
+&#125;
+
+GET &#x2F;test_index&#x2F;test_type&#x2F;_search?q&#x3D;-test_field:test12
+    
+    
+&#123;
+  &quot;took&quot;: 1,
+  &quot;timed_out&quot;: false,
+  &quot;_shards&quot;: &#123;
+    &quot;total&quot;: 5,
+    &quot;successful&quot;: 5,
+    &quot;failed&quot;: 0
+  &#125;,
+  &quot;hits&quot;: &#123;
+    &quot;total&quot;: 1,
+    &quot;max_score&quot;: 1,
+    &quot;hits&quot;: [
+      &#123;
+        &quot;_index&quot;: &quot;test_index&quot;,
+        &quot;_type&quot;: &quot;test_type&quot;,
+        &quot;_id&quot;: &quot;2&quot;,
+        &quot;_score&quot;: 1,
+        &quot;_source&quot;: &#123;
+          &quot;test_field&quot;: &quot;replaced test2&quot;
+        &#125;
+      &#125;
+    ]
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<h4 id="all-metadata的原理和作用"><a href="#all-metadata的原理和作用" class="headerlink" title="_all metadata的原理和作用"></a>_all metadata的原理和作用</h4></blockquote>
+<p>GET /test_index/test_type/_search?q=test</p>
+<p>直接可以搜索所有的field，任意一个field包含指定的关键字就可以搜索出来。我们在进行中搜索的时候，难道是对document中的每一个field都进行一次搜索吗？不是的</p>
+<p>es中的_all元数据，在建立索引的时候，我们插入一条document，它里面包含了多个field，此时，es会自动将多个field的值，全部用字符串的方式串联起来，变成一个长的字符串，作为_all field的值，同时建立索引</p>
+<p>后面如果在搜索的时候，没有对某个field指定搜索，就默认搜索_all field，其中是包含了所有field的值的</p>
+<p>举个例子</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">&#123;
+  &quot;name&quot;: &quot;jack&quot;,
+  &quot;age&quot;: 26,
+  &quot;email&quot;: &quot;jack@sina.com&quot;,
+  &quot;address&quot;: &quot;guamgzhou&quot;
+&#125;
+
+&quot;jack 26 jack@sina.com guangzhou&quot;，作为这一条document的_all field的值，同时进行分词后建立对应的倒排索引<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>生产环境不使用</p>
+<blockquote>
+<h3 id="mapping"><a href="#mapping" class="headerlink" title="mapping"></a>mapping</h3></blockquote>
+<p>准备数据：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">PUT &#x2F;website&#x2F;article&#x2F;1
+&#123;
+  &quot;post_date&quot;: &quot;2017-01-01&quot;,
+  &quot;title&quot;: &quot;my first article&quot;,
+  &quot;content&quot;: &quot;this is my first article in this website&quot;,
+  &quot;author_id&quot;: 11400
+&#125;
+
+PUT &#x2F;website&#x2F;article&#x2F;2
+&#123;
+  &quot;post_date&quot;: &quot;2017-01-02&quot;,
+  &quot;title&quot;: &quot;my second article&quot;,
+  &quot;content&quot;: &quot;this is my second article in this website&quot;,
+  &quot;author_id&quot;: 11400
+&#125;
+
+PUT &#x2F;website&#x2F;article&#x2F;3
+&#123;
+  &quot;post_date&quot;: &quot;2017-01-03&quot;,
+  &quot;title&quot;: &quot;my third article&quot;,
+  &quot;content&quot;: &quot;this is my third article in this website&quot;,
+  &quot;author_id&quot;: 11400
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>尝试各种搜索</p>
+<p>GET /website/article/_search?q=2017                 3条结果<br>GET /website/article/_search?q=2017-01-01            3条结果<br>GET /website/article/_search?q=post_date:2017-01-01       1条结果<br>GET /website/article/_search?q=post_date:2017             1条结果</p>
+<p>在上面的准备数据过程中，ES使用dynamic mapping，自动为我们建立index，创建type，以及type对应的mapping，mapping中包含了每个field对应的数据类型，以及如何分词等设置<br>我们当然，后面会讲解，也可以手动在创建数据之前，先创建index和type，以及type对应的mapping</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">GET &#x2F;website&#x2F;_mapping&#x2F;article
+    
+&#123;
+  &quot;website&quot;: &#123;
+    &quot;mappings&quot;: &#123;
+      &quot;article&quot;: &#123;
+        &quot;properties&quot;: &#123;
+          &quot;author_id&quot;: &#123;
+            &quot;type&quot;: &quot;long&quot;
+          &#125;,
+          &quot;content&quot;: &#123;
+            &quot;type&quot;: &quot;text&quot;,
+            &quot;fields&quot;: &#123;
+              &quot;keyword&quot;: &#123;
+                &quot;type&quot;: &quot;keyword&quot;,
+                &quot;ignore_above&quot;: 256
+              &#125;
+            &#125;
+          &#125;,
+          &quot;post_date&quot;: &#123;
+            &quot;type&quot;: &quot;date&quot;
+          &#125;,
+          &quot;title&quot;: &#123;
+            &quot;type&quot;: &quot;text&quot;,
+            &quot;fields&quot;: &#123;
+              &quot;keyword&quot;: &#123;
+                &quot;type&quot;: &quot;keyword&quot;,
+                &quot;ignore_above&quot;: 256
+              &#125;
+            &#125;
+          &#125;
+        &#125;
+      &#125;
+    &#125;
+  &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>搜索结果为什么不一致，因为es自动建立mapping的时候，设置了不同的field不同的data type。不同的data type的分词、搜索等行为是不一样的。所以出现了_all field和post_date field的搜索表现完全不一样。</p>
 
                 
             </div>
@@ -1145,7 +1316,7 @@ GET _search?from&#x3D;0&amp;size&#x3D;1
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2021-2022</span>
+                <span id="year">2021-2023</span>
             
             <span id="year">2021</span>
             <a href="/about" target="_blank">WangQingLei</a>
