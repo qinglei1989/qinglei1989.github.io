@@ -490,18 +490,26 @@
 <h4 id="SUBSTITUTE函数：指定字符串替换"><a href="#SUBSTITUTE函数：指定字符串替换" class="headerlink" title="SUBSTITUTE函数：指定字符串替换"></a>SUBSTITUTE函数：指定字符串替换</h4><p>=substitute(text,old_text,new_text,[instance_num])</p>
 <p>=SUBSTITUTE（需要替换的文本，旧文本，新文本，第N个旧文本）</p>
 <p>参数Instance_num 可省略，这表示用 new_text（新文本）替换掉所有的old_text（旧文本）</p>
-<h4 id="快速填充"><a href="#快速填充" class="headerlink" title="快速填充"></a>快速填充</h4><p><img src="/2021/07/20/tools-excel/quick_start.png" alt="image-20210914184208839"></p>
-<h4 id="找出重复项并提取"><a href="#找出重复项并提取" class="headerlink" title="找出重复项并提取"></a>找出重复项并提取</h4><p><img src="/2021/07/20/tools-excel/multi-value.png" alt="定位重复值"></p>
+<h4 id="快速填充"><a href="#快速填充" class="headerlink" title="快速填充"></a>快速填充</h4><p><img src="quick_start.png" alt="image-20210914184208839"></p>
+<h4 id="找出重复项并提取"><a href="#找出重复项并提取" class="headerlink" title="找出重复项并提取"></a>找出重复项并提取</h4><p><img src="multi-value.png" alt="定位重复值"></p>
 <h4 id="多行堆叠成一行"><a href="#多行堆叠成一行" class="headerlink" title="多行堆叠成一行"></a>多行堆叠成一行</h4><p>使用公式：=TEXTJOIN(“,”,TRUE,A1:A32)</p>
-<p><img src="/2021/07/20/tools-excel/row.png" alt="多行转一行"></p>
+<p><img src="row.png" alt="多行转一行"></p>
 <h4 id="交集"><a href="#交集" class="headerlink" title="交集"></a>交集</h4><p>=IF(COUNTIF(A:A,B1)&gt;0,B1,0)</p>
 <p>函数的大致意思是：在A列中找B1的值，如果有至少一个，则把该单元格的值设定为B1，如果没有，则设置为0。</p>
-<p><img src="/2021/07/20/tools-excel/image-20220712011316710.png" alt="交集"></p>
+<p><img src="image-20220712011316710.png" alt="交集"></p>
 <h4 id="差集"><a href="#差集" class="headerlink" title="差集"></a>差集</h4><p>=IF(ISERROR(VLOOKUP(A1,B$3:B$24,1,0)),“不重复”,“重复”)</p>
 <p>查找D3单元格在B3到B24中，是否存在。存在为0，用“重复”表示；不存在为1，用“不重复”表示；<br>然后下面的单元格拖动加号往下拖即可动态赋值公式，计算差值。</p>
 <p>ISERROR函数的含义是判断一个值或者公式是否错误，如果是错误的，则返回结果true，否则返回结果false</p>
-<p><img src="/2021/07/20/tools-excel/image-20220712012103261.png" alt="差集"></p>
-<h4 id="VLOOKUP"><a href="#VLOOKUP" class="headerlink" title="VLOOKUP"></a>VLOOKUP</h4>
+<p><img src="image-2022071201210=TEXT(H2,%22yyyy-mm-dd%22)3261.png" alt="差集"></p>
+<h4 id="VLOOKUP"><a href="#VLOOKUP" class="headerlink" title="VLOOKUP"></a>VLOOKUP</h4><p><img src="vlookup.png" alt="VLOOKUP"></p>
+<p>=VLOOKUP(D2,’C:\Users\wang\Desktop[NB门店离职人员信息.xlsx]Sheet1’!$E:$H,4,FALSE)</p>
+<p>第一个参数：你要用来匹配的值（A表）</p>
+<p>第二个参数：匹配的范围（B表）</p>
+<p>第三个参数：是匹配完成之后你想要返回的值在匹配范围的第几列</p>
+<p>第四个参数：1/TRUE 或 0/FALSE 的近似或精确匹配项</p>
+<h4 id="TEXT"><a href="#TEXT" class="headerlink" title="TEXT"></a>TEXT</h4><p>=TEXT(H2,”yyyy-mm-dd”)</p>
+<p>根据指定的数字格式来将数值转成文本</p>
+
                 
             </div>
             <hr/>

@@ -484,22 +484,26 @@
 <span id="more"></span>
 
 <h3 id="Springboot自动装配"><a href="#Springboot自动装配" class="headerlink" title="Springboot自动装配"></a>Springboot自动装配</h3><blockquote>
+<h4 id="命名规范"><a href="#命名规范" class="headerlink" title="命名规范"></a>命名规范</h4></blockquote>
+<p><strong>Srping官方命名格式为：spring-boot-starter-{name}</strong></p>
+<p><strong>非Spring官方建议命名格式：{name}-spring-boot-starter</strong></p>
+<blockquote>
 <h4 id="Spring-Boot的配置文件"><a href="#Spring-Boot的配置文件" class="headerlink" title="Spring Boot的配置文件"></a>Spring Boot的配置文件</h4></blockquote>
 <p>Spring Boot有一个全局配置文件：<code>application.properties</code>或<code>application.yml</code>。</p>
 <p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-boot/docs/2.5.0/reference/htmlsingle/#application-properties">常用属性配置</a></p>
 <blockquote>
 <h4 id="工作原理剖析"><a href="#工作原理剖析" class="headerlink" title="工作原理剖析"></a>工作原理剖析</h4></blockquote>
 <p>Spring Boot关于自动配置的源码在<code>spring-boot-autoconfigure-x.x.x.x.jar</code>中：</p>
-<p><img src="/2022/06/04/spring-boot-starter/autoconfig.png" alt="自动配置"></p>
+<p><img src="autoconfig.png" alt="自动配置"></p>
 <p>Spring Boot的启动类上有一个<code>@SpringBootApplication</code>注解，这个注解是Spring Boot项目必不可少的注解。那么自动配置原理一定和这个注解有着千丝万缕的联系！</p>
 <blockquote>
 <h4 id="EnableAutoConfiguration"><a href="#EnableAutoConfiguration" class="headerlink" title="@EnableAutoConfiguration"></a>@EnableAutoConfiguration</h4></blockquote>
-<p><img src="/2022/06/04/spring-boot-starter/SpringBootApplication.png" alt="SpringBootApplication"></p>
+<p><img src="SpringBootApplication.png" alt="SpringBootApplication"></p>
 <p><code>@SpringBootApplication</code>是一个复合注解或派生注解，在<code>@SpringBootApplication</code>中有一个注解<code>@EnableAutoConfiguration</code>，翻译成人话就是开启自动配置，其定义如下：</p>
-<p><img src="/2022/06/04/spring-boot-starter/EnableAutoConfiguration.png" alt="EnableAutoConfiguration.png"></p>
+<p><img src="EnableAutoConfiguration.png" alt="EnableAutoConfiguration.png"></p>
 <p>而这个注解也是一个派生注解，其中的关键功能由@Import提供，其导入的AutoConfigurationImportSelector的<code>selectImports()</code>方法通过<code>SpringFactoriesLoader.loadFactoryNames()</code>扫描所有具有<strong>META-INF/spring.factories</strong> 的jar包。<code>spring-boot-autoconfigure-x.x.x.x.jar</code>里就有一个这样的<code>spring.factories</code>文件。</p>
 <p>这个<code>spring.factories</code>文件也是一组一组的key=value的形式，其中一个key是<code>EnableAutoConfiguration</code>类的全类名，而它的value是一个<code>xxxxAutoConfiguration</code>的类名的列表，这些类名以逗号分隔，如下图所示：</p>
-<p><img src="/2022/06/04/spring-boot-starter/spring.factories.png" alt="spring.factories.png"></p>
+<p><img src="spring.factories.png" alt="spring.factories.png"></p>
 <p>这个<code>@EnableAutoConfiguration</code>注解通过@SpringBootApplication被间接的标记在了Spring Boot的启动类上。在<code>SpringApplication.run(...)</code>的内部就会执行<code>selectImports()</code>方法，找到所有JavaConfig自动配置类的全限定名对应的class，然后将所有自动配置类加载到Spring容器中。</p>
 <blockquote>
 <h4 id="自动配置生效"><a href="#自动配置生效" class="headerlink" title="自动配置生效"></a>自动配置生效</h4></blockquote>
@@ -512,14 +516,131 @@
 <li><code>@ConditionalOnProperty</code>：指定的属性是否有指定的值，比如<code>@ConditionalOnProperties(prefix=”xxx.xxx”, value=”enable”, matchIfMissing=true)</code>，代表当xxx.xxx为enable时条件的布尔值为true，如果没有设置的情况下也为true。</li>
 </ul>
 <p>以<code>ServletWebServerFactoryAutoConfiguration</code>配置类为例，解释一下全局配置文件中的属性如何生效，比如：<code>server.port=8081</code>，是如何生效的（当然不配置也会有默认值，这个默认值来自于<code>org.apache.catalina.startup.Tomcat</code>）。</p>
-<p><img src="/2022/06/04/spring-boot-starter/ServletWebServerFactoryAutoConfiguration.png" alt="ServletWebServerFactoryAutoConfiguration"></p>
+<p><img src="ServletWebServerFactoryAutoConfiguration.png" alt="ServletWebServerFactoryAutoConfiguration"></p>
 <p>在<code>ServletWebServerFactoryAutoConfiguration</code>类上，有一个<code>@EnableConfigurationProperties</code>注解：开启配置属性，而它后面的参数是一个ServerProperties类，这就是习惯优于配置的最终落地点。</p>
-<p><img src="/2022/06/04/spring-boot-starter/ServerProperties.png" alt="ServerProperties"></p>
+<p><img src="ServerProperties.png" alt="ServerProperties"></p>
 <p>在这个类上，我们看到了一个非常熟悉的注解：<code>@ConfigurationProperties</code>，它的作用就是从配置文件中绑定属性到对应的bean上，而<code>@EnableConfigurationProperties</code>负责导入这个已经绑定了属性的bean到spring容器中（见上面截图）。那么所有其他的和这个类相关的属性都可以在全局配置文件中定义，也就是说，真正“限制”我们可以在全局配置文件中配置哪些属性的类就是这些XxxxProperties类，它与配置文件中定义的prefix关键字开头的一组属性是唯一对应的。</p>
 <p>至此，我们大致可以了解。在全局配置的属性如：<code>server.port</code>等，通过<code>@ConfigurationProperties</code>注解，绑定到对应的XxxxProperties配置实体类上封装为一个bean，然后再通过<code>@EnableConfigurationProperties</code>注解导入到Spring容器中。</p>
 <p>而诸多的<code>XxxxAutoConfiguration</code>自动配置类，就是Spring容器的JavaConfig形式，作用就是为Spring 容器导入bean，而所有导入的bean所需要的属性都通过<code>xxxxProperties</code>的bean来获得。</p>
 <p>可能到目前为止还是有所疑惑，但面试的时候，其实远远不需要回答的这么具体，你只需要这样回答：</p>
 <p>Spring Boot启动的时候会通过@EnableAutoConfiguration注解找到META-INF/spring.factories配置文件中的所有自动配置类，并对其进行加载，而这些自动配置类都是以AutoConfiguration结尾来命名的，它实际上就是一个JavaConfig形式的Spring容器配置类，它能通过以Properties结尾命名的类中取得在全局配置文件中配置的属性如：server.port，而XxxxProperties类是通过@ConfigurationProperties注解与全局配置文件中对应的属性进行绑定的。</p>
+<blockquote>
+<h4 id="开发示例"><a href="#开发示例" class="headerlink" title="开发示例"></a>开发示例</h4></blockquote>
+<p><img src="demo-package.png" alt="代码结构"></p>
+<p>POM引入依赖</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;
+&lt;project xmlns&#x3D;&quot;http:&#x2F;&#x2F;maven.apache.org&#x2F;POM&#x2F;4.0.0&quot;
+         xmlns:xsi&#x3D;&quot;http:&#x2F;&#x2F;www.w3.org&#x2F;2001&#x2F;XMLSchema-instance&quot;
+         xsi:schemaLocation&#x3D;&quot;http:&#x2F;&#x2F;maven.apache.org&#x2F;POM&#x2F;4.0.0 http:&#x2F;&#x2F;maven.apache.org&#x2F;xsd&#x2F;maven-4.0.0.xsd&quot;&gt;
+    &lt;modelVersion&gt;4.0.0&lt;&#x2F;modelVersion&gt;
+
+    &lt;parent&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-parent&lt;&#x2F;artifactId&gt;
+        &lt;version&gt;2.5.13&lt;&#x2F;version&gt;
+        &lt;relativePath&#x2F;&gt; &lt;!-- lookup parent from repository --&gt;
+    &lt;&#x2F;parent&gt;
+
+    &lt;groupId&gt;com.rrc&lt;&#x2F;groupId&gt;
+    &lt;artifactId&gt;rrc-log-spring-boot-starter&lt;&#x2F;artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;&#x2F;version&gt;
+
+    &lt;properties&gt;
+        &lt;project.build.sourceEncoding&gt;UTF-8&lt;&#x2F;project.build.sourceEncoding&gt;
+        &lt;maven.compiler.source&gt;8&lt;&#x2F;maven.compiler.source&gt;
+        &lt;maven.compiler.target&gt;8&lt;&#x2F;maven.compiler.target&gt;
+    &lt;&#x2F;properties&gt;
+
+    &lt;dependencies&gt;
+        &lt;!-- 提供了自动装配功能--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;
+            &lt;artifactId&gt;spring-boot-autoconfigure&lt;&#x2F;artifactId&gt;
+        &lt;&#x2F;dependency&gt;
+        &lt;!-- 在编译时会自动收集配置类的条件，写到一个META-INF&#x2F;spring-autoconfigure-metadata.json中--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;
+            &lt;artifactId&gt;spring-boot-configuration-processor&lt;&#x2F;artifactId&gt;
+        &lt;&#x2F;dependency&gt;
+        &lt;!--记录日志会用到切面，所以需要引入--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-aop&lt;&#x2F;artifactId&gt;
+        &lt;&#x2F;dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.projectlombok&lt;&#x2F;groupId&gt;
+            &lt;artifactId&gt;lombok&lt;&#x2F;artifactId&gt;
+        &lt;&#x2F;dependency&gt;
+    &lt;&#x2F;dependencies&gt;
+    &lt;build&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.apache.maven.plugins&lt;&#x2F;groupId&gt;
+                &lt;artifactId&gt;maven-source-plugin&lt;&#x2F;artifactId&gt;
+                &lt;version&gt;2.2.1&lt;&#x2F;version&gt;
+                &lt;executions&gt;
+                    &lt;execution&gt;
+                        &lt;id&gt;attach-sources&lt;&#x2F;id&gt;
+                        &lt;goals&gt;
+                            &lt;goal&gt;jar-no-fork&lt;&#x2F;goal&gt;
+                        &lt;&#x2F;goals&gt;
+                    &lt;&#x2F;execution&gt;
+                &lt;&#x2F;executions&gt;
+            &lt;&#x2F;plugin&gt;
+        &lt;&#x2F;plugins&gt;
+    &lt;&#x2F;build&gt;
+
+&lt;&#x2F;project&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>spring-boot-autoconfigure:</p>
+<p>提供自动化装配功能，是为了Spring Boot 应用在各个模块提供自动化配置的作用；即加入对应 pom，就会有对应配置其作用；所以我们想要自动装配功能，就需要引入这个依赖。</p>
+<p>spring-boot-configuration-processor：</p>
+<p>将自定义的配置类生成配置元数据，所以在引用自定义STARTER的工程的YML文件中，给自定义配置初始化时，会有属性名的提示；确保在使用@ConfigurationProperties注解时，可以优雅的读取配置信息，引入该依赖后，IDEA不会出现“spring boot configuration annotation processor not configured”的错误；编译之后会在META-INF 下生成一个<br>spring-configuration-metadata.json 文件，大概内容就是定义的配置的元数据；效果如下截图。</p>
+<p><img src="tips.png" alt="元数据"></p>
+<p>定义属性配置</p>
+<pre class="line-numbers language-none"><code class="language-none">package com.rrc.config;
+
+import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+@ConfigurationProperties(prefix &#x3D; &quot;rrc&quot;)
+@Data
+public class LogProperties &#123;
+
+
+    &#x2F;**
+     * 是否开启日志
+     *&#x2F;
+    private boolean enable;
+
+
+    &#x2F;**
+     * 平台：不同服务使用的区分，默认取 spring.application.name
+     *&#x2F;
+    @Value(&quot;$&#123;spring.application.name:#&#123;null&#125;&#125;&quot;)
+    private String platform;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>@ConfigurationProperties：该注解和@Value 注解作用类似，用于获取配置文件中属性定义并绑定到Java Bean 或者属性中；换句话来说就是将配置文件中的配置封装到JAVA 实体对象，方便使用和管理。</p>
+<p>这边我们定义两个属性，一个是是否开启日志的开关，一个是标识平台的名称。</p>
+<p>定义自动配置类</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">package com.rrc;
+
+import com.rrc.config.LogProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@ComponentScan(&quot;com.rrc&quot;)
+@ConditionalOnProperty(prefix &#x3D; &quot;rrc&quot;,name &#x3D; &quot;enable&quot;,havingValue &#x3D; &quot;true&quot;,matchIfMissing &#x3D; false)
+@EnableConfigurationProperties(&#123;LogProperties.class&#125;)
+public class RrcLogAutoConfiguration &#123;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>这个类最关键了，它是整个starter 最重要的类，它就是将配置自动装载进spring-boot的；具体是怎么实现的，下面在讲解原理的时候会再详细说说，这里先完成示例。</p>
 <blockquote>
 <h3 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h3></blockquote>
 <p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/GglAgjzJ2oxmy-EyBRUsEg">徒手撸一个Spring Boot中的starter，解密自动化配置</a></p>
