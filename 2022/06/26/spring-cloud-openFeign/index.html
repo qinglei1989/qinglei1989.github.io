@@ -579,7 +579,29 @@ public class RestTemplateController &#123;
     &#125;
 &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p><img src="/2022/06/26/spring-cloud-openFeign/RestTemplate.png" alt="RestTemplate接口"></p>
+<p><img src="RestTemplate.png" alt="RestTemplate接口"></p>
+<p>RestTemplate提供的delete()和put()方法都没有返回值。 RestTemplate的 delete 方法并不支持传入请求体（Request Body）</p>
+<p>实际如果需要返回值的话需要使用exchange()方法来实现。</p>
+<p><img src="put-request.png" alt="PUT请求"></p>
+<p>使用exchange()来获取返回值示例代理</p>
+<pre class="line-numbers language-jav" data-language="jav"><code class="language-jav">
+@Test
+public void queryById() &#123;
+    StringBuffer url &#x3D; new StringBuffer(baseUrl).append(&quot;api&#x2F;v1&#x2F;user&#x2F;role&quot;);
+
+    JSONObject jsonObject &#x3D; new JSONObject();
+
+    HttpEntity httpEntity &#x3D; new HttpEntity(jsonObject, null);
+
+    ResponseEntity&lt;String&gt; response &#x3D; restTemplate.exchange(url.toString(), HttpMethod.PUT, httpEntity, String.class);
+    String result &#x3D; response.getBody();
+
+    log.info(&quot;result &#123;&#125;&quot;, result);
+
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
 <p>RestTemplate的底层实现仍然是HttpClient或HttpUrlConnection或OkHttp（三者可选），只是对它进行了封装，从而降低编码复杂度。</p>
 <p>但是不论是HttpClient还是RestTemplate也存在一定的缺点：</p>
 <ul>
@@ -617,8 +639,8 @@ public class RestTemplateController &#123;
 <li>而<code>spring-cloud-starter-feign</code>是专为Spring Cloud1.x服务。</li>
 </ul>
 <p><strong>下图中注释掉的部分是Feign的注解书写方式，没有注释掉的注解是Spring MVC的注解方式。</strong></p>
-<p><img src="/2022/06/26/spring-cloud-openFeign/feign.png" alt="二者注解差异"></p>
-<p><img src="/2022/06/26/spring-cloud-openFeign/develop.png" alt="二者之间的关系"></p>
+<p><img src="feign.png" alt="二者注解差异"></p>
+<p><img src="develop.png" alt="二者之间的关系"></p>
 <p>官方地址：<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-cloud-openfeign/docs/2.2.10.BUILD-SNAPSHOT/reference/html">https://docs.spring.io/spring-cloud-openfeign/docs/2.2.10.BUILD-SNAPSHOT/reference/html</a></p>
 <p>官方地址：<a target="_blank" rel="noopener" href="https://github.com/OpenFeign/feign">https://github.com/OpenFeign/feign</a></p>
 <p><strong>我们为什么要使用Feign  Feign 解决了什么问题？</strong></p>
@@ -668,7 +690,7 @@ public interface AuthServiceFeignClient &#123;
 
 <blockquote>
 <h2 id="OpenFeign的核心设计原理"><a href="#OpenFeign的核心设计原理" class="headerlink" title="OpenFeign的核心设计原理"></a>OpenFeign的核心设计原理</h2></blockquote>
-<p><img src="/2022/06/26/spring-cloud-openFeign/feign-principle.png" alt="OpenFeign的核心设计原理"></p>
+<p><img src="feign-principle.png" alt="OpenFeign的核心设计原理"></p>
 <ol>
 <li><p>基于面向接口的动态代理方式生成实现类</p>
 </li>
@@ -688,7 +710,7 @@ public interface AuthServiceFeignClient &#123;
 <blockquote>
 <h3 id="Feign的大体机制"><a href="#Feign的大体机制" class="headerlink" title="Feign的大体机制"></a>Feign的大体机制</h3></blockquote>
 <p>通过在启动类上标记 @EnableFeignClients 注解来开启feign的功能，服务启动后会扫描 @FeignClient 注解标记的接口，然后根据扫描的注解信息为每个接口类生成feign客户端请求，同时解析接口方法中的Spring MVC的相关注解，通过专门的注解解析器识别这些注解信息，以便后面可以正确的组装请求参数，使用 Ribbon 和 Eureka 获取到请求服务的真实地址等信息，最后使用 http 相关组件进行执行调用。其大致流程图如下：</p>
-<p><img src="/2022/06/26/spring-cloud-openFeign/relation.png" alt="调用关系"></p>
+<p><img src="relation.png" alt="调用关系"></p>
 <blockquote>
 <h3 id="代码入口-EnableFeignClients注解"><a href="#代码入口-EnableFeignClients注解" class="headerlink" title="代码入口@EnableFeignClients注解"></a>代码入口@EnableFeignClients注解</h3></blockquote>
 <p>在EnableFeignClients 注解类中有一个 @Import(FeignClientsRegistrar.class)的配置</p>
@@ -822,7 +844,7 @@ public void registerBeanDefinitions(AnnotationMetadata metadata,
   return proxy;
 &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p><img src="/2022/06/26/spring-cloud-openFeign/ReflectiveFeign.png" alt="newInstance方法"></p>
+<p><img src="ReflectiveFeign.png" alt="newInstance方法"></p>
 <p>对应的FeignClient源码为：</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">@FeignClient(value &#x3D; &quot;openFeign-provider&quot;, configuration &#x3D; OpenFeignConfig.class)
 public interface OpenFeignService &#123;
@@ -923,7 +945,7 @@ public interface OpenFeignService &#123;
 
 <p><img src="httpClient.png" alt="httpClient客户端替换"></p>
 <p><code>@ConditionalOnClass(ApacheHttpClient.class)</code>，必须要有<code>ApacheHttpClient</code>这个类才会生效，并且<code>feign.httpclient.enabled</code>这个配置要设置为<code>true</code>。</p>
-<p><img src="/2022/06/26/spring-cloud-openFeign/execute.png" alt="httpClient客户端替换验证"></p>
+<p><img src="execute.png" alt="httpClient客户端替换验证"></p>
 <blockquote>
 <p>RequestInterceptor</p>
 </blockquote>
@@ -959,7 +981,7 @@ public class FeignRequestInterceptor implements RequestInterceptor &#123;
     &#125;
 &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p><img src="/2022/06/26/spring-cloud-openFeign/token.png" alt="令牌中继"></p>
+<p><img src="token.png" alt="令牌中继"></p>
 <blockquote>
 <p>引用</p>
 </blockquote>
@@ -1255,31 +1277,31 @@ public class FeignRequestInterceptor implements RequestInterceptor &#123;
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2022/06/19/spring-cloud-feign/">
+                <a href="/2022/06/12/spring-cloud-alibaba-nocas/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/23.jpg" class="responsive-img" alt="spring-cloud-feign">
+                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="spring-cloud-alibaba-nocas">
                         
-                        <span class="card-title">spring-cloud-feign</span>
+                        <span class="card-title">spring-cloud-alibaba-nocas</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            在我们学习了Ribbon(客户端负载均衡)和Hystrix(断路器)之后，这二者被作为基础工具类框架广泛应用于各个微服务的具体实现当中，不仅包括我们的业务类微服务，也包括一些基础设施类微服务（比如网关）。在实践的过程中，我们发现两个框架的使
+                            
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-06-19
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-06-12
                             </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/spring-cloud/" class="post-category">
-                                    spring-cloud
+                            <a href="/categories/spring-cloud-alibaba/" class="post-category">
+                                    spring-cloud-alibaba
                                 </a>
                             
                             

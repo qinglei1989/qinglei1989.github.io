@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="spring,spring-cloud,SpringBoot">
+    <meta name="keywords" content="Sublime Text">
     <meta name="description" content="失落时悄悄徘徊，伤感时默默遐想">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>spring-cloud-feign | 山西小魔头技术博客</title>
+    <title>Sublime Text使用教程总结 | 山西小魔头技术博客</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/23.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/11.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">spring-cloud-feign</h1>
+                    <h1 class="description center-align post-title">Sublime Text使用教程总结</h1>
                 </div>
             </div>
         </div>
@@ -431,8 +431,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/spring-cloud/">
-                                <span class="chip bg-color">spring-cloud</span>
+                            <a href="/tags/Sublime-Text/">
+                                <span class="chip bg-color">Sublime Text</span>
                             </a>
                         
                     </div>
@@ -443,8 +443,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/spring-cloud/" class="post-category">
-                                spring-cloud
+                            <a href="/categories/%E5%BC%80%E5%8F%91%E6%8A%80%E5%B7%A7/" class="post-category">
+                                开发技巧
                             </a>
                         
                     </div>
@@ -456,7 +456,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2022-06-19
+                    2023-01-29
                 </div>
                 
 
@@ -480,98 +480,32 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p>在我们学习了Ribbon(客户端负载均衡)和Hystrix(断路器)之后，这二者被作为基础工具类框架广泛应用于各个微服务的具体实现当中，不仅包括我们的业务类微服务，也包括一些基础设施类微服务（比如网关）。在实践的过程中，我们发现两个框架的使用几乎是同时的，所以SpringCloud为我们做了更高层次的封装来简化开发。</p>
+                <p>Sublime Text使用总结</p>
 <span id="more"></span>
 
-<h1><center>服务调用的组件OpenFeign</center></h1>
-
 <blockquote>
-<h2 id="Feign是什么"><a href="#Feign是什么" class="headerlink" title="Feign是什么"></a>Feign是什么</h2></blockquote>
-<p>Feign也是一个狠角色，Feign旨在使得Java Http客户端变得更容易。</p>
-<p>Feign集成了Ribbon、RestTemplate实现了负载均衡的执行Http调用，只不过对原有的方式（Ribbon+RestTemplate）进行了封装，开发者不必手动使用RestTemplate调服务，而是定义一个接口，在这个接口中标注一个注解即可完成服务调用，这样更加符合面向接口编程的宗旨，简化了开发。</p>
-<p><img src="/2022/06/19/spring-cloud-feign/feign.png" alt="Feign"></p>
+<h3 id="Sublime-Text安装教程"><a href="#Sublime-Text安装教程" class="headerlink" title="Sublime Text安装教程"></a>Sublime Text安装教程</h3></blockquote>
+<p>插件安装：<a target="_blank" rel="noopener" href="https://juejin.cn/post/6952706277583798309">https://juejin.cn/post/6952706277583798309</a></p>
 <blockquote>
-<h2 id="openFeign是什么"><a href="#openFeign是什么" class="headerlink" title="openFeign是什么"></a>openFeign是什么</h2></blockquote>
-<p>因为Feign在一些方面与Spring MVC常用习惯的兼容性不够好，Feign又是属于netflix的产品，该公司对于Spring Cloud社区的支持也逐渐减弱。所以Spring Cloud社区基于各种原因在Feign的基础上开发了OpenFeign。</p>
-<p><img src="/2022/06/19/spring-cloud-feign/relation.png" alt="feign与openFeign的关系"></p>
-<p>前面介绍过停止迭代的Feign，简单点来说：OpenFeign是springcloud在Feign的基础上支持了SpringMVC的注解，如<code>@RequestMapping</code>等等。OpenFeign的<code>@FeignClient</code>可以解析SpringMVC的<code>@RequestMapping</code>注解下的接口，并通过动态代理的方式产生实现类，实现类中做负载均衡并调用其他服务。</p>
-<p>官方地址：<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-cloud-openfeign/docs/2.2.10.BUILD-SNAPSHOT/reference/html">https://docs.spring.io/spring-cloud-openfeign/docs/2.2.10.BUILD-SNAPSHOT/reference/html</a></p>
-<p>官方地址：<a target="_blank" rel="noopener" href="https://github.com/OpenFeign/feign">https://github.com/OpenFeign/feign</a></p>
+<h2 id="Sublime-Text使用总结"><a href="#Sublime-Text使用总结" class="headerlink" title="Sublime Text使用总结"></a>Sublime Text使用总结</h2></blockquote>
 <blockquote>
-<h2 id="Feign和openFeign有什么区别？"><a href="#Feign和openFeign有什么区别？" class="headerlink" title="Feign和openFeign有什么区别？"></a>Feign和openFeign有什么区别？</h2></blockquote>
-<table>
-<thead>
-<tr>
-<th align="left">Feign</th>
-<th align="left">openFiegn</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">Feign是SpringCloud组件中一个轻量级RESTful的HTTP服务客户端，Feign内置了Ribbon，用来做客户端负载均衡，去调用服务注册中心的服务。Feign的使用方式是：使用Feign的注解定义接口，调用这个接口，就可以调用服务注册中心的服务</td>
-<td align="left">OpenFeign 是SpringCloud在Feign的基础上支持了SpringMVC的注解，如@RequestMapping等。OpenFeign 的@FeignClient可以解析SpringMVC的@RequestMapping注解下的接口，并通过动态代理的方式产生实现类，实现类中做负载均衡并调用其他服务。</td>
-</tr>
-</tbody></table>
-<p><img src="/2022/06/19/spring-cloud-feign/feign-call.png" alt="feign调用区别"></p>
-<p>坐标差异：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">&lt;dependency&gt;
-    &lt;groupId&gt;com.netflix.feign&lt;&#x2F;groupId&gt;
-    &lt;artifactId&gt;feign-core&lt;&#x2F;artifactId&gt;
-&lt;&#x2F;dependency&gt;
-
-&lt;dependency&gt;
-    &lt;groupId&gt;io.github.openfeign&lt;&#x2F;groupId&gt;
-    &lt;artifactId&gt;feign-core&lt;&#x2F;artifactId&gt;
-&lt;&#x2F;dependency&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p><strong>Netflix Feign还是Open Feign</strong></p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">&lt;dependency&gt;
-    &lt;groupId&gt;org.springframework.cloud&lt;&#x2F;groupId&gt;
-    &lt;artifactId&gt;spring-cloud-starter-feign&lt;&#x2F;artifactId&gt;
-&lt;&#x2F;dependency&gt;
-
-&lt;dependency&gt;
-    &lt;groupId&gt;org.springframework.cloud&lt;&#x2F;groupId&gt;
-    &lt;artifactId&gt;spring-cloud-starter-openfeign&lt;&#x2F;artifactId&gt;
-&lt;&#x2F;dependency&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<ul>
-<li>spring-cloud-starter-feign：2015.3发布1.0.0版本，2019.5.23发布器最后一个版本<code>1.4.7.RELEASE</code></li>
-<li>spring-cloud-starter-openfeign：2017.11发布其首个版本，版本号为：<code>1.4.0.RELEASE</code>。现在仍持续更新中，当下最新版为<code>2.2.1.RELEASE</code></li>
-</ul>
-<p>对于版本，可粗略的理解为：</p>
-<ul>
-<li><code>spring-cloud-starter-openfeign</code>是为Spring Cloud2.x准备的，只不过维持了一段时间的对1.x的兼容。</li>
-<li>而<code>spring-cloud-starter-feign</code>是专为Spring Cloud1.x服务。</li>
-</ul>
-<h2 id="5、环境准备"><a href="#5、环境准备" class="headerlink" title="5、环境准备"></a>5、环境准备</h2><p>openFeign只与消费者有关系  与提供者</p>
-<p>httpClient</p>
-<p>RestTemplate</p>
-<p>Feign</p>
-<p>OPenFeign</p>
-<p>本质上是JDK的Proxy动态代理</p>
-<p>dubbo底层使用的是netty</p>
-<p>RestTemplate是Spring提供的东西  不好的方面</p>
-<p>put delete没有返回值</p>
-<p><img src="/2022/06/19/spring-cloud-feign/Users\wang\AppData\Roaming\Typora\typora-user-images\image-20220626004024637.png" alt="image-20220626004024637"></p>
-<p>这就是一个FeignClient，它没有实现类，它的底层实际上JDK的proxy动态代理  动态生成实现</p>
-<p><img src="/2022/06/19/spring-cloud-feign/Users\wang\AppData\Roaming\Typora\typora-user-images\image-20220626005147370.png" alt="image-20220626005147370"></p>
-<p><img src="/2022/06/19/spring-cloud-feign/Users\wang\AppData\Roaming\Typora\typora-user-images\image-20220626005914181.png" alt="image-20220626005914181"></p>
-<p>SpringCLoud天然集成ribbon</p>
-<p><img src="/2022/06/19/spring-cloud-feign/Users\wang\AppData\Roaming\Typora\typora-user-images\image-20220626012648194.png" alt="image-20220626012648194"></p>
-<p><img src="/2022/06/19/spring-cloud-feign/Users\wang\AppData\Roaming\Typora\typora-user-images\image-20220626012739236.png" alt="image-20220626012739236"></p>
-<p>EnableFeignClients配置扫描客户端的</p>
-<pre class="line-numbers language-none"><code class="language-none">defaultConfiguration 默认的  对所有的Feign有效配置<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p><img src="/2022/06/19/spring-cloud-feign/Users\wang\AppData\Roaming\Typora\typora-user-images\image-20220626015235408.png" alt="image-20220626015235408"></p>
-<p><img src="/2022/06/19/spring-cloud-feign/Users\wang\AppData\Roaming\Typora\typora-user-images\image-20220626122451111.png" alt="image-20220626122451111"></p>
-<p>FeignClient的生成规范</p>
-<p><img src="/2022/06/19/spring-cloud-feign/Users\wang\AppData\Roaming\Typora\typora-user-images\image-20220626113037547.png" alt="image-20220626113037547"></p>
-<p><img src="/2022/06/19/spring-cloud-feign/Users\wang\AppData\Roaming\Typora\typora-user-images\image-20220626121601194.png" alt="image-20220626121601194"></p>
-<p><img src="/2022/06/19/spring-cloud-feign/Users\wang\AppData\Roaming\Typora\typora-user-images\image-20220626121742431.png" alt="image-20220626121742431"></p>
-<p><img src="/2022/06/19/spring-cloud-feign/Users\wang\AppData\Roaming\Typora\typora-user-images\image-20220626122133143.png" alt="image-20220626122133143"></p>
-<p><img src="/2022/06/19/spring-cloud-feign/Users\wang\AppData\Roaming\Typora\typora-user-images\image-20220626152234456.png" alt="image-20220626152234456"></p>
-<p><img src="/2022/06/19/spring-cloud-feign/Users\wang\AppData\Roaming\Typora\typora-user-images\image-20220626153725149.png" alt="image-20220626153725149"></p>
-<p><img src="/2022/06/19/spring-cloud-feign/Users\wang\AppData\Roaming\Typora\typora-user-images\image-20220626160214754.png" alt="image-20220626160214754"></p>
+<h3 id="块编辑模式"><a href="#块编辑模式" class="headerlink" title="块编辑模式"></a>块编辑模式</h3></blockquote>
+<p>鼠标光标移动到第一行开头，先<strong>按住键盘 shift 键</strong> 再<strong>点鼠标 右键并向下拖动</strong> 进入块编辑模式。</p>
+<p>记住：鼠标右键拖动选好后，要先松开 鼠标右键，然后再松开 键盘的 shift 键，否则会弹出右键弹窗</p>
+<p><img src="kuai.png" alt="块编辑模式"></p>
+<blockquote>
+<p>操作不规则的行首 行尾方法</p>
+</blockquote>
+<p>保持光标为如上图所示的块编辑状态，按键盘上的 end 键（Ctrl + 右箭头）</p>
+<p>保持光标为如上图所示的块编辑状态，按键盘上的 Home键（Ctrl + 左箭头）</p>
+<blockquote>
+<p>去除空行</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_41908521/article/details/107360927">https://blog.csdn.net/qq_41908521/article/details/107360927</a></p>
+<blockquote>
+<p>查找提取</p>
+</blockquote>
+<p>打开需要处理的文件，找到要提取行的数据按【ctrl + F】，把数据复制到查找面板里，然后选择【find all】，在文件中你会看到我们想选的内容被选中了，然后选择TAB栏中的【selection】的下拉列表中的【Expand Selection to line】，你会看到我们要查找的数据所在的行被选中，然后按【ctrl + C】赋值数据行，最后新建文件粘贴数据就好了，这样我们所需要的数据就被提取出来了。</p>
 
                 
             </div>
@@ -598,7 +532,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://qinglei1989.github.io/2022/06/19/spring-cloud-feign/">https://qinglei1989.github.io/2022/06/19/spring-cloud-feign/</a>
+                    <a href="https://qinglei1989.github.io/2023/01/29/tools-sublime/">https://qinglei1989.github.io/2023/01/29/tools-sublime/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -636,8 +570,8 @@
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/spring-cloud/">
-                                    <span class="chip bg-color">spring-cloud</span>
+                                <a href="/tags/Sublime-Text/">
+                                    <span class="chip bg-color">Sublime Text</span>
                                 </a>
                             
                         </div>
@@ -809,46 +743,48 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
-                <a href="/2022/06/26/spring-cloud-openFeign/">
+                <a href="/2023/01/29/tools-sublime/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/15.jpg" class="responsive-img" alt="spring-cloud-openFeign">
+                        <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="Sublime Text使用教程总结">
                         
-                        <span class="card-title">spring-cloud-openFeign</span>
+                        <span class="card-title">Sublime Text使用教程总结</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            
+                            Sublime Text使用总结
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2022-06-26
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2023-01-29
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/spring-cloud/" class="post-category">
-                                    spring-cloud
+                            <a href="/categories/%E5%BC%80%E5%8F%91%E6%8A%80%E5%B7%A7/" class="post-category">
+                                    开发技巧
                                 </a>
                             
                             
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/spring-cloud/">
-                        <span class="chip bg-color">spring-cloud</span>
+                    <a href="/tags/Sublime-Text/">
+                        <span class="chip bg-color">Sublime Text</span>
                     </a>
                     
                 </div>
@@ -862,31 +798,31 @@
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2022/06/12/spring-cloud-alibaba-nocas/">
+                <a href="/2023/01/05/elasticsearch-head/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="spring-cloud-alibaba-nocas">
+                        <img src="/medias/featureimages/23.jpg" class="responsive-img" alt="Elasticsearch Head插件">
                         
-                        <span class="card-title">spring-cloud-alibaba-nocas</span>
+                        <span class="card-title">Elasticsearch Head插件</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            
+                            ElasticSearch head就是一款能连接ElasticSearch搜索引擎，并提供可视化的操作页面对ElasticSearch搜索引擎进行各种设置和数据检索功能的管理插件，如在head插件页面编写RESTful接口风格的请求，就可
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-06-12
+                                <i class="far fa-clock fa-fw icon-date"></i>2023-01-05
                             </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/spring-cloud-alibaba/" class="post-category">
-                                    spring-cloud-alibaba
+                            <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" class="post-category">
+                                    中间件
                                 </a>
                             
                             
@@ -896,8 +832,8 @@
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/spring-cloud/">
-                        <span class="chip bg-color">spring-cloud</span>
+                    <a href="/tags/Elasticsearch/">
+                        <span class="chip bg-color">Elasticsearch</span>
                     </a>
                     
                 </div>

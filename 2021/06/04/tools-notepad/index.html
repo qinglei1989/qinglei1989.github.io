@@ -486,14 +486,14 @@
 <center><h2>Notepad++实用技巧</h2></center>
 
 <h4 id="查找操作技巧"><a href="#查找操作技巧" class="headerlink" title="查找操作技巧"></a>查找操作技巧</h4><p>在软件开发过程中，如果我们的代码出现异常，有时候我们需要从日志中提取相应的信息，进行异常补偿。此时我们就可以使用NodePad++的批量操作来快速定位相应的关键信息（比如数据ID等)。</p>
-<p>如下例使用Nodepad++打开日志文件，我们在日志文件中使用Ctrl+F查找关键字”axb录音发送延迟队列成功”，然后点击在当前文件中查找按钮进行快速查找。<br><img src="/2021/06/04/tools-notepad/image-20210604233935233.png" alt="image-20210604233935233"></p>
-<p>相应的搜索结果及匹配次数就会显示在Notepad++下方的搜索结果里，如果我们需要进一步的根据搜索结果拿到全部匹配日志中的uniqueId列，我们需要将搜索结果中的记录集复制到一个新文档中继续批量操作<br><img src="/2021/06/04/tools-notepad/image-20210604234541851.png" alt="image-20210604234541851"></p>
-<p>在新文档中，由于日志基本上都是按固定格式排列的，此时我们就可以通过批量操作快速找到我们需要使用的数据。我们依然通过快速获取全部的uniqueId列来进行举例。<br><img src="/2021/06/04/tools-notepad/image-20210604235550959.png" alt="image-20210604235550959"></p>
-<h3 id="批量操作技巧"><a href="#批量操作技巧" class="headerlink" title="批量操作技巧"></a>批量操作技巧</h3><p>首先我们将光标定位在uniqueId列等号后，此时将文档下拉到尾部，在最后一行的uniqueId列等号后，按住Alt+Shift，再次点击鼠标，此时会有一条闪烁的直线在所有的uniqueId列等号后（说明操作块行选择完成），此时依然按住Alt+Shift，再次将光标定位到uniqueId列，前边完成块的选择，此时文档块为灰色选中状态。<br><img src="/2021/06/04/tools-notepad/image-20210605000626855.png" alt="image-20210605000626855"></p>
+<p>如下例使用Nodepad++打开日志文件，我们在日志文件中使用Ctrl+F查找关键字”axb录音发送延迟队列成功”，然后点击在当前文件中查找按钮进行快速查找。<br><img src="image-20210604233935233.png" alt="image-20210604233935233"></p>
+<p>相应的搜索结果及匹配次数就会显示在Notepad++下方的搜索结果里，如果我们需要进一步的根据搜索结果拿到全部匹配日志中的uniqueId列，我们需要将搜索结果中的记录集复制到一个新文档中继续批量操作<br><img src="image-20210604234541851.png" alt="image-20210604234541851"></p>
+<p>在新文档中，由于日志基本上都是按固定格式排列的，此时我们就可以通过批量操作快速找到我们需要使用的数据。我们依然通过快速获取全部的uniqueId列来进行举例。<br><img src="image-20210604235550959.png" alt="image-20210604235550959"></p>
+<h3 id="批量操作技巧"><a href="#批量操作技巧" class="headerlink" title="批量操作技巧"></a>批量操作技巧</h3><p>首先我们将光标定位在uniqueId列等号后，此时将文档下拉到尾部，在最后一行的uniqueId列等号后，按住Alt+Shift，再次点击鼠标，此时会有一条闪烁的直线在所有的uniqueId列等号后（说明操作块行选择完成），此时依然按住Alt+Shift，再次将光标定位到uniqueId列，前边完成块的选择，此时文档块为灰色选中状态。<br><img src="image-20210605000626855.png" alt="image-20210605000626855"></p>
 <p>再次按下Ctrl+C复制当前的选中块，在文档中进行黏贴，就完成了全部uniqueId的统计了。</p>
-<p><img src="/2021/06/04/tools-notepad/image-20210605000758427.png" alt="image-20210605000758427"></p>
+<p><img src="image-20210605000758427.png" alt="image-20210605000758427"></p>
 <p>有的时候我们需要根据这些ID来进行SQL的拼接，Nodepad++比较适合少量简单数据的SQL拼接工作，十分方便。我们将光标定位在第一行行首。在最后一行行首按住Alt+Shift，再次点击鼠标。此时会有一条闪烁的直线在所有行行首，我们直接输入语句（INSERT INTO TABLE VALUES (），它会填充到每个行。</p>
-<p><img src="/2021/06/04/tools-notepad/image-20210605001631622.png" alt="image-20210605001631622"></p>
+<p><img src="image-20210605001631622.png" alt="image-20210605001631622"></p>
 <p>至此Nodepad++批量操作的技巧就介绍完毕了。</p>
 <blockquote>
 <p><strong>切记：</strong></p>
@@ -526,7 +526,7 @@ JOIN (
     AND uc.city IN (&#39;长沙&#39;, &#39;广州&#39;)
 ) temp ON users.user_id &#x3D; temp.user_id<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p><img src="/2021/06/04/tools-notepad/space.png" alt="移除非必需的空白和EOL"></p>
+<p><img src="space.png" alt="移除非必需的空白和EOL"></p>
 <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">SELECT     temp.city as &#39;城市&#39;,     users.&#96;name&#96; AS &#39;子账号姓名&#39;,     users.mobile as &#39;子账号联系方式&#39;,     users.created_at as &#39;账号创建时间&#39;,   CASE when   users.user_status &#x3D; 2 then &#39;禁用&#39;         when   users.user_status &#x3D; 3 then &#39;离职&#39;         when   users.user_status &#x3D; 0 then &#39;正常&#39;         when   users.user_status &#x3D; 1 then &#39;未激活&#39; end as &#39;账号状态&#39;,     temp.group_leader_name AS &#39;主账号姓名&#39;,     temp.mobile AS &#39;主账号联系方式&#39; FROM     users JOIN (     SELECT         gu.user_id,         uc.group_leader_id,         group_leader_name,         uc.city, u.mobile     FROM         group_user gu     JOIN user_city_area_group uc ON gu.group_id &#x3D; uc.id join users u on uc.group_leader_id &#x3D; u.id     AND uc.city IN (&#39;长沙&#39;, &#39;广州&#39;) ) temp ON users.user_id &#x3D; temp.user_id<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <h3 id="行列转换"><a href="#行列转换" class="headerlink" title="行列转换"></a>行列转换</h3><blockquote>
@@ -545,6 +545,8 @@ JOIN (
 <p>　　替换为：不填写或填写指定的内容</p>
 <p>　　查找模式：正则表达式</p>
 <p>单击替换或全部替换按钮</p>
+<blockquote>
+<h3 id="去除多余的空行"><a href="#去除多余的空行" class="headerlink" title="去除多余的空行"></a>去除多余的空行</h3></blockquote>
 
                 
             </div>

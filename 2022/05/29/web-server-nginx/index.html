@@ -487,13 +487,13 @@
 <h2 id="windows下安装nginx"><a href="#windows下安装nginx" class="headerlink" title="windows下安装nginx"></a>windows下安装nginx</h2></blockquote>
 <p>下载地址：<a target="_blank" rel="noopener" href="http://nginx.org/en/download.html">nginx官网</a> </p>
 <p>下载之后，解压到指定的目录，就可以看到以下的目录</p>
-<p><img src="/2022/05/29/web-server-nginx/location.png" alt="下载解压"></p>
+<p><img src="location.png" alt="下载解压"></p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">D:\Program Files\nginx-1.8.1&gt;start nginx
 
 D:\Program Files\nginx-1.8.1&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
-<p><img src="/2022/05/29/web-server-nginx/start.png" alt="启动画面"></p>
-<p><img src="/2022/05/29/web-server-nginx/start-image.png" alt="启动html位置"></p>
+<p><img src="start.png" alt="启动画面"></p>
+<p><img src="start-image.png" alt="启动html位置"></p>
 <p>nginx命令</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">start nginx 开启nginx服务
 nginx.exe -s stop 关闭nginx服务，快速停止nginx，可能并不保存相关信息
@@ -622,12 +622,12 @@ http &#123;
 <p>当我们修改了nginx的配置文件nginx.conf 时，不需要关闭nginx后重新启动nginx，只需要执行命令 nginx -s reload 即可让改动生效</p>
 <blockquote>
 <h3 id="在Nginx服务器上安装证书"><a href="#在Nginx服务器上安装证书" class="headerlink" title="在Nginx服务器上安装证书"></a>在Nginx服务器上安装证书</h3></blockquote>
-<p><img src="/2022/05/29/web-server-nginx/ssl.png" alt="阿里云免费证书申请"></p>
+<p><img src="ssl.png" alt="阿里云免费证书申请"></p>
 <blockquote>
 <p>在Nginx独立服务器上安装证书</p>
 </blockquote>
 <p>下载证书，存放证书</p>
-<p><img src="/2022/05/29/web-server-nginx/cert.png" alt="证书存放位置"></p>
+<p><img src="cert.png" alt="证书存放位置"></p>
 <p>配置nginx.conf</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">server &#123;
     listen       443 ssl;
@@ -682,17 +682,33 @@ location &#x2F; &#123;
 <blockquote>
 <p>正向代理与反向代理</p>
 </blockquote>
-<p><img src="/2022/05/29/web-server-nginx/agent.jpg" alt="正向代理与反向代理"></p>
+<p><img src="agent.jpg" alt="正向代理与反向代理"></p>
 <blockquote>
 <p>正向代理</p>
 </blockquote>
 <p>对目标服务器隐藏客户端（用户）。客户端（用户）知道目标服务器（github）,但是访问不到，可以通过代理（VPN）访问目标服务器，目标服务器只知道代理访问了自己，不知道客户端是谁。</p>
-<p><img src="/2022/05/29/web-server-nginx/zhengxiang.png" alt="正向代理"></p>
+<p><img src="zhengxiang.png" alt="正向代理"></p>
 <blockquote>
 <p>反向代理</p>
 </blockquote>
 <p>对客户端（用户）隐藏目标服务器。客户端只知道代理，不知道目标服务器，但通过代理客户端实际访问的是目标服务器，目标服务器知道客户端是谁。</p>
-<p><img src="/2022/05/29/web-server-nginx/fanxinag.png" alt="反向代理"></p>
+<p><img src="fanxinag.png" alt="反向代理"></p>
+<p>最近用 Nginx 反向代理的几个网站经常出打不开，报 502 或 504 错误，重启 Nginx 后马上就好了。</p>
+<p><strong>实践问题：</strong></p>
+<p>Nginx 反向代理的动态域名 IP 随时会变化（宽带重新拨号），但 IP 改变后 Nginx 的反向代理还是用的缓存的旧 IP。</p>
+<p><a target="_blank" rel="noopener" href="https://www.nadeau.io/post/nginx-proxy_pass-dns-cache/">https://www.nadeau.io/post/nginx-proxy_pass-dns-cache/</a></p>
+<p><a target="_blank" rel="noopener" href="https://weiku.co/article/61/">https://weiku.co/article/61/</a></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">location &#x3D; &#x2F; &#123;
+    resolver 10.128.232.53 10.128.232.58 valid&#x3D;5 ipv6&#x3D;off;
+    set $cdnurl http:&#x2F;&#x2F;feweb.58dns.org&#x2F;pro&#x2F;html&#x2F;authority-web;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_pass $cdnurl;
+    proxy_intercept_errors on;
+  &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
 <blockquote>
 <h3 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h3></blockquote>
 <p><a target="_blank" rel="noopener" href="https://help.aliyun.com/document_detail/98728.html?spm=5176.b657008.0.0.7b14799dhcfoI0">在Nginx（或Tengine）服务器上安装证书</a></p>
