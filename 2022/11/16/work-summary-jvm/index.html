@@ -431,8 +431,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/nginx/">
-                                <span class="chip bg-color">nginx</span>
+                            <a href="/tags/%E5%B7%A5%E4%BD%9C%E6%80%BB%E7%BB%93/">
+                                <span class="chip bg-color">工作总结</span>
                             </a>
                         
                     </div>
@@ -490,25 +490,25 @@
 <blockquote>
 <p>阿里云ECS配置</p>
 </blockquote>
-<p><img src="/2022/11/16/work-summary-jvm/aliyun.png" alt="阿里云ECS配置"></p>
+<p><img src="aliyun.png" alt="阿里云ECS配置"></p>
 <blockquote>
 <p>阿里云ECS监控</p>
 </blockquote>
-<p><img src="/2022/11/16/work-summary-jvm/aliyun-jiankong.png" alt="阿里云ECS监控"></p>
+<p><img src="aliyun-jiankong.png" alt="阿里云ECS监控"></p>
 <blockquote>
 <p>58容器</p>
 </blockquote>
-<p><img src="/2022/11/16/work-summary-jvm/58.png" alt="58容器配置"></p>
+<p><img src="58.png" alt="58容器配置"></p>
 <blockquote>
 <h3 id="压测"><a href="#压测" class="headerlink" title="压测"></a>压测</h3></blockquote>
 <p>基于日常的NGINX日志重放做简单压测，58容器启动了两个POD，单台QPS在100/s左右。压测1小时之后的argus监控显示如下：</p>
-<p><img src="/2022/11/16/work-summary-jvm/argus1.png" alt="容器监控1"></p>
-<p><img src="/2022/11/16/work-summary-jvm/argus2.png" alt="容器监控2"></p>
+<p><img src="argus1.png" alt="容器监控1"></p>
+<p><img src="argus2.png" alt="容器监控2"></p>
 <blockquote>
 <h3 id="现像"><a href="#现像" class="headerlink" title="现像"></a>现像</h3></blockquote>
 <p>5分钟之内的GC次数最高达到了63次，平均GC次数达到了41.2次。而GC时长最长高达812ms，平均GC时长519ms。为什么会频繁的发生GC呢。</p>
 <p>分析gc日志：<a target="_blank" rel="noopener" href="https://gceasy.ycrash.cn/gc-index.jsp">GC分析官网</a>，发现了一个惊讶的地方，如下：</p>
-<p><img src="/2022/11/16/work-summary-jvm/jvm-memory.png" alt="新生代与老年代内存容量"></p>
+<p><img src="jvm-memory.png" alt="新生代与老年代内存容量"></p>
 <p><strong><code>新生代的内存竟然只有166M。</code></strong></p>
 <p>查看项目的jvm参数配置：</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">work          45      14 24 00:28 ?        00:00:30 &#x2F;usr&#x2F;local&#x2F;openjdk-8&#x2F;bin&#x2F;java -Dsun.misc.URLClassPath.disableJarChecking&#x3D;true -DLOG_PATH&#x3D;&#x2F;mnt&#x2F;logs&#x2F;authority-api-jmeter -server -XX:MaxRAMPercentage&#x3D;30.0 -XX:InitialRAMPercentage&#x3D;30.0 -XX:MinRAMPercentage&#x3D;30.0 -verbose:gc -XX:+UseParNewGC -XX:+PrintHeapAtGC -XX:+PrintGCDetails -XX:ConcGCThreads&#x3D;2 -XX:GCLogFileSize&#x3D;50M -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+UseConcMarkSweepGC -XX:ParallelGCThreads&#x3D;2 -XX:NumberOfGCLogFiles&#x3D;1 -XX:+UseGCLogFileRotation -XX:+ScavengeBeforeFullGC -XX:+CMSScavengeBeforeRemark -XX:+CMSParallelRemarkEnabled -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintGCApplicationStoppedTime -Dsun.net.httpserver.maxReqTime&#x3D;30 -Dsun.net.httpserver.maxRspTime&#x3D;30 -XX:CMSInitiatingOccupancyFraction&#x3D;70 -Xloggc:&#x2F;mnt&#x2F;logs&#x2F;authority-api-jmeter&#x2F;jvm&#x2F;gc.log -XX:HeapDumpPath&#x3D;&#x2F;mnt&#x2F;logs&#x2F;authority-api-jmeter&#x2F;jvm -javaagent:&#x2F;usr&#x2F;local&#x2F;jmx-exporter&#x2F;jmx_prometheus_javaagent-0.14.0.jar&#x3D;9990:&#x2F;usr&#x2F;local&#x2F;jmx-exporter&#x2F;prometheus-jmx-config.yaml -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -jar &#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api-jmeter&#x2F;lib&#x2F;authority-api.jar --server.address&#x3D;0.0.0.0 --spring.config.location&#x3D;&#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api-jmeter&#x2F;conf&#x2F; --spring.profiles.active&#x3D;production --logging.config&#x3D;&#x2F;home&#x2F;work&#x2F;www&#x2F;authority-api-jmeter&#x2F;conf&#x2F;log4j2.yml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
@@ -574,7 +574,7 @@ concurrent mark-sweep generation:
 <p>经过查找资料发现：新生代的大小为：</p>
 <p><strong>max_heap/(NewRatio+1) 和 ScaleForWordSize(young_gen_per_worker * parallel_gc_threads) 中较小的那个</strong></p>
 <p>max_heap/(NewRatio+1) 这个我们都了解，就是按照 默认NewRatio 为2来计算，新生代的大小应该为0.8G。</p>
-<p><img src="/2022/11/16/work-summary-jvm/scaleForWordSize.png" alt="ScaleForWordSize 的定义"></p>
+<p><img src="scaleForWordSize.png" alt="ScaleForWordSize 的定义"></p>
 <p>而ScaleForWordSize最终的计算公式是</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">机器硬件决定(x86位64M) * 并行线程数(-XX:ParallelGCThreads指定的值) * 13 &#x2F; 10<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
@@ -586,8 +586,8 @@ concurrent mark-sweep generation:
 <blockquote>
 <h3 id="调整"><a href="#调整" class="headerlink" title="调整"></a>调整</h3></blockquote>
 <p>发现生产环境很多服务都存在此问题</p>
-<p><img src="/2022/11/16/work-summary-jvm/gc-old.png" alt="生产环境未调整设置的GC情况"></p>
-<p><img src="/2022/11/16/work-summary-jvm/gc-after.png" alt="生产环境调整之后的GC情况"></p>
+<p><img src="gc-old.png" alt="生产环境未调整设置的GC情况"></p>
+<p><img src="gc-after.png" alt="生产环境调整之后的GC情况"></p>
 <p>打印heap参数：</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">work@authority-api-v1-dc978c6b5-kb8f9:~$ jmap -heap 47
 Attaching to process ID 47, please wait...
@@ -828,8 +828,8 @@ concurrent mark-sweep generation:
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/nginx/">
-                                    <span class="chip bg-color">nginx</span>
+                                <a href="/tags/%E5%B7%A5%E4%BD%9C%E6%80%BB%E7%BB%93/">
+                                    <span class="chip bg-color">工作总结</span>
                                 </a>
                             
                         </div>

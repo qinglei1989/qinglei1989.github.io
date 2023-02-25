@@ -1,0 +1,130 @@
+
+
+
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <title>人人车 &#8211; 单点登录服务</title>
+  
+  
+  <link rel="stylesheet" href="/cas/css/cas.css;jsessionid=60DCAD9AD41D7C02A996D2DEF69B6F7C" />
+  <link rel="stylesheet" href="/cas/css/tooltip.css;jsessionid=60DCAD9AD41D7C02A996D2DEF69B6F7C" />
+  <link rel="icon" href="/cas/favicon.ico;jsessionid=60DCAD9AD41D7C02A996D2DEF69B6F7C" type="image/x-icon" />
+  
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.6.1/html5shiv.js" type="text/javascript"></script>
+  <![endif]-->
+</head>
+<body id="cas">
+  <div id="rrc-logo"></div>
+  <div id="container">
+    <div id="content">
+
+
+<div id="cookiesDisabled" class="errors" style="display:none;">
+    <h2>Browser cookies disabled</h2>
+    <p>Your browser does not accept cookies. Single Sign On WILL NOT WORK.</p>
+</div>
+
+<div class="box" id="login">
+    <form id="fm1" action="/cas/login;jsessionid=60DCAD9AD41D7C02A996D2DEF69B6F7C?service=http%3A%2F%2Fwiki.renrenaiche.cn%2Fdownload%2Fattachments%2F54517298%2Fimage2023-2-11_16-13-53.png%3Fversion%3D1%26modificationDate%3D1676103234000%26api%3Dv2" method="post">
+
+        
+
+        <section class="row">
+            <label for="username"><span class="accesskey">U</span>sername:</label>
+            
+                
+                
+                    
+                    <input id="username" name="username" class="required" tabindex="1" accesskey="u" type="text" value="" size="25" autocomplete="off"/>
+                
+            
+        </section>
+
+        <section class="row">
+            <label for="password"><span class="accesskey">P</span>assword:</label>
+                
+            
+            <input id="password" name="password" class="required" tabindex="2" accesskey="p" type="password" value="" size="25" autocomplete="off"/>
+            <span id="capslock-on" style="display:none;"><p><img src="images/warning.png" valign="top"> CAPSLOCK key is turned on!</p></span>
+        </section>
+
+        <!--
+        <section class="row check">
+            <p>
+                <input id="warn" name="warn" value="true" tabindex="3" accesskey="w" type="checkbox" />
+                <label for="warn"><span class="accesskey">W</span>arn me before logging me into other sites.</label>
+                <br/>
+                <input id="publicWorkstation" name="publicWorkstation" value="false" tabindex="4" type="checkbox" />
+                <label for="publicWorkstation">I am at a public workstation.</label>
+                <br/>
+                <input type="checkbox" name="rememberMe" id="rememberMe" value="true" tabindex="5"  />
+                <label for="rememberMe">Remember Me</label>
+            </p>
+        </section>
+        -->
+
+        <section class="row btn-row">
+            <input type="hidden" name="lt" value="LT-1785-gl9SMrqfSYGF5Wx2y04gBYO9qz2g62-cas02.shanyishanmei.com" />
+            <input type="hidden" name="execution" value="3a4f4236-3a4f-4310-ac30-2cd0ba20aabc_AAAAIgAAABDL8gtoUVXwR7OHhGMPXup2AAAABmFlczEyONyt53lACAX34T7Kpwne/dVHww0skx5nzorxg+pqcla0Y60s6jacvIv8ZgJbgWBFHgb3G6opQVXQ5MPqZGk7UAGFVKxbZ+OTgGDb+reUeDLX/bXOM43QltzujGUkKqNg1zr7WDxqoMz0meDh5bBX5DqOyD2A80Bf7DXMKuqNSPfsPYjpe1Gca2do9uGQ3jT/coHHHMNIKgv8KRtsFsNWTbJdwYUKqRgEVAXCOcb35S7FRLqpM+JirFjlz05My8qCckZUzrwgoxPbR4a6RecHG8fiXOyTAKOuO1A8MYj1AlJUG0K6D4OlydZjaIt+gVoe0GZMBxbjBNnis4eKIW0DgCkpb2/X3M4SonlfqU5pQwBmO96IUQOJWjojOplOOXit5LmmYUc3U1FsT8o0FjnZipHHRwzq54XA+9W8l69pSRsnw/daX6lSqJD4HTs8ZBH3n5vVX6ipaAjiVaHghbStRJvTkiQkCmzqkULQT7hSb9jFAOK/khW+3AOvMUuoWIxgWAqj3tNEDR/2r3e5DSoOLPHeFz/qHYkwT+A/iVsbwo+TrSx4LkrGhFrrkPoldL/uZ7Ao1z0xkAcYipYXX4am5pHIxk3Ghasc36AXn7Oo0p9zSn1yfEzCULTlPmR0zj9ujciPzCkASRgOCy3B2Jd+jERSKc9WnguVlU02KB23YTnSHKtcAYFm8KzXrvs9LZ9DISKfbX4Q2fCYLY04ImSxXVXiZPKmzIzuhzSc/BiC1jYt5c80zriXxkg8h/04wFroU4KweIPyYy6awVWFUX1jmeqM1EzT1VbLZ0P+Rt29KYxMfLkWtVv1wueDehATFmBaN1iZL70JpPooSiuk4I/+bLFKQkye8UO8zp8Zj73YWGK0ecEL67wxVcKMcJz/MXHoeKreogc1g//DFmYQHoLwcZBauc3fd2iDupno4vUyLIWe8qm+owiclJSz/tvqAoXEO/0Wjlkg+AJUHn2WWnWQXlRyKBqakblZazD0YIo4rnjSwNPFRZcUamG5ow7kzECIKEUiJ3TUlOJY0KP8255S8tf4p6M9GVs/zAbX49WmvJq9pNAKUm5YORc1RGEcKkeX2cVPa6WHUtjdz26V4H2AJGfPhMdDJcWO8gdBOCj9Xm61TLPqiRIITYGa+CM4GmixjE9ZXy0dSVw1zPAR3iD4v/7pOADMa19Hw9991rgxPrPGaKWnwkpFfouKSbFd65g8omtJg4v4aojPs9kydW+LWiYUSH+2l2YWqhN1vbg8PVANSYqDabHgfzcXxgMgCdvsgtf4U/PYigQSbx9JoMZrG5QtYzs6ZHvS9FQRZRNciWmmvIKDjevxhHYFSzSA3QDg2Hxd7rI1jbNaiMxnQUBvTf1v/DPmmPS6Z98AIczcb30Qrp2ixvm/cjQ3x/MccoJp856Wtrqz6TsPOHanIg/2cMF1i0o5onIBQblTiWJLwBxTadV/5gsSpdiZRuuLHphI4smnhUcG7SToGv02jX8RitPqKKmlu9A4dB38QiBMSYLp4BP/WxHzXnU3SFnd/aJoW5GFqBL8uVzVOoJQLh2A27riNlzqdMqi7cBFh/Amx8M9+EKSzCp8I0JqSpFpUfN77nY0HZZr06SZsA6BQP9ycNTvnbFxMFIeXxBaGP3QBvEiT9/t/t09foh7dAEhWR55D4b4NTo66ViHdRhE467kFKzs4aHauaVR3tI+3KIgda51MgGZl9WQTq+QpWFB9DZsBaacKFO39k/R3fv3lCysTviReztpRtPjJYowtLrnkx+Wk8w7XarV6gEur0BRqKXZH5KdvDu2pyMuPXt1bgtIb1IqXmJhBGUZ6jQV5ajklSQV97NhO8mihkJ74Gz57T3PyRcCZ+GX5WiQxi7Gz5NSVZCk6p4jJfOS78j2wmb3cJ81ECsO/cxgSWTrmAwMtyfj1btiGmLXgpQWYaUvNJd3wR1R6bC9xRLq3DYs5D4hl7L4wf4qWDnx61UFiL/ekizKxSOQFcnHb9UA3swCYWJN4v4rKkoiRyJ23kh2Mr7IECBWzSjObAuBzWbkIobjlMZmu1LbydlpqNkcx8dRpB9QhOdLc6TqG01C/eMnaXVO7YDGqgofdt1EHdW97VZ5lqnOtHJu07eFmSNvSGtuUdejdeszbAfvA5Kq2sBLFoSeDTZRjqmgFSdBh90/Fx9sJbA3vktPvcD6ImX0GPA1tlxbtR5S1YFkbHLvMWpnOdFP2YgXs8CytWHeRGlws8eBL1sHw1ihkTjwlopA5wM1xgz7u053DmD50Ig4a2Jx2HGy7/+C0/HJYDw6zcRq1iPr6n9qgpOPoSf/ODHv6+WrgZYizqCqYlQIcDEDHKRkQmIBmCQ7A4picKJIxoqHBhWBDoAFdehMq/k9F+VwY+jmvgQF4OYqStNGzd+4/KVl2qQnvK04xx85lh1Vb+91F1Vnw5pJuFuEIQ3HL1+Ya83GZhl/GQOo2D2EPyKJk5wHRMHE8DG8j042qSaSI5nFhb7e/nRtSpRCKpHls7HPGIQiJXwctoIFpNyJmIgDwJlfqEMmUxSG7SsiIRsEbIoS6HufDseE3j83gryP+T3rZUOGYYoCNs8=" />
+            <input type="hidden" name="_eventId" value="submit" />
+
+            <input class="btn-submit" name="submit" accesskey="l" value="LOGIN" tabindex="6" type="submit" />
+            <input class="btn-reset" name="reset" accesskey="c" value="CLEAR" tabindex="7" type="reset" />
+        </section>
+
+        <section class="row">
+            <a class="tooltip" href="#" onmouseover="tooltip.pop(this, '#tip', {sticky:true, position:0})">修改密码</a>
+        </section>
+    <div>
+</div></form>
+</div>
+
+<div id="sidebar">
+    <div class="sidebar-content">
+    </div>
+</div>
+
+<div style="display:none;">
+    <div id="tip">
+        <h3>修改密码</h3>
+        <p>进入<a href="http://op.shanyishanmei.com" target="_blank">op.shanyishanmei.com</a>管理平台.用手机号和cas的密码登陆后,在控制面板/修改密码可以进行用户的密码修改.</p>
+    </div>
+</div>
+
+
+
+
+<div id="baby-boy"></div>
+</div> <!-- END #content -->
+<footer>
+    <div id="copyright">
+        <p>Powered by <a href="http://www.renrenche.com">www.renrenche.com</a></p>
+    </div>
+</footer>
+
+</div> <!-- END #container -->
+<div id="bg-color"><div>
+<script src="/cas/js/head.min.js;jsessionid=60DCAD9AD41D7C02A996D2DEF69B6F7C"></script>
+
+<script type="text/javascript" src="/cas/js/cas.js;jsessionid=60DCAD9AD41D7C02A996D2DEF69B6F7C"></script>
+<script type="text/javascript" src="/cas/js/jquery.min.js;jsessionid=60DCAD9AD41D7C02A996D2DEF69B6F7C"></script>
+<script type="text/javascript" src="/cas/js/jquery-ui.min.js;jsessionid=60DCAD9AD41D7C02A996D2DEF69B6F7C"></script>
+<script type="text/javascript" src="/cas/js/jquery.cookie.min.js;jsessionid=60DCAD9AD41D7C02A996D2DEF69B6F7C"></script>
+<script type="text/javascript" src="/cas/js/tooltip.js;jsessionid=60DCAD9AD41D7C02A996D2DEF69B6F7C"></script>
+</body>
+</html>
+
+
