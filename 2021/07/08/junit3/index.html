@@ -785,6 +785,10 @@ public class ManagerControllerTest &#123;
 
 &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
+<p>henReturn、doReturn 等函数支持链式调用，用来指定函数特定调用次数时的行为。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">&#x2F;&#x2F; 让第1次调用返回 100，第2次调用返回 200
+when(exampleService.add(1, 2)).thenReturn(100).thenReturn(200);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
 
 
 
