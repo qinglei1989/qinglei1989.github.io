@@ -620,7 +620,7 @@ PING busybox1 (172.18.0.2): 56 data bytes
 64 bytes from 172.18.0.2: seq&#x3D;7 ttl&#x3D;64 time&#x3D;0.256 ms<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>这样，<code>busybox1</code> 容器和 <code>busybox2</code> 容器建立了互联关系。</p>
-<h2 id="Docker-Compose"><a href="#Docker-Compose" class="headerlink" title="Docker Compose"></a>Docker Compose</h2><p>如果你有多个容器之间需要互相连接，推荐使用 <a href="">Docker Compose</a>。</p>
+<p>如果你有多个容器之间需要互相连接，推荐使用 <a href="">Docker Compose</a>。</p>
 <blockquote>
 <h3 id="配置-DNS"><a href="#配置-DNS" class="headerlink" title="配置 DNS"></a>配置 DNS</h3></blockquote>
 <p>如何自定义配置容器的主机名和 DNS 呢？秘诀就是 Docker 利用虚拟文件来挂载容器的 3 个相关配置文件。</p>
@@ -922,30 +922,29 @@ root@host_ubuntu:&#x2F;#<span aria-hidden="true" class="line-numbers-rows"><span
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="far fa-dot-circle"></i>&nbsp;本篇
-            </div>
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2023/04/04/docker-network/">
+                <a href="/2023/04/06/docker-compose/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/7.jpg" class="responsive-img" alt="docker-network">
+                        <img src="/medias/featureimages/19.jpg" class="responsive-img" alt="docker-compose">
                         
-                        <span class="card-title">docker-network</span>
+                        <span class="card-title">docker-compose</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            Docker 允许通过外部访问容器或容器互联的方式来提供网络服务。
+                            Docker Compose 是 Docker 官方编排（Orchestration）项目之一，负责快速的部署分布式应用。
                         
                     </div>
                     <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2023-04-04
-                            </span>
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2023-04-06
+                        </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -958,7 +957,6 @@ root@host_ubuntu:&#x2F;#<span aria-hidden="true" class="line-numbers-rows"><span
                         </span>
                     </div>
                 </div>
-
                 
                 <div class="card-action article-tags">
                     
