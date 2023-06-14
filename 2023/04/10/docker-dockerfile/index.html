@@ -564,7 +564,7 @@ Successfully built 44aa4490ce2c<span aria-hidden="true" class="line-numbers-rows
 <p>这里我们使用了 <code>docker build</code> 命令进行镜像构建。其格式为：</p>
 <p>docker build [选项] &lt;上下文路径/URL/-&gt;</p>
 <p>在这里我们指定了最终镜像的名称 <code>-t nginx:v3</code>，构建成功后，我们可以像之前运行 <code>nginx:v2</code> 那样来运行这个镜像，其结果会和 <code>nginx:v2</code> 一样。</p>
-<h2 id="镜像构建上下文（Context）"><a href="#镜像构建上下文（Context）" class="headerlink" title="镜像构建上下文（Context）"></a>镜像构建上下文（Context）</h2><p>如果注意，会看到 <code>docker build</code> 命令最后有一个 <code>.</code>。<code>.</code> 表示当前目录，而 <code>Dockerfile</code> 就在当前目录，因此不少初学者以为这个路径是在指定 <code>Dockerfile</code> 所在路径，这么理解其实是不准确的。如果对应上面的命令格式，你可能会发现，这是在指定 <strong>上下文路径</strong>。那么什么是上下文呢？</p>
+<h2 id="镜像构建上下文（Context）"><a href="#镜像构建上下文（Context）" class="headerlink" title="镜像构建上下文（Context）"></a>镜像构建上下文（Context）</h2><p>如果注意，会看到 <code>docker build</code> 命令最后有一个 <code>.</code>。<code>.</code> 表示当前目录，而 <code>Dockerfile</code> 就在当前目录，因此不少初学者以为这个路径是在指定 <code>Dockerfile</code> 所在路径，这么理解其实是不准确的。如果对应上面的命令格式，你可能会发现，这是在指定 上下文路径。那么什么是上下文呢？</p>
 <p>首先我们要理解 <code>docker build</code> 的工作原理。Docker 在运行时分为 Docker 引擎（也就是服务端守护进程）和客户端工具。Docker 的引擎提供了一组 REST API，被称为 <a target="_blank" rel="noopener" href="https://docs.docker.com/develop/sdk/">Docker Remote API</a>，而如 <code>docker</code> 命令这样的客户端工具，则是通过这组 API 与 Docker 引擎交互，从而完成各种功能。因此，虽然表面上我们好像是在本机执行各种 <code>docker</code> 功能，但实际上，一切都是使用的远程调用形式在服务端（Docker 引擎）完成。也因为这种 C/S 设计，让我们操作远程服务器的 Docker 引擎变得轻而易举。</p>
 <p>当我们进行镜像构建的时候，并非所有定制都会通过 <code>RUN</code> 指令完成，经常会需要将一些本地文件复制进镜像，比如通过 <code>COPY</code> 指令、<code>ADD</code> 指令等。而 <code>docker build</code> 命令构建镜像，其实并非在本地构建，而是在服务端，也就是 Docker 引擎中构建的。那么在这种客户端/服务端的架构中，如何才能让服务端获得本地文件呢？</p>
 <p>这就引入了上下文的概念。当构建的时候，用户会指定构建镜像上下文的路径，<code>docker build</code> 命令得知这个路径后，会将路径下的所有内容打包，然后上传给 Docker 引擎。这样 Docker 引擎收到这个上下文包后，展开就会获得构建镜像所需的一切文件。</p>
@@ -583,26 +583,33 @@ Successfully built 44aa4490ce2c<span aria-hidden="true" class="line-numbers-rows
 <p>这只是默认行为，实际上 <code>Dockerfile</code> 的文件名并不要求必须为 <code>Dockerfile</code>，而且并不要求必须位于上下文目录中，比如可以用 <code>-f ../Dockerfile.php</code> 参数指定某个文件作为 <code>Dockerfile</code>。</p>
 <p>当然，一般大家习惯性的会使用默认的文件名 <code>Dockerfile</code>，以及会将其置于镜像构建上下文目录中。</p>
 <h2 id="其它-docker-build-的用法"><a href="#其它-docker-build-的用法" class="headerlink" title="其它 docker build 的用法"></a>其它 <code>docker build</code> 的用法</h2><h3 id="直接用-Git-repo-进行构建"><a href="#直接用-Git-repo-进行构建" class="headerlink" title="直接用 Git repo 进行构建"></a>直接用 Git repo 进行构建</h3><p>或许你已经注意到了，<code>docker build</code> 还支持从 URL 构建，比如可以直接从 Git repo 中构建：</p>
-<p># $env:DOCKER_BUILDKIT=0</p>
-<p># export DOCKER_BUILDKIT=0</p>
-<p>$ docker build -t hello-world <a target="_blank" rel="noopener" href="https://github.com/docker-library/hello-world.git#master:amd64/hello-world">https://github.com/docker-library/hello-world.git#master:amd64/hello-world</a></p>
-<p>Step 1/3 : FROM scratch</p>
-<p> —&gt;</p>
-<p>Step 2/3 : COPY hello /</p>
-<p> —&gt; ac779757d46e</p>
-<p>Step 3/3 : CMD [“/hello”]</p>
-<p> —&gt; Running in d2a513a760ed</p>
-<p>Removing intermediate container d2a513a760ed</p>
-<p> —&gt; 038ad4142d2b</p>
-<p>Successfully built 038ad4142d2b</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"># $env:DOCKER_BUILDKIT&#x3D;0
+# export DOCKER_BUILDKIT&#x3D;0
+
+$ docker build -t hello-world https:&#x2F;&#x2F;github.com&#x2F;docker-library&#x2F;hello-world.git#master:amd64&#x2F;hello-world
+
+Step 1&#x2F;3 : FROM scratch
+ ---&gt;
+Step 2&#x2F;3 : COPY hello &#x2F;
+ ---&gt; ac779757d46e
+Step 3&#x2F;3 : CMD [&quot;&#x2F;hello&quot;]
+ ---&gt; Running in d2a513a760ed
+Removing intermediate container d2a513a760ed
+ ---&gt; 038ad4142d2b
+Successfully built 038ad4142d2b<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
 <p>这行命令指定了构建所需的 Git repo，并且指定分支为 <code>master</code>，构建目录为 <code>/amd64/hello-world/</code>，然后 Docker 就会自己去 <code>git clone</code> 这个项目、切换到指定分支、并进入到指定目录后开始构建。</p>
-<h3 id="用给定的-tar-压缩包构建"><a href="#用给定的-tar-压缩包构建" class="headerlink" title="用给定的 tar 压缩包构建"></a>用给定的 tar 压缩包构建</h3><p>$ docker build <a target="_blank" rel="noopener" href="http://server/context.tar.gz">http://server/context.tar.gz</a></p>
+<h3 id="用给定的-tar-压缩包构建"><a href="#用给定的-tar-压缩包构建" class="headerlink" title="用给定的 tar 压缩包构建"></a>用给定的 tar 压缩包构建</h3><pre class="line-numbers language-java" data-language="java"><code class="language-java">$ docker build http:&#x2F;&#x2F;server&#x2F;context.tar.gz<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
 <p>如果所给出的 URL 不是个 Git repo，而是个 <code>tar</code> 压缩包，那么 Docker 引擎会下载这个包，并自动解压缩，以其作为上下文，开始构建。</p>
-<h3 id="从标准输入中读取-Dockerfile-进行构建"><a href="#从标准输入中读取-Dockerfile-进行构建" class="headerlink" title="从标准输入中读取 Dockerfile 进行构建"></a>从标准输入中读取 Dockerfile 进行构建</h3><p>docker build - &lt; Dockerfile</p>
+<h3 id="从标准输入中读取-Dockerfile-进行构建"><a href="#从标准输入中读取-Dockerfile-进行构建" class="headerlink" title="从标准输入中读取 Dockerfile 进行构建"></a>从标准输入中读取 Dockerfile 进行构建</h3><pre class="line-numbers language-java" data-language="java"><code class="language-java">docker build - &lt; Dockerfile<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
 <p>或</p>
-<p>cat Dockerfile | docker build -</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">cat Dockerfile | docker build -<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
 <p>如果标准输入传入的是文本文件，则将其视为 <code>Dockerfile</code>，并开始构建。这种形式由于直接从标准输入中读取 Dockerfile 的内容，它没有上下文，因此不可以像其他方法那样可以将本地文件 <code>COPY</code> 进镜像之类的事情。</p>
-<h3 id="从标准输入中读取上下文压缩包进行构建"><a href="#从标准输入中读取上下文压缩包进行构建" class="headerlink" title="从标准输入中读取上下文压缩包进行构建"></a>从标准输入中读取上下文压缩包进行构建</h3><p>$ docker build - &lt; context.tar.gz</p>
+<h3 id="从标准输入中读取上下文压缩包进行构建"><a href="#从标准输入中读取上下文压缩包进行构建" class="headerlink" title="从标准输入中读取上下文压缩包进行构建"></a>从标准输入中读取上下文压缩包进行构建</h3><pre class="line-numbers language-java" data-language="java"><code class="language-java">$ docker build - &lt; context.tar.gz<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
 <p>如果发现标准输入的文件格式是 <code>gzip</code>、<code>bzip2</code> 以及 <code>xz</code> 的话，将会使其为上下文压缩包，直接将其展开，将里面视为上下文，并开始构建。</p>
 
                 

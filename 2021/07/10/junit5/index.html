@@ -559,6 +559,53 @@ public class Mocktio &#123;
 &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <h3 id="3、thenAnswer"><a href="#3、thenAnswer" class="headerlink" title="3、thenAnswer"></a>3、thenAnswer</h3><p>then 和 thenAnswer 的效果是一样的。它们的参数是实现 Answer 接口的对象，在改对象中可以获取调用参数，自定义返回值。</p>
+<p>我们在对Mybatisinsert生成自增主键时的情况可以使用</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">Mockito.when(areaService.insert(any())).thenAnswer((Answer&lt;Integer&gt;) invocation -&gt; &#123;
+            Object[] args &#x3D; invocation.getArguments();
+            &#x2F;&#x2F; 获取参数
+            AreaEntity areaEntity &#x3D; (AreaEntity) args[0];
+
+            areaEntity.setId(1);
+
+            return 1;
+        &#125;);<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>when(…)thenAnswer(…)的作用有以下三种</p>
+<p>1、他可以返回一个值也可以抛出异常</p>
+<p>2、他可以获取到传入的参数</p>
+<p>3、他可以对参数进行判断，决定下一步动作</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@Test
+public void testThenAnswer() &#123;
+    List mockedList &#x3D; mock(List.class);
+    when(mockedList.size()).thenReturn(20);
+    when(mockedList.get(anyInt())).thenAnswer((Answer&lt;String&gt;) invocation -&gt; &#123;
+        Object[] args &#x3D; invocation.getArguments();
+        Integer index &#x3D; (Integer) args[0];
+        if (index &#x3D;&#x3D; 0) &#123;
+            return &quot;foo&quot;;
+        &#125; else if (index &#x3D;&#x3D; 1) &#123;
+            return &quot;bar&quot;;
+        &#125; else if (index &lt; 10) &#123;
+            return &quot;baz&quot;;
+        &#125; else if (index &lt; 20) &#123;
+            return &quot;qux&quot;;
+        &#125; else &#123;
+            throw new IndexOutOfBoundsException();
+        &#125;
+    &#125;);
+
+    Assert.assertEquals(20, mockedList.size());
+    Assert.assertEquals(&quot;foo&quot;, mockedList.get(0));
+    Assert.assertEquals(&quot;bar&quot;, mockedList.get(1));
+    Assert.assertEquals(&quot;baz&quot;, mockedList.get(8));
+    Assert.assertEquals(&quot;qux&quot;, mockedList.get(16));
+
+    thrown.expect(IndexOutOfBoundsException.class);
+    mockedList.get(20);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
 <h3 id="4、引用"><a href="#4、引用" class="headerlink" title="4、引用"></a>4、引用</h3><p><a target="_blank" rel="noopener" href="https://www.letianbiji.com/java-mockito/">Mockito 指南</a></p>
 <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/98074553">教你使用Mock完成单元测试</a></p>
 <p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-boot/docs/1.5.9.RELEASE/reference/htmlsingle/#boot-features-test-scope-dependencies">springboot test</a></p>

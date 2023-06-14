@@ -635,6 +635,28 @@ PS C:\Users\wang&gt;<span aria-hidden="true" class="line-numbers-rows"><span></s
 <p>用 <code>docker container ls -a</code> 命令可以查看所有已经创建的包括终止状态的容器，如果数量太多要一个个删除可能会很麻烦，用下面的命令可以清理掉所有处于终止状态的容器。</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">docker container prune<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
+<blockquote>
+<h3 id="容器自启动"><a href="#容器自启动" class="headerlink" title="容器自启动"></a>容器自启动</h3></blockquote>
+<p>新建容器时自启动</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"># 新建容器时 --restart&#x3D;always
+docker run -d --restart&#x3D;always --name mynginx -p 8080:80 nginx <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<p>已有容器设置自启动</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">PS C:\Users\wang&gt; docker update --restart&#x3D;always portainer
+portainer
+PS C:\Users\wang&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>如果<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=docker&spm=1001.2101.3001.7020">docker</a>本身不是开机自启动，请先设置docker开机自启<br>systemctl enable docker</p>
+<blockquote>
+<h3 id="查看日志"><a href="#查看日志" class="headerlink" title="查看日志"></a>查看日志</h3></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">PS C:\Users\wang&gt; docker logs -f portainer
+2023&#x2F;04&#x2F;13 16:07:19 Warning: the --template-file flag is deprecated and will likely be removed in a future version of Portainer.
+2023&#x2F;04&#x2F;13 16:07:23 [ERROR] [http,client] [message: unexpected status code] [status_code: 403]<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<h3 id="从容器内拷贝文件到主机上"><a href="#从容器内拷贝文件到主机上" class="headerlink" title="从容器内拷贝文件到主机上"></a>从容器内拷贝文件到主机上</h3></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">docker cp 容器id:容器内路径 目的主机路径<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
 
                 
             </div>
