@@ -580,7 +580,9 @@ public void testThenAnswer() &#123;
     when(mockedList.size()).thenReturn(20);
     when(mockedList.get(anyInt())).thenAnswer((Answer&lt;String&gt;) invocation -&gt; &#123;
         Object[] args &#x3D; invocation.getArguments();
-        Integer index &#x3D; (Integer) args[0];
+        In
+            
+            teger index &#x3D; (Integer) args[0];
         if (index &#x3D;&#x3D; 0) &#123;
             return &quot;foo&quot;;
         &#125; else if (index &#x3D;&#x3D; 1) &#123;
@@ -602,7 +604,7 @@ public void testThenAnswer() &#123;
 
     thrown.expect(IndexOutOfBoundsException.class);
     mockedList.get(20);
-&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 
 
