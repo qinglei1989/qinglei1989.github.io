@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>Thread-pool | 山西小魔头技术博客</title>
+    <title>线程池基础知识 | 山西小魔头技术博客</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/9.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/11.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">Thread-pool</h1>
+                    <h1 class="description center-align post-title">线程池基础知识</h1>
                 </div>
             </div>
         </div>
@@ -492,11 +492,17 @@
 <p><img src="Thread-pool.png" alt="线程池创建"></p>
 <p>Executors 目前提供了 5 种不同的线程池创建配置：</p>
 <ul>
-<li>newCachedThreadPool()，它是一种用来处理大量短时间工作任务的线程池，具有几个鲜明特点：它会试图缓存线程并重用，当无缓存线程可用时，就会创建新的工作线程；如果线程闲置的时间超过 60 秒，则被终止并移出缓存；长时间闲置时，这种线程池，不会消耗什么资源。其内部使用 SynchronousQueue 作为工作队列。</li>
-<li>newFixedThreadPool(int nThreads)，重用指定数目（nThreads）的线程，其背后使用的是无界的工作队列，任何时候最多有 nThreads 个工作线程是活动的。这意味着，如果任务数量超过了活动队列数目，将在工作队列中等待空闲线程出现；如果有工作线程退出，将会有新的工作线程被创建，以补足指定的数目 nThreads。</li>
-<li>newSingleThreadExecutor()，它的特点在于工作线程数目被限制为 1，操作一个无界的工作队列，所以它保证了所有任务的都是被顺序执行，最多会有一个任务处于活动状态，并且不允许使用者改动线程池实例，因此可以避免其改变线程数目。</li>
-<li>newSingleThreadScheduledExecutor() 和 newScheduledThreadPool(int corePoolSize)，创建的是个 ScheduledExecutorService，可以进行定时或周期性的工作调度，区别在于单一工作线程还是多个工作线程。</li>
-<li>newWorkStealingPool(int parallelism)，这是一个经常被人忽略的线程池，Java 8 才加入这个创建方法，其内部会构建ForkJoinPool，利用Work-Stealing算法，并行地处理任务，不保证处理顺序。</li>
+<li><p>newCachedThreadPool()，它是一种用来处理大量短时间工作任务的线程池，具有几个鲜明特点：它会试图缓存线程并重用，当无缓存线程可用时，就会创建新的工作线程；如果线程闲置的时间超过 60 秒，则被终止并移出缓存；长时间闲置时，这种线程池，不会消耗什么资源。其内部使用 SynchronousQueue 作为工作队列。</p>
+</li>
+<li><p>newFixedThreadPool(int nThreads)，重用指定数目（nThreads）的线程，其背后使用的是无界的工作队列，任何时候最多有 nThreads 个工作线程是活动的。这意味着，如果任务数量超过了活动队列数目，将在工作队列中等待空闲线程出现；如果有工作线程退出，将会有新的工作线程被创建，以补足指定的数目 nThreads。</p>
+<p>newFixedThreadPool中核心线程数和最大线程数相等，因为使用的是无界队列，所以最大线程数就失去了意义。因为核心线程数与最大线程数相等，不会有线程消亡，所以keepAliveTime会设置成0。</p>
+</li>
+<li><p>newSingleThreadExecutor()，它的特点在于工作线程数目被限制为 1，操作一个无界的工作队列，所以它保证了所有任务的都是被顺序执行，最多会有一个任务处于活动状态，并且不允许使用者改动线程池实例，因此可以避免其改变线程数目。</p>
+</li>
+<li><p>newSingleThreadScheduledExecutor() 和 newScheduledThreadPool(int corePoolSize)，创建的是个 ScheduledExecutorService，可以进行定时或周期性的工作调度，区别在于单一工作线程还是多个工作线程。</p>
+</li>
+<li><p>newWorkStealingPool(int parallelism)，这是一个经常被人忽略的线程池，Java 8 才加入这个创建方法，其内部会构建ForkJoinPool，利用Work-Stealing算法，并行地处理任务，不保证处理顺序。</p>
+</li>
 </ul>
 <p>submit和execute</p>
 <ul>
@@ -597,6 +603,16 @@ public class ThreadLocalUtil &#123;
 <p><strong>快速处理批量任务</strong></p>
 <ul>
 <li>关注如何使用有限的资源，尽可能在单位时间内处理更多的任务，也就是吞吐量优先的问题。所以应该设置队列去缓冲并发任务，调整合适的 corePoolSize 去设置处理任务的线程数。在这里，设置的线程数过多可能还会引发线程上下文切换频繁的问题，也会降低处理任务的速度，降低吞吐量。</li>
+</ul>
+<blockquote>
+<h4 id="选择合适的线程数"><a href="#选择合适的线程数" class="headerlink" title="选择合适的线程数"></a>选择合适的线程数</h4></blockquote>
+<ul>
+<li>关于线程池大小问题，可以参考这个公式，仅仅是参考而已。  <ul>
+<li><code>启动线程数 = [ 任务执行时间 / ( 任务执行时间 - IO等待时间 ) ] x CPU内核数</code></li>
+</ul>
+</li>
+<li>在控制线程池大小的基础上，尽量使用有界队列并且设置大小，避免OOM。</li>
+<li>设置合理的驳回策略，适用于你的业务。</li>
 </ul>
 <blockquote>
 <h4 id="引用："><a href="#引用：" class="headerlink" title="引用："></a>引用：</h4></blockquote>
@@ -852,9 +868,9 @@ public class ThreadLocalUtil &#123;
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="Thread-pool">
+                        <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="线程池基础知识">
                         
-                        <span class="card-title">Thread-pool</span>
+                        <span class="card-title">线程池基础知识</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
