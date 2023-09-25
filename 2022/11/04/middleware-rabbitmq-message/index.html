@@ -495,19 +495,19 @@
 <p> 一定要记住，在对应服务器(阿里云，腾讯云等)的安全组中开放<code>15672</code>的端口。</p>
 <blockquote>
 <h2 id="RabbitMQ架构"><a href="#RabbitMQ架构" class="headerlink" title="RabbitMQ架构"></a>RabbitMQ架构</h2></blockquote>
-<p><img src="/2022/11/04/middleware-rabbitmq-message/jiagou.png" alt="RabbitMQ核心组成"></p>
-<p><img src="/2022/11/04/middleware-rabbitmq-message/zhengtijiagou.png" alt="RabbitMQ整体架构"></p>
+<p><img src="jiagou.png" alt="RabbitMQ核心组成"></p>
+<p><img src="zhengtijiagou.png" alt="RabbitMQ整体架构"></p>
 <p>从架构图中可以看出：RabbitMQ架构包含了Provider（生产者）、Exchanges（交换机）、Queues（队列）、Consumer（消费者）。</p>
-<p><img src="/2022/11/04/middleware-rabbitmq-message/liucheng.png" alt="RabbitMQ的运行流程"></p>
+<p><img src="liucheng.png" alt="RabbitMQ的运行流程"></p>
 <blockquote>
 <h2 id="RabbitMQ支持的消息模式"><a href="#RabbitMQ支持的消息模式" class="headerlink" title="RabbitMQ支持的消息模式"></a>RabbitMQ支持的消息模式</h2></blockquote>
-<h3 id="简单模式-Simple"><a href="#简单模式-Simple" class="headerlink" title="简单模式 Simple"></a><strong>简单模式 Simple</strong></h3><p><img src="/2022/11/04/middleware-rabbitmq-message/simple.png" alt="简单模式 Simple"></p>
+<h3 id="简单模式-Simple"><a href="#简单模式-Simple" class="headerlink" title="简单模式 Simple"></a><strong>简单模式 Simple</strong></h3><p><img src="simple.png" alt="简单模式 Simple"></p>
 <p>在简单模式的消息发送中，不需要特别创建交换机（指定交换机的类型），通过默认的交换机Binding Default exchange，通过指定Routing key为queue name即可向queue name指向的Queue队列发送消息（1对1分发）。</p>
 <p>注意：</p>
 <p><code>rabbitmq发送消息一定有一个交换机，如果没有创建交换机，默认使用Default_exchange进行绑定。</code></p>
-<p><img src="/2022/11/04/middleware-rabbitmq-message/default-exchange.png" alt="默认交换机"></p>
-<p><img src="/2022/11/04/middleware-rabbitmq-message/default-binds.png" alt="默认交换机绑定"></p>
-<h3 id="工作队列模式-WorkQueues"><a href="#工作队列模式-WorkQueues" class="headerlink" title="工作队列模式 WorkQueues"></a><strong>工作队列模式 WorkQueues</strong></h3><p><img src="/2022/11/04/middleware-rabbitmq-message/workqueues.png" alt="工作队列模式"></p>
+<p><img src="default-exchange.png" alt="默认交换机"></p>
+<p><img src="default-binds.png" alt="默认交换机绑定"></p>
+<h3 id="工作队列模式-WorkQueues"><a href="#工作队列模式-WorkQueues" class="headerlink" title="工作队列模式 WorkQueues"></a><strong>工作队列模式 WorkQueues</strong></h3><p><img src="workqueues.png" alt="工作队列模式"></p>
 <p>工作队列模式也是指定的默认的default默认交换机对多个Queue消费者进行消息的发送，</p>
 <p>主要有两种模式：<br>1、<code>轮询模式分发</code>：一个消费者一条，按均分配，平均分，不会因为哪个消费者内部处理速率较快而减少消息的发送；</p>
 <p>​      轮询模式设置为自动应答</p>
@@ -515,21 +515,21 @@
 <p>2、<code>公平分发</code>：根据消费者的消费能力进行公平分发，处理快的处理的多，处理慢的处理的少；按劳分配；</p>
 <p>​     设置为手动应答</p>
 <p>​     开启限流</p>
-<h3 id="发布订阅模式-Publish-Subscribe"><a href="#发布订阅模式-Publish-Subscribe" class="headerlink" title="发布订阅模式 Publish/Subscribe"></a><strong>发布订阅模式 Publish/Subscribe</strong></h3><p><img src="/2022/11/04/middleware-rabbitmq-message/publishsubscribe.png" alt="发布订阅模式"></p>
+<h3 id="发布订阅模式-Publish-Subscribe"><a href="#发布订阅模式-Publish-Subscribe" class="headerlink" title="发布订阅模式 Publish/Subscribe"></a><strong>发布订阅模式 Publish/Subscribe</strong></h3><p><img src="publishsubscribe.png" alt="发布订阅模式"></p>
 <p>发布订阅模式使用fanout类型交换机绑定每一个消费者Queue队列，相当于广播的形式，订阅了该交换机（频道）的Queue都会收到通过交换机发送的来自生产者的消息。</p>
-<p><img src="/2022/11/04/middleware-rabbitmq-message/psExchange.png" alt="发布订阅交换机"></p>
-<h3 id="路由模式Routing"><a href="#路由模式Routing" class="headerlink" title="路由模式Routing"></a><strong>路由模式Routing</strong></h3><p><img src="/2022/11/04/middleware-rabbitmq-message/routing.png" alt="路由模式"></p>
+<p><img src="psExchange.png" alt="发布订阅交换机"></p>
+<h3 id="路由模式Routing"><a href="#路由模式Routing" class="headerlink" title="路由模式Routing"></a><strong>路由模式Routing</strong></h3><p><img src="routing.png" alt="路由模式"></p>
 <p>路由模式的交换机类型是：<strong>direct类型</strong></p>
 <p>路由模式与发布订阅模式非常相似，也非常容易理解。它只是在发布订阅模式上新增了路由key，通过对应的路由key与对应的Queue进行绑定，这个Queue就被key唯一标识了。</p>
 <p>然后当交换机再去发送消息的时候，会在绑定了交换机的Queue中指定对应的路由key进行发送，只有对应路由key为发送key一一对应的才能收到消息。</p>
-<p><img src="/2022/11/04/middleware-rabbitmq-message/direct.png" alt="路由交换机"></p>
-<h3 id="主题Topic模式"><a href="#主题Topic模式" class="headerlink" title="主题Topic模式"></a><strong>主题Topic模式</strong></h3><p><img src="/2022/11/04/middleware-rabbitmq-message/topicExchange.png" alt="主题模式"></p>
+<p><img src="direct.png" alt="路由交换机"></p>
+<h3 id="主题Topic模式"><a href="#主题Topic模式" class="headerlink" title="主题Topic模式"></a><strong>主题Topic模式</strong></h3><p><img src="topicExchange.png" alt="主题模式"></p>
 <p>主题模式topics相较于路由模式是非常相似的，只不过在路由的基础之上增加了支持模糊匹配的Routing key的形式。 </p>
 <p>主题模式的交换机类型选择必须是topic类型。</p>
 <p>匹配规则：</p>
 <p>#：表示0个或者多个，取值范围为[0,+无穷大）</p>
 <p>*：表示1个，取值为1，即必须要有一个。</p>
-<p><img src="/2022/11/04/middleware-rabbitmq-message/topic.png" alt="topic模式交换机"></p>
+<p><img src="topic.png" alt="topic模式交换机"></p>
 <h3 id="参数模式"><a href="#参数模式" class="headerlink" title="参数模式"></a><strong>参数模式</strong></h3><blockquote>
 <h3 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h3></blockquote>
 <p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/yif0118/p/14665274.html">RabbitMQ – RabbitMQ消息模式</a>](<a target="_blank" rel="noopener" href="https://www.cnblogs.com/yif0118/p/14665274.html">https://www.cnblogs.com/yif0118/p/14665274.html</a>)</p>

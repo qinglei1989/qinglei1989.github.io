@@ -484,7 +484,7 @@
 
 <blockquote>
 <h3 id="Eureka体系结构"><a href="#Eureka体系结构" class="headerlink" title="Eureka体系结构"></a>Eureka体系结构</h3></blockquote>
-<p><img src="/2022/05/03/spring-cloud-eureka/Eureka.png" alt="Eureka体系结构"></p>
+<p><img src="Eureka.png" alt="Eureka体系结构"></p>
 <blockquote>
 <h3 id="搭建服务注册中心"><a href="#搭建服务注册中心" class="headerlink" title="搭建服务注册中心"></a>搭建服务注册中心</h3></blockquote>
 <p>application.yml</p>
@@ -537,7 +537,7 @@ public class EurekaServerApplication &#123;
     &#125;
 &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p><img src="/2022/05/03/spring-cloud-eureka/eureka-server.png" alt="Eureka信息面板"></p>
+<p><img src="eureka-server.png" alt="Eureka信息面板"></p>
 <blockquote>
 <h3 id="注册服务提供者"><a href="#注册服务提供者" class="headerlink" title="注册服务提供者"></a>注册服务提供者</h3></blockquote>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">eureka:
@@ -602,8 +602,8 @@ public class HelloServiceApplication &#123;
 2022-05-03 01:35:19.425  INFO 28780 --- [a-EvictionTimer] c.n.e.registry.AbstractInstanceRegistry  : Running the evict task with compensationTime 0ms
 2022-05-03 01:36:18.232  INFO 28780 --- [hresholdUpdater] c.n.e.r.PeerAwareInstanceRegistryImpl    : Current renewal threshold is : 3<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p><img src="/2022/05/03/spring-cloud-eureka/eureka-server-hello.png" alt="Eureka面板"></p>
-<p><img src="/2022/05/03/spring-cloud-eureka/rest-api.png" alt="Eureka REST API接口列表"></p>
+<p><img src="eureka-server-hello.png" alt="Eureka面板"></p>
+<p><img src="rest-api.png" alt="Eureka REST API接口列表"></p>
 <blockquote>
 <h3 id="高可用注册中心"><a href="#高可用注册中心" class="headerlink" title="高可用注册中心"></a>高可用注册中心</h3></blockquote>
 <p>Eureka Server的高可用实际上就是将自己作为服务向其他服务注册中心注册自己，这样就可以形成一组互相注册的服务注册中心，以实现服务清单的互相同步，达到高可用的效果。</p>
@@ -639,18 +639,18 @@ spring:
     name: eureka-server<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>设置IDEA并行运行</p>
-<p><img src="/2022/05/03/spring-cloud-eureka/idea-parallel.png" alt="IDEA并发运行设置"></p>
+<p><img src="idea-parallel.png" alt="IDEA并发运行设置"></p>
 <p>设置启动参数：</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">--spring.profiles.active&#x3D;peer1
 --spring.profiles.active&#x3D;peer2<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
-<p><img src="/2022/05/03/spring-cloud-eureka/eureka-server-availability.png" alt="高可用集群"></p>
+<p><img src="eureka-server-availability.png" alt="高可用集群"></p>
 <p>Eureka高可用部署，启动多个注册中心后，节点均出现在unavailable-replicas。具体的解决方案如下：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/76582106">Eureka集群搭建，unavailable-replicas服务节点不可用</a></p>
 <p><strong>同一主机上配置多个节点，则各节点的eureka.instance.hostname（实例的主机名）不能一样</strong>。为各节点配置不同的hostname，然后修改主机的hosts文件，增加映射。</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">127.0.0.1 peer1
 127.0.0.1 peer2<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
-<p><img src="/2022/05/03/spring-cloud-eureka/eureka-server-availability-ok.png" alt="正确的高可用集群"></p>
+<p><img src="eureka-server-availability-ok.png" alt="正确的高可用集群"></p>
 <p>在设置了多节点的服务注册中心之后，服务提供方还需要做一些简单的配置才能将服务注册到 Eureka Server集群中。我们以hello-service为例，修改<br>application.properties 配置文件，如下所示:</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">eureka.client.serviceUrl.defaultZone&#x3D;http:&#x2F;&#x2F;peer1:11l1&#x2F;eureka&#x2F;, http:&#x2F;&#x2F;peer2:1112&#x2F;eureka&#x2F;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
@@ -686,7 +686,7 @@ public class ConsumerApplication &#123;
 
 &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p><img src="/2022/05/03/spring-cloud-eureka/consumer.png" alt="服务注册与发现"></p>
+<p><img src="consumer.png" alt="服务注册与发现"></p>
 <blockquote>
 <h3 id="自我保护机制"><a href="#自我保护机制" class="headerlink" title="自我保护机制"></a>自我保护机制</h3></blockquote>
 <p>在 Eureka 服务页面中看到如下红色字体内容，表示当前 EurekaServer 启动了自我保护机制，进入了自我保护模式。</p>

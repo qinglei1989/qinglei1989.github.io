@@ -683,7 +683,7 @@ ConfirmCallback:     原因：null<span aria-hidden="true" class="line-numbers-r
 <p>同样使用不确认后重新入列这个确认模式要谨慎，因为这里也可能因为考虑不周出现消息一直被重新丢回去的情况，导致积压。</p>
 <h4 id="mandatory与备份交换机-Alternate-Exchange"><a href="#mandatory与备份交换机-Alternate-Exchange" class="headerlink" title="mandatory与备份交换机(Alternate Exchange)"></a>mandatory与备份交换机(Alternate Exchange)</h4><p>备份交换机：为一个普通交换机添加一个”备胎“，当交换机接收到一条无法路由的消息时，就会把消息转发给备份交换机，有备份交换机来转发和处理，该交换机类型一般为”fanout“型，这样就可以把所有消息发送到与其绑定队列中去。</p>
 <p>案例：一个生产者发送一条路由不通的消息，看看备份交换机如何处理，如下图：</p>
-<p><img src="/2022/11/13/middleware-rabbitmq-springboot/backupexchange.png" alt="备份交换机"></p>
+<p><img src="backupexchange.png" alt="备份交换机"></p>
 <p>当mandatory参数设为true时，交换器无法根据自身的类型和路由键找到一个符合条件的队列，那么 RabbitMQ会调用Basic.Return命令将消息返回给生产者。当mandatory参数设置为false时，出现上述情形，则消息直接被丢弃。</p>
 <p>生产者在发送消息的时候如果不设置mandatory参数，那么消息在未被路由的情况下将会丢失;如果设置了mandatory参数，那么需要添加ReturnListener的编程逻辑，生产者的代码将变得复杂。如果既不想复杂化生产者的编程逻辑，又不想消息丢失，那么可以使用备份交换器，这样可以将未被路由的消息存储在RabbitMQ中，再在需要的时候去处理这些消息。这样可以将未被路由的消息存储在RabbitMQ中，再在需要的时候去处理这些消息。</p>
 <p>对于备份交换器，总结了以下几种特殊情况:<br>如果设置的备份交换器不存在，客户端和RabbitMQ服务端都不会有异常出现，此时消息会丢失。</p>

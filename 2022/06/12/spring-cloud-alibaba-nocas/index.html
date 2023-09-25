@@ -486,7 +486,7 @@
 
 <blockquote>
 <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3></blockquote>
-<p><img src="/2022/06/12/spring-cloud-alibaba-nocas/nacos.png" alt="Nacos"></p>
+<p><img src="nacos.png" alt="Nacos"></p>
 <p>从上图不难看出阿里巴巴的野心，一个Nacos干掉了Spring Cloud的三大组件，分别是<code>注册中心Eureka</code>、<code>服务配置Config</code>，<code>服务总线Bus</code>。</p>
 <blockquote>
 <p>启动Nocas</p>
@@ -571,12 +571,12 @@ if %MODE% &#x3D;&#x3D; &quot;standalone&quot; (
 <p>用户名：nacos；密码：nacos</p>
 </blockquote>
 <p>登录成功的界面如下：</p>
-<p><img src="/2022/06/12/spring-cloud-alibaba-nocas/nacos-success.png" alt="登陆成功"></p>
+<p><img src="nacos-success.png" alt="登陆成功"></p>
 <blockquote>
 <p>服务注册与发现</p>
 </blockquote>
 <p>微服务的服务注册和发现相信都用过Eureka，要自己本地构建一个Eureka微服务，但是整合了Alibaba的Nacos则不用那么复杂，直接启动Alibaba提供的Nacos服务即可，这样让程序员把全部精力放在业务上，下面是一个简单的架构图</p>
-<p><img src="/2022/06/12/spring-cloud-alibaba-nocas/faxian.png" alt="服务的注册与发现"></p>
+<p><img src="faxian.png" alt="服务的注册与发现"></p>
 <p>参照上面架构图，分别创建了两个模块，分别是<code>nacos-provider</code>(服务提供者)、<code>nacos-consumer</code>(服务消费者)，职责如下：</p>
 <ul>
 <li><code>nacos-provider</code>：注册进入nacos-server，对外暴露服务</li>

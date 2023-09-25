@@ -763,7 +763,7 @@ Caused by: io.lettuce.core.RedisCommandExecutionException: ERR invalid password
 
 <h4 id="RedisTemplate-和-StringRedisTemplate"><a href="#RedisTemplate-和-StringRedisTemplate" class="headerlink" title="RedisTemplate 和 StringRedisTemplate"></a>RedisTemplate 和 StringRedisTemplate</h4><p><strong>RedisTemplate</strong></p>
 <p>Springboot2后在Lettuce的redis客户端基础上进一步封装，于是就形成了RedisTemplate</p>
-<p><img src="/2021/08/01/spring-boot-redis/serialization.png" alt="默认使用JDK序列化策略"></p>
+<p><img src="serialization.png" alt="默认使用JDK序列化策略"></p>
 <p><strong>StringRedisTemplate</strong></p>
 <p>StringRedisTemplate介绍</p>
 <p>1、StringRedisTemplate继承RedisTemplate，是springboot中针对操作字符串类型数据推出的redis客户端工具 。</p>
@@ -771,8 +771,8 @@ Caused by: io.lettuce.core.RedisCommandExecutionException: ERR invalid password
 <p>3、StringRedisTemplate操作字符串数据结构的对象：</p>
 <p>  ValueOperations = stringRedisTemplate.opsForValue() 。</p>
 <p>4、使用String序列化策略。</p>
-<p><img src="/2021/08/01/spring-boot-redis/string.png" alt="StringRedisSerializer"></p>
-<p><img src="/2021/08/01/spring-boot-redis/hexoBlog\source_posts\spring-boot-redis\string-1.png" alt="image-20221002225716460"></p>
+<p><img src="string.png" alt="StringRedisSerializer"></p>
+<p><img src="D:\hexoBlog\source_posts\spring-boot-redis\string-1.png" alt="image-20221002225716460"></p>
 <p><strong>RedisTemplate和StringRedisTemplate数据不互通的根本原因是两者的序列化方式不一致。</strong></p>
 <p>分布式锁：</p>
 <p><a target="_blank" rel="noopener" href="https://www.sevenyuan.cn/2020/04/04/redis/2020-04-04-annotation-redis-lock/#more">https://www.sevenyuan.cn/2020/04/04/redis/2020-04-04-annotation-redis-lock/#more</a></p>

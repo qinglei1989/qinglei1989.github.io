@@ -544,7 +544,7 @@
 <li>是基于 Proxy，它复写了 MySQL 协议，将 Mycat Server 伪装成一个 MySQL 数据库</li>
 <li>和ShardingShere下的Sharding-Proxy作用类似，需要单独部署</li>
 </ul>
-<p><img src="/2022/10/28/spring-boot-shardingjdbc/mycat.png" alt="Mycat"></p>
+<p><img src="mycat.png" alt="Mycat"></p>
 <p><strong>ShardingSphere 下的Sharding-JDBC</strong></p>
 <ul>
 <li>地址：<a target="_blank" rel="noopener" href="https://shardingsphere.apache.org/">https://shardingsphere.apache.org/</a></li>
@@ -559,7 +559,7 @@
 </ul>
 </li>
 </ul>
-<p><img src="/2022/10/28/spring-boot-shardingjdbc/sharding-jdbc.png" alt="sharding-jdbc.png"></p>
+<p><img src="sharding-jdbc.png" alt="sharding-jdbc.png"></p>
 <p>二者之间的区别：</p>
 <ul>
 <li>两者设计理念相同，主流程都是SQL解析–&gt;SQL路由–&gt;SQL改写–&gt;结果归并</li>
@@ -1107,7 +1107,7 @@ public class SimpleShardingKeyGenerator implements ShardingKeyGenerator &#123;
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">com.rrc.generator.SimpleShardingKeyGenerator<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
 <p><strong>配置主键生成策略为自定义key</strong></p>
-<p><img src="/2022/10/28/spring-boot-shardingjdbc/SIMPLE.png" alt="自定义主键生成策略"></p>
+<p><img src="SIMPLE.png" alt="自定义主键生成策略"></p>
 <p>按上面配置的ShardingJDBC表主键生成策略并没有生效，主键依然是雪花算法生成的ID。</p>
 <p>问题原因：</p>
 <p>MybatisPLus在不显式指定主键且有名为“id”的字段，会将id视为主键，当分片键也是该字段时，会与MP冲突，导致Sharding-JDBC的分片键生成策略失效。<br>那么解决方案就很简单了：<br>第一种：分片键不叫“id”就行了<br>第二种：如果分片键是主键，又想叫id，可在分片键上标记主键@TableId，并指定主键类型type = IdType.AUTO即可</p>

@@ -524,7 +524,7 @@ channel.basicPublish(exchangeName, routingKey, mandatory, properties, &quot;msg 
 <blockquote>
 <h3 id="如何利用RabbitMQ实现延时队列"><a href="#如何利用RabbitMQ实现延时队列" class="headerlink" title="如何利用RabbitMQ实现延时队列"></a>如何利用RabbitMQ实现延时队列</h3></blockquote>
 <p>RabbitMQ 本身是不支持的，可以通过它提供的两个特性 Time-To-Live and Expiration、Dead Letter Exchanges 来实现，通过以下泳道图可以看到一个消息从发布到消费的整个过程。</p>
-<p><img src="Ddelay-message.jpeg" alt="RabbitMQ TTL+DLX 实现定时任务"></p>
+<p><img src="delay-message.png" alt="RabbitMQ TTL+DLX 实现定时任务"></p>
 <p><code>延时队列</code>，不就是想要消息延迟多久被处理吗，TTL则刚好能让消息在延迟多久之后成为死信，另一方面，成为死信的消息都会被投递到死信队列里，这样只需要消费者一直消费死信队列里的消息就万事大吉了，因为里面的消息都是希望被立即处理的消息。</p>
 <p><img src="%E5%BB%B6%E8%BF%9F%E9%98%9F%E5%88%97.png" alt="延迟队列"></p>
 <p>生产者生产一条延时消息，根据需要延时时间的不同，利用不同的routingkey将消息路由到不同的延时队列，每个队列都设置了不同的TTL属性，并绑定在同一个死信交换机中，消息过期后，根据routingkey的不同，又会被路由到不同的死信队列中，消费者只需要监听对应的死信队列进行处理即可。</p>
@@ -666,7 +666,7 @@ http:&#x2F;&#x2F;localhost:8080&#x2F;rabbitmq&#x2F;sendmsg?msg&#x3D;testMsg2&amp
 <p>不过，等等，如果这样使用的话，岂不是每增加一个新的时间需求，就要新增一个队列，这里只有6s和60s两个时间选项，如果需要一个小时后处理，那么就需要增加TTL为一个小时的队列，如果是预定会议室然后提前通知这样的场景，岂不是要增加无数个队列才能满足需求？？</p>
 <blockquote>
 <h3 id="DLX-TTL-方式存在的时序问题"><a href="#DLX-TTL-方式存在的时序问题" class="headerlink" title="DLX + TTL 方式存在的时序问题"></a>DLX + TTL 方式存在的时序问题</h3></blockquote>
-<p>对于延迟队列不管是 AMQP 协议或者 RabbitMQ 本身是不支持的，使用 RabbitMQ 死信队列（DLX） + TTL 的方式来模拟实现延迟队列是通常的一种做法。<br><img src="title.jpeg" alt="时序问题"></p>
+<p>对于延迟队列不管是 AMQP 协议或者 RabbitMQ 本身是不支持的，使用 RabbitMQ 死信队列（DLX） + TTL 的方式来模拟实现延迟队列是通常的一种做法。<br><img src="time.png" alt="时序问题"></p>
 <p>左侧队列 queue1 分别两条消息 msg1、msg2 过期时间都为 1s，输出顺序为 msg1、msg2 是没问题的</p>
 <p>右侧队列 queue2 分别两条消息 msg1、msg2 注意问题来了，msg2 的消息过期时间为 1S 而 msg1 的消息过期为 2S，因为这是在同一个队列，必须前一个消费，第二个才能消费，所以就出现了时序问题。</p>
 <p>如果你的消息过期时间是有规律的，例如，有的 1S、有的 2S，那么我们可以以时间为维度设计为两个队列。如果此时消息的过期时间不确定或者消息过期时间维度过多，在消费端我们就要去监听多个消息队列且对于消息过期时间不确定的也是很难去设计的。</p>
@@ -720,7 +720,7 @@ Listing plugins with pattern &quot;.*&quot; ...
 <p><img src="delay-exchange.png" alt="交换机选项"></p>
 <blockquote>
 <h4 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h4></blockquote>
-<p><img src="yuanli.jpeg" alt="实现原理"></p>
+<p><img src="yuanli.png" alt="实现原理"></p>
 <p>消息在发布之后不会立即进入队列，先将消息保存至 Mnesia。这个插件将会尝试确认消息是否过期，首先要确保消息的延迟范围是 Delay &gt; 0, Delay =&lt; ERL_MAX_T（在 Erlang 中可以被设置的范围为 (2^32)-1 毫秒），如果消息过期通过 x-delayed-type 类型标记的交换机投递至目标队列，整个消息的投递过程也就完成了。</p>
 <blockquote>
 <h4 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h4></blockquote>

@@ -501,54 +501,54 @@
 <p><strong>3、初始化虚拟机</strong></p>
 </blockquote>
 <p>点击新建虚拟机，依次输入名称、选择安装目录、选择虚拟机操作系统类型与具体的版本。点击下一步</p>
-<p><img src="/2021/06/14/linux0/virtualBox-new.png" alt="新建虚拟机"></p>
+<p><img src="virtualBox-new.png" alt="新建虚拟机"></p>
 <p>根据自己的电脑配置选择合适的内存及硬盘大小依次点击下一步</p>
-<p><img src="/2021/06/14/linux0/next.png" alt="初始化虚拟机过程"></p>
+<p><img src="next.png" alt="初始化虚拟机过程"></p>
 <p>选择存放位置 设置虚拟机能够使用的最大硬盘空间 点击创建就完成了初始化的操作</p>
-<p><img src="/2021/06/14/linux0/new.png" alt="初始化完成"></p>
+<p><img src="new.png" alt="初始化完成"></p>
 <blockquote>
 <p><strong>4、安装虚拟机</strong></p>
 </blockquote>
 <p>启动虚拟机，选择我们开始下载的CentOS7安装包，点击启动</p>
-<p><img src="/2021/06/14/linux0/centos-start.png" alt="启动虚拟机"></p>
-<p><img src="/2021/06/14/linux0/choice-language.png" alt="语言选择"></p>
+<p><img src="centos-start.png" alt="启动虚拟机"></p>
+<p><img src="choice-language.png" alt="语言选择"></p>
 <p>时区选择上海</p>
 <p>双击软件选择，在弹出界面中选择GNOME桌面，对于初学者比较友好。</p>
-<p><img src="/2021/06/14/linux0/abstract.png" alt="摘要选择"></p>
+<p><img src="abstract.png" alt="摘要选择"></p>
 <p>网络选择:选择打开以太网，减少后期对网络的配置，点击完成</p>
-<p><img src="/2021/06/14/linux0/network.png" alt="网络选择"></p>
+<p><img src="network.png" alt="网络选择"></p>
 <p><strong>备注：</strong>必须完成带有黄色感叹号的内容，才能进行下一步，我们点击<strong>安装位置</strong>后直接点击确定</p>
 <p>设置ROOT用户密码 创建一个普通用户</p>
-<p><img src="/2021/06/14/linux0/password.png" alt="密码设置"></p>
-<p><img src="/2021/06/14/linux0/install.png" alt="等待安装"></p>
-<p><img src="/2021/06/14/linux0/rebot.png" alt="重启"></p>
-<p><img src="/2021/06/14/linux0/initial-setting.png" alt="初始化设置"></p>
+<p><img src="password.png" alt="密码设置"></p>
+<p><img src="install.png" alt="等待安装"></p>
+<p><img src="rebot.png" alt="重启"></p>
+<p><img src="initial-setting.png" alt="初始化设置"></p>
 <p>初始化完成进入登录页面，输入密码，即可进入CentOS桌面</p>
-<p><img src="/2021/06/14/linux0/login.png" alt="登录界面"></p>
+<p><img src="login.png" alt="登录界面"></p>
 <p>注意：进入系统显示的帮助说明不是在浏览器中显示的，顶部不是<strong>地址栏</strong></p>
-<p><img src="/2021/06/14/linux0/help.png" alt="帮助页面"></p>
+<p><img src="help.png" alt="帮助页面"></p>
 <blockquote>
 <p><strong>5、注意事项</strong></p>
 </blockquote>
 <ul>
 <li>刚刚安装的虚拟机显示很小，可以打开自动缩放模式，快捷键为Host+C。<strong>Host键对应于键盘右边的那个CTRL键</strong></li>
 </ul>
-<p><img src="/2021/06/14/linux0/show.png" alt="显示"></p>
-<p><img src="/2021/06/14/linux0/small.png" alt="image-20210627151151912"></p>
+<p><img src="show.png" alt="显示"></p>
+<p><img src="small.png" alt="image-20210627151151912"></p>
 <ul>
 <li>宿主机wifi时的虚拟机网络设置</li>
 </ul>
-<p><img src="/2021/06/14/linux0/wifi-network.png" alt="虚拟机里打开百度"></p>
+<p><img src="wifi-network.png" alt="虚拟机里打开百度"></p>
 <p>此时虚拟机可以ping通外网，但是外网访问不到虚拟机。</p>
 <p>网卡1连接方式为网络地址转换(nat)，用于访问外网</p>
 <p>我们设置网卡2连接方式为仅主机(Host-Only)网络，界面名称选择virtualBox安装后自动生成的以太网卡适配器，用于与宿主机通信</p>
-<p><img src="/2021/06/14/linux0/network-set.png" alt="虚拟机网络设置"></p>
-<p><img src="/2021/06/14/linux0/network-ip.png" alt="设置IP地址"></p>
+<p><img src="network-set.png" alt="虚拟机网络设置"></p>
+<p><img src="network-ip.png" alt="设置IP地址"></p>
 <p>此时重启CentOS虚拟机</p>
-<p><img src="/2021/06/14/linux0/ifconfig.png" alt="查看IP地址"></p>
+<p><img src="ifconfig.png" alt="查看IP地址"></p>
 <p>使用**<a target="_blank" rel="noopener" href="https://mobaxterm.mobatek.net/">MobaXterm</a>**连接虚拟机，输入IP地址、用户名、端口，点击OK，在打开的敞口中输入密码即完成MobaXterm连接VirtualBox 虚拟机中的 CentOS 7</p>
-<p><img src="/2021/06/14/linux0/connecttion.png" alt="发起连接"></p>
-<p><img src="/2021/06/14/linux0/connection-ok.png" alt="连接成功"></p>
+<p><img src="connecttion.png" alt="发起连接"></p>
+<p><img src="connection-ok.png" alt="连接成功"></p>
 <p>至此，VirtualBox上安装CentOS7大功告成，开始学习。。。</p>
 <blockquote>
 <p><strong>引用文章</strong></p>

@@ -486,20 +486,20 @@
 <h3 id="【MQ中间件】RabbitMQ消息持久化与内存管控"><a href="#【MQ中间件】RabbitMQ消息持久化与内存管控" class="headerlink" title="【MQ中间件】RabbitMQ消息持久化与内存管控"></a>【MQ中间件】RabbitMQ消息持久化与内存管控</h3><blockquote>
 <h3 id="RibbitMQ持久化"><a href="#RibbitMQ持久化" class="headerlink" title="RibbitMQ持久化"></a>RibbitMQ持久化</h3></blockquote>
 <p>持久化就把信息写入到磁盘的过程。</p>
-<p><img src="/2022/11/12/middleware-rabbitmq-monitor/durable.png" alt="RibbitMQ持久化"></p>
+<p><img src="durable.png" alt="RibbitMQ持久化"></p>
 <p>消息什么时候需要持久化：</p>
 <p>消息本身在publish的时候就要求消息写入磁盘；</p>
 <p>内存紧张，需要将部分内存中的消息转移到磁盘；</p>
 <p>持久化是为提高rabbitmq消息的可靠性，防止在异常情况(重启，关闭，宕机)下数据的丢失。</p>
 <p>rabbitmq持久化分为三个部分: <strong>交换器的持久化、队列的持久化和消息的持久化</strong>。</p>
 <h4 id="交换器的持久化"><a href="#交换器的持久化" class="headerlink" title="交换器的持久化"></a>交换器的持久化</h4><p>交换器的持久化是通过声明队列时，将<code>durable</code>参数设置为true实现的。如果交换器不设置持久化，那么rabbitmq服务重启之后，exchange将不复存在，不过消息不会丢失，那么既而发送方rabbitmq producer就无法正常发送消息。建议将交换器设置为持久化。</p>
-<p><img src="/2022/11/12/middleware-rabbitmq-monitor/directDurableExchange.png" alt="未持久化exchange"></p>
-<p><img src="/2022/11/12/middleware-rabbitmq-monitor/directDurableQueuepng" alt="绑定在未持久化exchange上的持久化queue与持久化消息"></p>
-<p><img src="/2022/11/12/middleware-rabbitmq-monitor/undirectDurableRestart.png" alt="未持久化exchange重启之后消失"></p>
+<p><img src="directDurableExchange.png" alt="未持久化exchange"></p>
+<p><img src="directDurableQueuepng" alt="绑定在未持久化exchange上的持久化queue与持久化消息"></p>
+<p><img src="undirectDurableRestart.png" alt="未持久化exchange重启之后消失"></p>
 <h4 id="队列的持久化"><a href="#队列的持久化" class="headerlink" title="队列的持久化"></a>队列的持久化</h4><p>队列的持久化是通过声明队列时，将<code>durable</code>参数设置为true实现的。如果队列不设置持久化，那么rabbitmq服务重启之后，相关的队列元数据将会丢失，而消息是存储在队列中的，所以队列中的消息也会被丢失。</p>
-<p><img src="/2022/11/12/middleware-rabbitmq-monitor/undirectQueue.png" alt="未持久化队列持久化消息"></p>
-<p><img src="/2022/11/12/middleware-rabbitmq-monitor/directMessageDurable.png" alt="持久化的消息"></p>
-<p><img src="/2022/11/12/middleware-rabbitmq-monitor/undirectQueueRestart.png" alt="未持久化队列重启消息丢失"></p>
+<p><img src="undirectQueue.png" alt="未持久化队列持久化消息"></p>
+<p><img src="directMessageDurable.png" alt="持久化的消息"></p>
+<p><img src="undirectQueueRestart.png" alt="未持久化队列重启消息丢失"></p>
 <h4 id="消息的持久化"><a href="#消息的持久化" class="headerlink" title="消息的持久化"></a>消息的持久化</h4><p>队列的持久化只能保证其队列本身的元数据不会被丢失，但是不能保证消息不会被丢失。所以消息本身也需要被持久化，可以在投递消息前设置<code>AMQP.BasicProperties</code>的属性<code>deliveryMode</code>为2即可，spring boot和rabbitmq整合以后，默认消息是会被持久化的。</p>
 <p>消息都设置为持久化，但是这样会影响RabbitMQ的性能。因为我们将消息写入到内存的同时还需要将消息写入到磁盘。<br>对于可靠性要求不是那么高的消息可以不采用持久化处理，以提高整体系统的吞吐量。</p>
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p><strong>将交换器、队列和消息都设置持久化之后就能保证数据不会被丢失吗？当然不是，多个方面</strong></p>
@@ -519,7 +519,7 @@ vm_memory_high_watermark.relative&#x3D;0.4
 #绝对值，单位为KB,MB,GB,对应的临时命令是：RabbitMQctl set_vm_memory_high_watermark absolute &lt;value&gt;
 #vm_memory_high_watermark.absolute&#x3D;1GB<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 
-<p><img src="/2022/11/12/middleware-rabbitmq-monitor/blocked.png" alt="阻塞"></p>
+<p><img src="blocked.png" alt="阻塞"></p>
 <p>当出现blocking或blocked话说明到达了阈值和以及高负荷运行了。</p>
 <h4 id="内存换页"><a href="#内存换页" class="headerlink" title="内存换页"></a>内存换页</h4><p>在某个broker节点触及内存并阻塞生产者之前，他会尝试将队列内存中的消息换页存储到磁盘以释放内存空间。持久化和非持久化的消息都会被转储到磁盘中，其中持久化的消息本身就在磁盘中有一个备份，所以这里会将持久化的消息从内存中清除掉。<br>默认情况下，在内存达到内存阈值的50%时会进行换页操作。也就是说，在默认的内存阈值40%的情况下，当内存超过0.4*0.5=0.2时会经行换页动作。<br>内存换页可以通过在配置文件中设置来进行调整。</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">vm_memory_high_watermark_paging_ratio&#x3D;0.75<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>

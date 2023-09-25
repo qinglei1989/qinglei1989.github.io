@@ -616,7 +616,7 @@ GCT：垃圾回收消耗总时间<span aria-hidden="true" class="line-numbers-ro
  S0C    S1C    S0U    S1U      EC       EU        OC         OU       MC     MU    CCSC   CCSU   YGC     YGCT    FGC    FGCT     GCT
 17024.0 17024.0  0.0    22.7  136320.0 60520.6   460416.0   88295.8   76212.0 74725.3 8392.0 8040.4    223    1.986   4      0.277    2.263<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
-<p><img src="/2022/03/28/jvm-command-jstat/gc.png" alt="空间大小"></p>
+<p><img src="gc.png" alt="空间大小"></p>
 <blockquote>
 <p>堆内存统计</p>
 </blockquote>
@@ -751,7 +751,7 @@ GCT：垃圾回收消耗总时间<span aria-hidden="true" class="line-numbers-ro
   S0     S1     E      O      M     CCS    YGC     YGCT    FGC    FGCT     GCT
   0.00   0.13  55.01  19.18  98.05  95.81    223    1.986     4    0.277    2.263<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 
-<p><img src="/2022/03/28/jvm-command-jstat/gcutil.png" alt="垃圾回收"></p>
+<p><img src="gcutil.png" alt="垃圾回收"></p>
 <blockquote>
 <h4 id="分析jstat输出的工具"><a href="#分析jstat输出的工具" class="headerlink" title="分析jstat输出的工具"></a>分析jstat输出的工具</h4></blockquote>
 <p>jstat的挑战之一是您需要手动分析生成的统计信息。 正如您看到的那样，仅了解/解释一行内容将花费很长时间，这将很繁琐。 您可以使用<a target="_blank" rel="noopener" href="https://gceasy.io/">GCeasy工具</a> ，该工具可以解析jstat输出并生成具有洞察力的图形和指标。</p>

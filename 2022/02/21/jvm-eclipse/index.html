@@ -488,10 +488,10 @@
 </blockquote>
 <p>下载Eclipse并安装，下载地址：<a target="_blank" rel="noopener" href="https://www.eclipse.org/downloads/%E3%80%82">https://www.eclipse.org/downloads/。</a></p>
 <p>在Eclipse help -&gt; Eclipse Marketplace下搜索Memory.找到图中的软件，默认安装就可以。</p>
-<p><img src="/2022/02/21/jvm-eclipse/eclipse.png" alt="打开Eclipse Marketplace"></p>
-<p><img src="/2022/02/21/jvm-eclipse/memory.png" alt="Eclipse Memory Analyzer安装"></p>
-<p><img src="/2022/02/21/jvm-eclipse/analysis.png" alt="Eclipse Memory Analyzer查找"></p>
-<p><img src="/2022/02/21/jvm-eclipse/open.png" alt="Eclipse Memory Analyzer打开"></p>
+<p><img src="eclipse.png" alt="打开Eclipse Marketplace"></p>
+<p><img src="memory.png" alt="Eclipse Memory Analyzer安装"></p>
+<p><img src="analysis.png" alt="Eclipse Memory Analyzer查找"></p>
+<p><img src="open.png" alt="Eclipse Memory Analyzer打开"></p>
 <blockquote>
 <p>测试代码</p>
 </blockquote>
@@ -520,7 +520,7 @@ public class HeapOOM &#123;
 &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>VM options配置</p>
-<p><img src="/2022/02/21/jvm-eclipse/VMoptions.png" alt="VM options配置"></p>
+<p><img src="VMoptions.png" alt="VM options配置"></p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java">-Xms20m -Xmx20m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath&#x3D;d:\test.hprof
 HeapDumpOnOutOfMemoryError 内存溢出时dump文件保存在HeapDumpPath指定的位置，-XX:HeapDumpPath&#x3D;&#x2F;usr&#x2F;local&#x2F;tomcat 这样可以只指定保持的目录
 -Xms20m 指定JVM初始内存为20m，-Xmx20m 指定JVM最大可用内存为20m<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
@@ -545,37 +545,37 @@ Process finished with exit code 1<span aria-hidden="true" class="line-numbers-ro
 <p>分析</p>
 </blockquote>
 <p>在Eclipse Memory Analyzer试图中，选择File -&gt; Open Heap Dump</p>
-<p><img src="/2022/02/21/jvm-eclipse/dump.png" alt="打开Dump文件"></p>
+<p><img src="dump.png" alt="打开Dump文件"></p>
 <p><strong>Overview页面</strong></p>
-<p><img src="/2022/02/21/jvm-eclipse/override.png" alt="Overview"></p>
+<p><img src="override.png" alt="Overview"></p>
 <p>在窗口上方的位置可以看到 heapDump 的 size，以及类、对象和类加载器的数量。<br>在窗口中最醒目的饼图直观地显示了 dump 中最大的几个对象。鼠标光标划过饼图中代表某个对象的区块时可以在左侧 Inspector 窗口中看到对象的细节，在区块上点击鼠标左键可以通过菜单项钻取到关于其对应的对象更多的细节。</p>
 <p>我们可以看到占用很大一部分内存的有几个深色的饼区，这些就可以当做我们稍后着重看的地方</p>
-<p><img src="/2022/02/21/jvm-eclipse/dump-heap.png" alt="内存分析"></p>
+<p><img src="dump-heap.png" alt="内存分析"></p>
 <p>这里看到最大的那个占用内存的对象，对象名称，Shallow Size也就是本身在堆内存中120B并不大，但是Retained Size有15.5M，说明这个大对象中包含的引用对象很多。</p>
 <p><strong>Histogram</strong></p>
 <p>点开Histogram，点击Shallow Heap或Retained Heap排序，可以看见前排占用大量空间的有哪些</p>
-<p><img src="/2022/02/21/jvm-eclipse/Histogram.png" alt="Histogram"></p>
+<p><img src="Histogram.png" alt="Histogram"></p>
 <ul>
 <li>Shallow Heap浅堆：java对象占用的内存</li>
 <li>Retained Heap深堆：java对象及对象引用的类占用的内存 ，jvm gc回收时释放的内存</li>
 <li>Retained Heap深堆大于等于Shallow Heap浅堆</li>
 </ul>
 <p>如果想看这个具体有哪些对象，可以点击这个右键-&gt;show objects by class -&gt; by outgoing Reference</p>
-<p><img src="/2022/02/21/jvm-eclipse/outgoingReference.png" alt="outgoing Reference"></p>
+<p><img src="outgoingReference.png" alt="outgoing Reference"></p>
 <p>Incomming Reference 指的是引用当前对象的外部对象； Outgoing Reference 指的是当前对象引用的外部对象。<br>对象的 incomming reference 保证对象处于 alive 从而免于被垃圾回收掉。<br>Outgoing reference 则展示了对象的具体内容， 有助于我们发现对象的用处。</p>
-<p><img src="/2022/02/21/jvm-eclipse/Histogram1.png" alt="具体分析"></p>
+<p><img src="Histogram1.png" alt="具体分析"></p>
 <p>比如可以看到Object[]这个对象本身就很大，它的引用外部对象很小，说明它的内存主要是由于本身定义的过大引起的。<br>第二个对象就是由于引用外部对象过多引起的。</p>
 <p><strong>Dominator Tree</strong></p>
 <p>Dominator Tree 展示了 Heap Dump 中最大的几个对象。 如果 dominator tree 中对象的父节点被移除的话那么， 那么相应对象及其后代节点也面临被回收的状态。</p>
-<p><img src="/2022/02/21/jvm-eclipse/DominatorTree.png" alt="Dominator Tree.png"></p>
+<p><img src="DominatorTree.png" alt="Dominator Tree.png"></p>
 <p>如果想探究一个对象持有了哪些对象并使之处于 alive， Dominator Tree 会是个很有用的工具。 此外还可以在 Dominator Tree 上按照 classloader 或 package 进行分组， 从而简化分析的过程。</p>
 <p>可以点击左边你的三角展开查看持有的alive对象。</p>
 <p><strong>Top Consumers</strong></p>
 <p>Top Consumer 与Override页类似，Top Consumer 页按照对象、类、 类加载器和包也分别提供了对应的类似图表信息</p>
-<p><img src="/2022/02/21/jvm-eclipse/TopConsumer.png" alt="Top Consumer"></p>
+<p><img src="TopConsumer.png" alt="Top Consumer"></p>
 <p><strong>Leak Suspects</strong></p>
 <p>通过前面简单的了解，我们大致了解了什么地方的内存比较占用高，最后这个报告是Mat帮我们分析的可能怀疑内存泄露的地方</p>
-<p><img src="/2022/02/21/jvm-eclipse/LeakSuspects.png" alt="Leak Suspects"></p>
+<p><img src="LeakSuspects.png" alt="Leak Suspects"></p>
 <blockquote>
 <p>引用</p>
 </blockquote>
