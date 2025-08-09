@@ -1,0 +1,1970 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="spring,mysql,SpringBoot,sharding-jdbc-spring-boot-starter">
+    <meta name="description" content="失落时悄悄徘徊，伤感时默默遐想">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>spring-boot-shardingjdbc | 山西小魔头技术博客</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery.min.js"></script>
+
+<meta name="generator" content="Hexo 5.4.0"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+
+
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">山西小魔头技术博客</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/friends" class="waves-effect waves-light">
+      
+      <i class="fas fa-address-book" style="zoom: 0.6;"></i>
+      
+      <span>友情链接</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">山西小魔头技术博客</div>
+        <div class="logo-desc">
+            
+            失落时悄悄徘徊，伤感时默默遐想
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/friends" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-address-book"></i>
+			
+			友情链接
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/10.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">spring-boot-shardingjdbc</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        width: 345px;
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        padding: 35px 0 15px 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content {
+        padding-bottom: 30px;
+        overflow: auto;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+
+        position: absolute;
+        right: 23.5vw;
+        display: block;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 15px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/spring-boot/">
+                                <span class="chip bg-color">spring-boot</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/Spring/" class="post-category">
+                                Spring
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2022-10-28
+                </div>
+                
+
+                
+
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>Mysql数据库架构演进从单机到主从到分库分表在数据量及访问压力不是特别大的情况，首先考虑缓存、读写分离、索引技术等方案</p>
+<ul>
+<li>如果数据量极大，且业务持续增长快，再考虑分库分表方案</li>
+</ul>
+<span id="more"></span>
+
+<h1 id="Sharding-JDBC学习"><a href="#Sharding-JDBC学习" class="headerlink" title="Sharding-JDBC学习"></a>Sharding-JDBC学习</h1><blockquote>
+<h3 id="Mysql数据库架构演变历史"><a href="#Mysql数据库架构演变历史" class="headerlink" title="Mysql数据库架构演变历史"></a>Mysql数据库架构演变历史</h3></blockquote>
+<ul>
+<li><p>单机</p>
+<p>请求量大查询慢</p>
+<p>单机故障导致业务不可用</p>
+</li>
+<li><p>主从</p>
+<p>数据库主从同步，从库可以水平扩展，满足更大读需求</p>
+<p>但单服务器TPS，内存，IO都是有限的</p>
+</li>
+</ul>
+<ul>
+<li><p>分库分表</p>
+<p>解决数据库本身瓶颈，包括连接数过多等。分库可以解决单台数据库的并发访问压力问题。分表可以解决单表海量数据的查询性能问题</p>
+<p>解决系统本身IO、CPU瓶颈</p>
+</li>
+</ul>
+<blockquote>
+<h3 id="分库分表"><a href="#分库分表" class="headerlink" title="分库分表"></a>分库分表</h3></blockquote>
+<h4 id="垂直分表"><a href="#垂直分表" class="headerlink" title="垂直分表"></a>垂直分表</h4><p>“大表拆小表”，基于列字段进行的。</p>
+<ul>
+<li>拆分原则一般是表中的字段较多，将不常用的或者数据较大，长度较长的拆分到“扩展表 如text类型字段</li>
+<li>访问频次低、字段大的商品描述信息单独存放在一张表中，访问频次较高的商品基本信息单独放在一张表中</li>
+</ul>
+<h4 id="垂直分库"><a href="#垂直分库" class="headerlink" title="垂直分库"></a>垂直分库</h4><ul>
+<li>垂直分库能够突破IO、连接数及单机硬件资源的瓶颈。垂直分库可以更好解决业务层面的耦合，业务清晰，且方便管理和维护</li>
+<li>一般从单体项目根据不同业务进行拆分改造为微服务项目，就是垂直分库</li>
+<li>垂直分库分表可以提高并发，但是依然没有解决单表数据量过大的问题</li>
+</ul>
+<h4 id="水平分表"><a href="#水平分表" class="headerlink" title="水平分表"></a>水平分表</h4><ul>
+<li>把一张大表拆分成N个小表，表结构一样，但数据不一样，每张表只有部分数据，全部表的数据合起来就是全部数据</li>
+<li>但是这些表还是在同一个库中，所以单数据库操作还是有IO瓶颈，主要是解决单表数据量过大的问题</li>
+</ul>
+<h4 id="水平分库"><a href="#水平分库" class="headerlink" title="水平分库"></a>水平分库</h4><ul>
+<li>把同个表的数据按照一定规则分到不同的数据库中，数据库在不同的服务器上</li>
+<li>每个库的结构都一样,但每个库的数据都不一样，没有交集，所有库的并集就是全量数据</li>
+<li>水平分库的粒度，比水平分表更大</li>
+</ul>
+<p><strong>常规开发里面单表建议1千万内，推荐是百万级别单表存储，常规sql和索引优化先行，然后结合缓存+异步+nosql+mq</strong></p>
+<blockquote>
+<h3 id="水平分库分表常见策略讲解"><a href="#水平分库分表常见策略讲解" class="headerlink" title="水平分库分表常见策略讲解"></a>水平分库分表常见策略讲解</h3></blockquote>
+<h4 id="range"><a href="#range" class="headerlink" title="range"></a>range</h4><p>方案一：自增id，根据ID范围进行分表（左闭右开）</p>
+<p>优点是id是自增长，可以无限增长。扩容不用迁移数据，容易理解和维护</p>
+<p>缺点是大部分读和写都访会问新的数据，有IO瓶颈，整体资源利用率低。数据倾斜严重，热点数据过于集中，部分节点有瓶颈</p>
+<h4 id="range延伸"><a href="#range延伸" class="headerlink" title="range延伸"></a>range延伸</h4><p>时间：年、月、日范围，比如按照月份生成 库或表 pay_log_2022_01、pay_log_2022_02</p>
+<p>空间：地理位置：省份、区域（华东、华北、华南）比如按照 省份 生成 库或表</p>
+<h4 id="Hash取模"><a href="#Hash取模" class="headerlink" title="Hash取模"></a>Hash取模</h4><p>Hash分库分表是最普遍的方案。保证数据较均匀的分散落在不同的库、表中，可以有效的避免热点数据集中问题。缺点是扩容不是很方便，需要数据迁移</p>
+<blockquote>
+<h3 id="分库分表常见中间件介绍"><a href="#分库分表常见中间件介绍" class="headerlink" title="分库分表常见中间件介绍"></a>分库分表常见中间件介绍</h3></blockquote>
+<p><strong>Mycat</strong></p>
+<ul>
+<li>地址 <a target="_blank" rel="noopener" href="http://www.mycat.org.cn/">http://www.mycat.org.cn/</a></li>
+<li>Java语言编写的MySQL数据库网络协议的开源中间件，前身 Cobar</li>
+<li>遵守Mysql原生协议，跨语言，跨平台，跨数据库的通用中间件代理</li>
+<li>是基于 Proxy，它复写了 MySQL 协议，将 Mycat Server 伪装成一个 MySQL 数据库</li>
+<li>和ShardingShere下的Sharding-Proxy作用类似，需要单独部署</li>
+</ul>
+<p><img src="mycat.png" alt="Mycat"></p>
+<p><strong>ShardingSphere 下的Sharding-JDBC</strong></p>
+<ul>
+<li>地址：<a target="_blank" rel="noopener" href="https://shardingsphere.apache.org/">https://shardingsphere.apache.org/</a></li>
+<li>Apache ShardingSphere 是一套开源的分布式数据库中间件解决方案组成的生态圈<ul>
+<li>它由 Sharding-JDBC、Sharding-Proxy 和 Sharding-Sidecar 3个独立产品组合</li>
+</ul>
+</li>
+<li>Sharding-JDBC<ul>
+<li>基于jdbc驱动，不用额外的proxy，支持任意实现 JDBC 规范的数据库</li>
+<li>它使用客户端直连数据库，以 jar 包形式提供服务，无需额外部署和依赖</li>
+<li>可理解为加强版的 JDBC 驱动，兼容 JDBC 和各类 ORM 框架</li>
+</ul>
+</li>
+</ul>
+<p><img src="sharding-jdbc.png" alt="sharding-jdbc.png"></p>
+<p>二者之间的区别：</p>
+<ul>
+<li>两者设计理念相同，主流程都是SQL解析–&gt;SQL路由–&gt;SQL改写–&gt;结果归并</li>
+<li>sharding-jdbc<ul>
+<li>基于jdbc驱动，不用额外的proxy，在本地应用层重写Jdbc原生的方法，实现数据库分片形式</li>
+<li>是基于 JDBC 接口的扩展，是以 jar 包的形式提供轻量级服务的，性能高</li>
+<li>代码有侵入性</li>
+</ul>
+</li>
+<li>Mycat<ul>
+<li>是基于 Proxy，它复写了 MySQL 协议，将 Mycat Server 伪装成一个 MySQL 数据库</li>
+<li>客户端所有的jdbc请求都必须要先交给MyCat，再有MyCat转发到具体的真实服务器</li>
+<li>缺点是效率偏低，中间包装了一层</li>
+<li>代码无侵入性</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<h3 id="分库分表基础概念"><a href="#分库分表基础概念" class="headerlink" title="分库分表基础概念"></a>分库分表基础概念</h3></blockquote>
+<ul>
+<li>数据节点Node<ul>
+<li>数据分片的最小单元，由数据源名称和数据表组成<code>ds_0.product_order_0</code></li>
+</ul>
+</li>
+<li>真实表<ul>
+<li>在分片的数据库中真实存在的物理表,比如订单表 product_order_0、product_order_1、product_order_2</li>
+</ul>
+</li>
+<li>逻辑表<ul>
+<li>水平拆分的数据库（表）的相同逻辑和数据结构表的总称,比如订单表 product_order_{0..1}逻辑表就是product_order</li>
+</ul>
+</li>
+<li>绑定表<ul>
+<li>指分片规则一致的主表和子表</li>
+<li>比如product_order表和product_order_item表，均按照order_id分片，则此两张表互为绑定表关系</li>
+<li>绑定表之间的多表关联查询不会出现笛卡尔积关联，关联查询效率将大大提升</li>
+</ul>
+</li>
+<li>广播表<ul>
+<li>指所有的分片数据源中都存在的表，表结构和表中的数据在每个数据库中均完全一致</li>
+<li>适用于数据量不大且需要与海量数据的表进行关联查询的场景</li>
+<li>例如：字典表、配置表</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<h3 id="分库分表和Sharding-Jdbc常见分片算法讲解"><a href="#分库分表和Sharding-Jdbc常见分片算法讲解" class="headerlink" title="分库分表和Sharding-Jdbc常见分片算法讲解"></a>分库分表和Sharding-Jdbc常见分片算法讲解</h3></blockquote>
+<p>数据库表分片（水平库、表）,包含分片键和分片策略</p>
+<ul>
+<li><p>分片键 (PartitionKey)</p>
+<ul>
+<li>用于分片的数据库字段，是将数据库(表)水平拆分的关键字段, ShardingSphere也支持根据多个字段进行分片</li>
+</ul>
+</li>
+<li><p>分片策略</p>
+<ul>
+<li><p>行表达式分片策略 InlineShardingStrategy（<strong>必备</strong>）</p>
+<p>只支持【<strong>单分片键</strong>】使用Groovy的表达式，提供对SQL语句中的 =和IN 的分片操作支持,可以通过简单的配置使用，无需自定义分片算法，从而避免繁琐的Java代码开发</p>
+</li>
+<li><p>标准分片策略StandardShardingStrategy</p>
+<p>只支持【<strong>单分片键</strong>】，提供PreciseShardingAlgorithm和RangeShardingAlgorithm两个分片算法</p>
+<p>PreciseShardingAlgorithm 精准分片 是必选的，用于处理=和IN的分片</p>
+<p>RangeShardingAlgorithm 范围分配 是可选的，用于处理BETWEEN AND分片</p>
+<p>如果不配置RangeShardingAlgorithm，如果SQL中用了BETWEEN AND语法，则将按照全库路由处理，性能下降</p>
+</li>
+<li><p>复合分片策略ComplexShardingStrategy（需了解）</p>
+<p>支持【<strong>多分片键</strong>】，多分片键之间的关系复杂，由开发者自己实现，提供最大的灵活度</p>
+<p>提供对SQL语句中的=, IN和BETWEEN AND的分片操作支持</p>
+</li>
+<li><p>Hint分片策略HintShardingStrategy（需了解）</p>
+<p>这种分片策略无需配置分片健，分片健值也不再从 SQL中解析，外部手动指定分片健或分片库，让 SQL在指定的分库、分表中执行</p>
+<p>用于处理使用Hint行分片的场景，通过Hint而非SQL解析的方式分片的策略</p>
+<p>Hint策略会绕过SQL解析的，对于这些比较复杂的需要分片的查询，Hint分片策略性能可能会更好</p>
+</li>
+<li><p>不分片策略 NoneShardingStrategy</p>
+</li>
+<li><p>不分片的策略。</p>
+</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<h3 id="springboot整合shardingjdbc"><a href="#springboot整合shardingjdbc" class="headerlink" title="springboot整合shardingjdbc"></a>springboot整合shardingjdbc</h3></blockquote>
+<p>框架版本说明</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">&lt;properties&gt;
+    &lt;maven.compiler.source&gt;8&lt;&#x2F;maven.compiler.source&gt;
+    &lt;maven.compiler.target&gt;8&lt;&#x2F;maven.compiler.target&gt;
+    &lt;project.build.sourceEncoding&gt;UTF-8&lt;&#x2F;project.build.sourceEncoding&gt;
+    &lt;project.reporting.outputEncoding&gt;UTF-8&lt;&#x2F;project.reporting.outputEncoding&gt;
+    &lt;java.version&gt;1.8&lt;&#x2F;java.version&gt;
+    &lt;mybatis-plus.version&gt;3.4.0&lt;&#x2F;mybatis-plus.version&gt;
+    &lt;spring-boot.version&gt;2.5.0&lt;&#x2F;spring-boot.version&gt;
+    &lt;lombok.version&gt;1.18.16&lt;&#x2F;lombok.version&gt;
+    &lt;mysql.version&gt;8.0.25&lt;&#x2F;mysql.version&gt;
+    &lt;sharding-jdbc.version&gt;4.1.1&lt;&#x2F;sharding-jdbc.version&gt;
+&lt;&#x2F;properties&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>maven pom文件配置</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-web&lt;&#x2F;artifactId&gt;
+        &lt;version&gt;$&#123;spring-boot.version&#125;&lt;&#x2F;version&gt;
+    &lt;&#x2F;dependency&gt;
+
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-test&lt;&#x2F;artifactId&gt;
+        &lt;version&gt;$&#123;spring-boot.version&#125;&lt;&#x2F;version&gt;
+        &lt;scope&gt;test&lt;&#x2F;scope&gt;
+    &lt;&#x2F;dependency&gt;
+
+
+    &lt;!--mybatis plus和springboot整合--&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;com.baomidou&lt;&#x2F;groupId&gt;
+        &lt;artifactId&gt;mybatis-plus-boot-starter&lt;&#x2F;artifactId&gt;
+        &lt;version&gt;$&#123;mybatis-plus.version&#125;&lt;&#x2F;version&gt;
+    &lt;&#x2F;dependency&gt;
+
+    &lt;dependency&gt;
+        &lt;groupId&gt;mysql&lt;&#x2F;groupId&gt;
+        &lt;artifactId&gt;mysql-connector-java&lt;&#x2F;artifactId&gt;
+        &lt;version&gt;$&#123;mysql.version&#125;&lt;&#x2F;version&gt;
+    &lt;&#x2F;dependency&gt;
+
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.projectlombok&lt;&#x2F;groupId&gt;
+        &lt;artifactId&gt;lombok&lt;&#x2F;artifactId&gt;
+        &lt;version&gt;$&#123;lombok.version&#125;&lt;&#x2F;version&gt;
+        &lt;!--&lt;scope&gt;provided&lt;&#x2F;scope&gt;--&gt;
+    &lt;&#x2F;dependency&gt;
+
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.apache.shardingsphere&lt;&#x2F;groupId&gt;
+        &lt;artifactId&gt;sharding-jdbc-spring-boot-starter&lt;&#x2F;artifactId&gt;
+        &lt;version&gt;$&#123;sharding-jdbc.version&#125;&lt;&#x2F;version&gt;
+    &lt;&#x2F;dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;junit&lt;&#x2F;groupId&gt;
+        &lt;artifactId&gt;junit&lt;&#x2F;artifactId&gt;
+        &lt;version&gt;4.13&lt;&#x2F;version&gt;
+        &lt;scope&gt;test&lt;&#x2F;scope&gt;
+    &lt;&#x2F;dependency&gt;
+&lt;&#x2F;dependencies&gt;
+
+&lt;build&gt;
+    &lt;plugins&gt;
+        &lt;plugin&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;
+            &lt;artifactId&gt;spring-boot-maven-plugin&lt;&#x2F;artifactId&gt;
+            &lt;version&gt;$&#123;spring-boot.version&#125;&lt;&#x2F;version&gt;
+            &lt;configuration&gt;
+                &lt;fork&gt;true&lt;&#x2F;fork&gt;
+                &lt;addResources&gt;true&lt;&#x2F;addResources&gt;
+            &lt;&#x2F;configuration&gt;
+        &lt;&#x2F;plugin&gt;
+
+    &lt;&#x2F;plugins&gt;
+&lt;&#x2F;build&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>SQL脚本</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">create table product_order_0
+(
+    id           bigint auto_increment
+        primary key,
+    out_trade_no varchar(64)    null comment &#39;订单唯一标识&#39;,
+    state        varchar(11)    null comment &#39;NEW 未支付订单,PAY已经支付订单,CANCEL超时取消订单&#39;,
+    create_time  datetime       null comment &#39;订单生成时间&#39;,
+    pay_amount   decimal(16, 2) null comment &#39;订单实际支付价格&#39;,
+    nickname     varchar(64)    null comment &#39;昵称&#39;,
+    user_id      bigint         null comment &#39;用户id&#39;
+)
+    collate &#x3D; utf8mb4_bin;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>配置文件：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">#水平分表配置
+spring:
+  shardingsphere:
+    datasource:
+	  # 数据源名称，多数据源以逗号分隔(ds0,ds1)
+      names: ds0,ds1
+      # names定义的数据源名称作为key（key不能包含下划线，否则无法识别配置）
+      ds0:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;shop_order_0?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf-8&amp;useSSL&#x3D;false&amp;serverTimezone&#x3D;Asia&#x2F;Shanghai&amp;allowPublicKeyRetrieval&#x3D;true
+        username: root
+        password: 
+      ds1:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;shop_order_1?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf-8&amp;useSSL&#x3D;false&amp;serverTimezone&#x3D;Asia&#x2F;Shanghai&amp;allowPublicKeyRetrieval&#x3D;true
+        username: root
+        password: <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<h3 id="水平分表-单分片键"><a href="#水平分表-单分片键" class="headerlink" title="水平分表-单分片键"></a>水平分表-单分片键</h3></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">#水平分表配置
+spring:
+  shardingsphere:
+    datasource:
+	  # 数据源名称，多数据源以逗号分隔(ds0,ds1)
+      names: ds0,ds1
+      # names定义的数据源名称作为key（key不能包含下划线，否则无法识别配置）
+      ds0:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;shop_order_0?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf-8&amp;useSSL&#x3D;false&amp;serverTimezone&#x3D;Asia&#x2F;Shanghai&amp;allowPublicKeyRetrieval&#x3D;true
+        username: root
+        password: 
+      ds1:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;shop_order_1?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf-8&amp;useSSL&#x3D;false&amp;serverTimezone&#x3D;Asia&#x2F;Shanghai&amp;allowPublicKeyRetrieval&#x3D;true
+        username: root
+        password: 
+    sharding:
+      # binding‐tables[0]: product_order,product_order_item
+      tables:
+        product_order:
+          key-generator:
+            column: id
+            #主键生成策略 可选内置的 SNOWFLAKE(雪花算法)&#x2F;UUID 也可以自定义
+            type: SNOWFLAKE
+          # 分库策略
+          database-strategy:
+            inline:
+              sharding-column: user_id
+              algorithm-expression: ds$-&gt;&#123;user_id % 2&#125;
+		  # 由数据源名 + 表名组成，以小数点分隔。多个表以逗号分隔，支持inline表达式
+          actual-data-nodes: ds$-&gt;&#123;0..1&#125;.product_order_$-&gt;&#123;0..1&#125;
+		  #分表策略：单分片键
+          table-strategy:
+            inline:
+			  #分片键
+              sharding-column: id
+              #数据分片规则（ID是偶数把数据添加入product_order_0，奇数入product_order_1）
+              algorithm-expression: product_order_$-&gt;&#123;id % 2&#125;
+        product_order_item:
+          key-generator:
+            column: id
+            type: SNOWFLAKE
+          # 分库策略
+          database-strategy:
+            inline:
+              sharding-column: user_id
+              algorithm-expression: ds$-&gt;&#123;user_id % 2&#125;
+          actual-data-nodes: ds$-&gt;&#123;0..1&#125;.product_order_item_$-&gt;&#123;0..1&#125;
+          table-strategy:
+            inline:
+              sharding-column: product_order_id
+              algorithm-expression: product_order_item_$-&gt;&#123;product_order_id % 2&#125;
+        ad_config:
+          key-generator:
+            column: id
+            type: SNOWFLAKE
+      # 广播表
+      broadcast-tables: ad_config
+    props:
+      sql:
+        show: true<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><strong>测试-分表-查询</strong></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@Test
+public void customRange1() &#123;
+    &#x2F;&#x2F;分区字段查询数据：精准匹配分片表，不会去别的表中扫描数据
+    ProductOrder productOrder &#x3D; productOrderMapper.selectById(Long.valueOf(&quot;791057093019828224&quot;));
+    log.info(&quot;数据为&#123;&#125;&quot;, productOrder.toString());
+
+    &#x2F;&#x2F;非分区字段查询：全表匹配，汇总结果
+    List&lt;ProductOrder&gt; productOrderList &#x3D; productOrderMapper.selectList(new QueryWrapper&lt;ProductOrder&gt;().between(&quot;create_time&quot;,&quot;2022-10-23 21:38:28&quot;,&quot;2022-10-25 21:38:28&quot;));
+    log.info(&quot;数据量&#123;&#125;&quot;,productOrderList.size());
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>日志打印如下：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">2022-10-31 00:50:12.624  INFO 15368 --- [           main] ShardingSphere-SQL                       : Logic SQL: SELECT id,out_trade_no,state,create_time,pay_amount,nickname,user_id FROM product_order WHERE id&#x3D;? 
+2022-10-31 00:50:12.624  INFO 15368 --- [           main] ShardingSphere-SQL                       : SQLStatement: SelectStatementContext(super&#x3D;CommonSQLStatementContext(sqlStatement&#x3D;org.apache.shardingsphere.sql.parser.sql.statement.dml.SelectStatement@2bc16fe2, tablesContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.table.TablesContext@d66502), tablesContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.table.TablesContext@d66502, projectionsContext&#x3D;ProjectionsContext(startIndex&#x3D;7, stopIndex&#x3D;67, distinctRow&#x3D;false, projections&#x3D;[ColumnProjection(owner&#x3D;null, name&#x3D;id, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;out_trade_no, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;state, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;create_time, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;pay_amount, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;nickname, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;user_id, alias&#x3D;Optional.empty)]), groupByContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.groupby.GroupByContext@78545d40, orderByContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.orderby.OrderByContext@34549979, paginationContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.pagination.PaginationContext@144a5e6e, containsSubquery&#x3D;false)
+2022-10-31 00:50:12.625  INFO 15368 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds0 ::: SELECT id,out_trade_no,state,create_time,pay_amount,nickname,user_id FROM product_order_0 WHERE id&#x3D;?  ::: [791057093019828224]
+2022-10-31 00:50:12.625  INFO 15368 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds1 ::: SELECT id,out_trade_no,state,create_time,pay_amount,nickname,user_id FROM product_order_0 WHERE id&#x3D;?  ::: [791057093019828224]
+2022-10-31 00:50:12.665  INFO 15368 --- [           main] CustomShardingjdbcTest                   : 数据为ProductOrder(id&#x3D;791057093019828224, outTradeNo&#x3D;333333, state&#x3D;代发货, createTime&#x3D;Sun Oct 23 21:38:28 CST 2022, payAmount&#x3D;0.04, nickname&#x3D;狗蛋4, userId&#x3D;14)
+2022-10-31 00:50:12.730  INFO 15368 --- [           main] ShardingSphere-SQL                       : Logic SQL: SELECT  id,out_trade_no,state,create_time,pay_amount,nickname,user_id  FROM product_order 
+ 
+ WHERE (create_time BETWEEN ? AND ?)
+2022-10-31 00:50:12.730  INFO 15368 --- [           main] ShardingSphere-SQL                       : SQLStatement: SelectStatementContext(super&#x3D;CommonSQLStatementContext(sqlStatement&#x3D;org.apache.shardingsphere.sql.parser.sql.statement.dml.SelectStatement@52433946, tablesContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.table.TablesContext@5403431a), tablesContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.table.TablesContext@5403431a, projectionsContext&#x3D;ProjectionsContext(startIndex&#x3D;8, stopIndex&#x3D;68, distinctRow&#x3D;false, projections&#x3D;[ColumnProjection(owner&#x3D;null, name&#x3D;id, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;out_trade_no, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;state, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;create_time, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;pay_amount, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;nickname, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;user_id, alias&#x3D;Optional.empty)]), groupByContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.groupby.GroupByContext@ab327c, orderByContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.orderby.OrderByContext@3d798e76, paginationContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.pagination.PaginationContext@763b0996, containsSubquery&#x3D;false)
+2022-10-31 00:50:12.730  INFO 15368 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds0 ::: SELECT  id,out_trade_no,state,create_time,pay_amount,nickname,user_id  FROM product_order_0 
+ 
+ WHERE (create_time BETWEEN ? AND ?) ::: [2022-10-23 21:38:28, 2022-10-25 21:38:28]
+2022-10-31 00:50:12.730  INFO 15368 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds0 ::: SELECT  id,out_trade_no,state,create_time,pay_amount,nickname,user_id  FROM product_order_1 
+ 
+ WHERE (create_time BETWEEN ? AND ?) ::: [2022-10-23 21:38:28, 2022-10-25 21:38:28]
+2022-10-31 00:50:12.730  INFO 15368 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds1 ::: SELECT  id,out_trade_no,state,create_time,pay_amount,nickname,user_id  FROM product_order_0 
+ 
+ WHERE (create_time BETWEEN ? AND ?) ::: [2022-10-23 21:38:28, 2022-10-25 21:38:28]
+2022-10-31 00:50:12.730  INFO 15368 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds1 ::: SELECT  id,out_trade_no,state,create_time,pay_amount,nickname,user_id  FROM product_order_1 
+ 
+ WHERE (create_time BETWEEN ? AND ?) ::: [2022-10-23 21:38:28, 2022-10-25 21:38:28]
+2022-10-31 00:50:12.745  INFO 15368 --- [           main] CustomShardingjdbcTest                   : 数据量70<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>由上可以看出分片字段作为查询条件时，能准定位分片数据所在分片表（上边没有使用分库键，所以只能定位到分片表）。非分片字段查询时，全表匹配，汇总结果。</p>
+<blockquote>
+<h3 id="水平分表-单分片键（标准分片算法）"><a href="#水平分表-单分片键（标准分片算法）" class="headerlink" title="水平分表-单分片键（标准分片算法）"></a>水平分表-单分片键（标准分片算法）</h3></blockquote>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"># 打印执行的数据库以及语句
+spring:
+  shardingsphere:
+    datasource:
+      names: ds0,ds1
+      ds0:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;shop_order_0?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf-8&amp;useSSL&#x3D;false&amp;serverTimezone&#x3D;Asia&#x2F;Shanghai&amp;allowPublicKeyRetrieval&#x3D;true
+        username: root
+        password: 900926
+      ds1:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;shop_order_1?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf-8&amp;useSSL&#x3D;false&amp;serverTimezone&#x3D;Asia&#x2F;Shanghai&amp;allowPublicKeyRetrieval&#x3D;true
+        username: root
+        password: 900926
+    sharding:
+      # binding‐tables[0]: product_order,product_order_item
+      tables:
+        product_order:
+          key-generator:
+            column: id
+            type: SNOWFLAKE
+          actual-data-nodes: ds$-&gt;&#123;0..1&#125;.product_order_$-&gt;&#123;0..1&#125;
+          table-strategy:
+            standard:
+              sharding-column: id
+              #精确分片算法类名称，用于 &#x3D; 和 IN。该类需实现PreciseShardingAlgorithm 接口并提供无参数的构造器
+              precise-algorithm-class-name: com.rrc.strategy.CustomTablePreciseShardingAlgorithm
+              # 范围分片算法类名称，用于 BETWEEN，可选。该类需实现RangeShardingAlgorithm 接口并提供无参数的构造器
+              range-algorithm-class-name: com.rrc.strategy.CustomRangeShardingAlgorithm
+          database-strategy:
+            standard:
+              sharding-column: user_id
+              precise-algorithm-class-name: com.rrc.strategy.CustomDBPreciseShardingAlgorithm
+    props:
+      sql:
+        show: true<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><strong>精准分片算法实现</strong></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">public class CustomTablePreciseShardingAlgorithm implements PreciseShardingAlgorithm&lt;Long&gt; &#123;
+
+    &#x2F;**
+     *
+     * @param dataSourceNames 数据源集合
+     *                      在分库时值为所有分片库的集合 databaseNames
+     *                      分表时为对应分片库中所有分片表的集合 tablesNames
+     *
+     * @param shardingValue  分片属性，包括
+     *                                  logicTableName 为逻辑表，
+     *                                  columnName 分片健（字段），
+     *                                  value 为从 SQL 中解析出的分片健的值
+     * @return
+     *&#x2F;
+    @Override
+    public String doSharding(Collection&lt;String&gt; dataSourceNames, PreciseShardingValue&lt;Long&gt; shardingValue) &#123;
+        for (String databaseName : dataSourceNames) &#123;
+
+            String value &#x3D; shardingValue.getValue() % dataSourceNames.size() + &quot;&quot;;
+            &#x2F;&#x2F;value是0，则进入0库表，1则进入1库表
+            if (databaseName.endsWith(value)) &#123;
+                return databaseName;
+            &#125;
+
+        &#125;
+
+        throw new IllegalArgumentException();
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><strong>范围分片算法实现</strong></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">public class CustomRangeShardingAlgorithm implements RangeShardingAlgorithm&lt;Long&gt; &#123;
+    &#x2F;**
+     *
+     * @param dataSourceNames 数据源集合
+     *                      在分库时值为所有分片库的集合 databaseNames
+     *                      分表时为对应分片库中所有分片表的集合 tablesNames
+     *
+     * @param shardingValue  分片属性，包括
+     *                                  logicTableName 为逻辑表，
+     *                                  columnName 分片健（字段），
+     *                                  value 为从 SQL 中解析出的分片健的值
+     * @return
+     *&#x2F;
+    @Override
+    public Collection&lt;String&gt; doSharding(Collection&lt;String&gt; dataSourceNames, RangeShardingValue&lt;Long&gt; shardingValue) &#123;
+        Set&lt;String&gt; result &#x3D; new LinkedHashSet&lt;&gt;();
+
+        &#x2F;&#x2F;between 开始值
+        Long lower  &#x3D; shardingValue.getValueRange().lowerEndpoint();
+
+        &#x2F;&#x2F;between 结束值
+        Long upper &#x3D; shardingValue.getValueRange().upperEndpoint();
+
+        for(long i&#x3D;lower;i&lt;&#x3D;upper;i++)&#123;
+            for(String datasource : dataSourceNames)&#123;
+                String value &#x3D; i % dataSourceNames.size() +&quot;&quot;;
+                if(datasource.endsWith(value))&#123;
+                    result.add(datasource);
+                &#125;
+            &#125;
+
+        &#125;
+        return result;
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>测试标准分片</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@Test
+public void customRange() &#123;
+    productOrderMapper.selectList(new QueryWrapper&lt;ProductOrder&gt;().between(&quot;id&quot;,793987167104794624L,793987167104794624L));
+
+    productOrderMapper.selectList(new QueryWrapper&lt;ProductOrder&gt;().in(&quot;id&quot;,793987167104794624L,793987167373230080L));
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>日志打印如下：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">2022-10-31 23:54:19.468  INFO 19472 --- [           main] ShardingSphere-SQL                       : Logic SQL: SELECT  id,out_trade_no,state,create_time,pay_amount,nickname,user_id  FROM product_order 
+ 
+ WHERE (id BETWEEN ? AND ?)
+2022-10-31 23:54:19.468  INFO 19472 --- [           main] ShardingSphere-SQL                       : SQLStatement: SelectStatementContext(super&#x3D;CommonSQLStatementContext(sqlStatement&#x3D;org.apache.shardingsphere.sql.parser.sql.statement.dml.SelectStatement@6c5ae8fd, tablesContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.table.TablesContext@17354708), tablesContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.table.TablesContext@17354708, projectionsContext&#x3D;ProjectionsContext(startIndex&#x3D;8, stopIndex&#x3D;68, distinctRow&#x3D;false, projections&#x3D;[ColumnProjection(owner&#x3D;null, name&#x3D;id, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;out_trade_no, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;state, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;create_time, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;pay_amount, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;nickname, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;user_id, alias&#x3D;Optional.empty)]), groupByContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.groupby.GroupByContext@1aed6f0b, orderByContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.orderby.OrderByContext@3b3546a3, paginationContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.pagination.PaginationContext@134c38, containsSubquery&#x3D;false)
+2022-10-31 23:54:19.469  INFO 19472 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds0 ::: SELECT  id,out_trade_no,state,create_time,pay_amount,nickname,user_id  FROM product_order_0 
+ 
+ WHERE (id BETWEEN ? AND ?) ::: [793987167104794624, 793987167104794624]
+2022-10-31 23:54:19.469  INFO 19472 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds1 ::: SELECT  id,out_trade_no,state,create_time,pay_amount,nickname,user_id  FROM product_order_0 
+ 
+ WHERE (id BETWEEN ? AND ?) ::: [793987167104794624, 793987167104794624]
+2022-10-31 23:54:19.554  INFO 19472 --- [           main] ShardingSphere-SQL                       : Logic SQL: SELECT  id,out_trade_no,state,create_time,pay_amount,nickname,user_id  FROM product_order 
+ 
+ WHERE (id IN (?,?))
+2022-10-31 23:54:19.554  INFO 19472 --- [           main] ShardingSphere-SQL                       : SQLStatement: SelectStatementContext(super&#x3D;CommonSQLStatementContext(sqlStatement&#x3D;org.apache.shardingsphere.sql.parser.sql.statement.dml.SelectStatement@214fba74, tablesContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.table.TablesContext@252c6cdb), tablesContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.table.TablesContext@252c6cdb, projectionsContext&#x3D;ProjectionsContext(startIndex&#x3D;8, stopIndex&#x3D;68, distinctRow&#x3D;false, projections&#x3D;[ColumnProjection(owner&#x3D;null, name&#x3D;id, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;out_trade_no, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;state, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;create_time, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;pay_amount, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;nickname, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;user_id, alias&#x3D;Optional.empty)]), groupByContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.groupby.GroupByContext@61c87f1b, orderByContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.orderby.OrderByContext@1857fe6c, paginationContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.pagination.PaginationContext@44976b08, containsSubquery&#x3D;false)
+2022-10-31 23:54:19.554  INFO 19472 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds0 ::: SELECT  id,out_trade_no,state,create_time,pay_amount,nickname,user_id  FROM product_order_0 
+ 
+ WHERE (id IN (?,?)) ::: [793987167104794624, 793987167373230080]
+2022-10-31 23:54:19.554  INFO 19472 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds1 ::: SELECT  id,out_trade_no,state,create_time,pay_amount,nickname,user_id  FROM product_order_0 
+ 
+ WHERE (id IN (?,?)) ::: [793987167104794624, 793987167373230080]<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>由上可以看出<code>between(&quot;id&quot;,793987167104794624L,793987167104794624L)</code>可以确定分片定位到product_order_0，而没有分库键所以执行了ds0和ds1的全库查询。</p>
+<blockquote>
+<p>更换连接池</p>
+</blockquote>
+<p>spring boot和shardingjdbc默认使用的数据库连接池是 HikariCP。如果要在shardingsphere中使用druid,需要在项目中整合后才能生效</p>
+<p>说明：</p>
+<ol>
+<li>为shardingsphere使用druid数据源时，不要使用druid-spring-boot-starter这个包，因为它在会启动时自动从配置文件生成datasource,所以在这里使用druid这个包</li>
+<li>因为druid使用了log4j2,我们对spring-boot-starter-logging做了exclusion</li>
+</ol>
+<p>yml配置：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"># 打印执行的数据库以及语句
+spring:
+  shardingsphere:
+    datasource:
+      names: ds0,ds1
+      ds0:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;shop_order_0?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf-8&amp;useSSL&#x3D;false&amp;serverTimezone&#x3D;Asia&#x2F;Shanghai&amp;allowPublicKeyRetrieval&#x3D;true
+        username: root
+        password: 900926
+      ds1:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;shop_order_1?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf-8&amp;useSSL&#x3D;false&amp;serverTimezone&#x3D;Asia&#x2F;Shanghai&amp;allowPublicKeyRetrieval&#x3D;true
+        username: root
+        password: 900926<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>使用druid数据源时，原有的shardingsphere配置中,jdbc-url要修改为url.</p>
+<p>DruidConfig.java</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@Configuration
+public class DruidConfig &#123;
+    &#x2F;**
+     * Druid监控
+     *&#x2F;
+    @Bean
+    public ServletRegistrationBean statViewServlet()&#123;
+        ServletRegistrationBean bean &#x3D; new ServletRegistrationBean(new StatViewServlet(), &quot;&#x2F;druid&#x2F;*&quot;);
+        Map&lt;String,String&gt; initParams &#x3D; new HashMap&lt;&gt;();&#x2F;&#x2F;这是配置的druid监控的登录密码
+        initParams.put(&quot;loginUsername&quot;,&quot;root&quot;);
+        initParams.put(&quot;loginPassword&quot;,&quot;root&quot;);
+        &#x2F;&#x2F;默认就是允许所有访问
+        initParams.put(&quot;allow&quot;,&quot;127.0.0.1,192.168.3.4&quot;);
+        &#x2F;&#x2F;黑名单IP
+        initParams.put(&quot;deny&quot;,&quot;192.168.15.21&quot;);
+        bean.setInitParameters(initParams);
+        return bean;
+    &#125;
+
+    &#x2F;**
+     * web监控的filter
+     *&#x2F;
+    @Bean
+    public FilterRegistrationBean webStatFilter()&#123;
+        FilterRegistrationBean bean &#x3D; new FilterRegistrationBean();
+        bean.setFilter(new WebStatFilter());
+        Map&lt;String,String&gt; initParams &#x3D; new HashMap&lt;&gt;();
+        initParams.put(&quot;exclusions&quot;,&quot;&#x2F;static&#x2F;*,*.js,*.gif,*.jpg,*.png,*.css,*.ico,&#x2F;druid&#x2F;*&quot;);&#x2F;&#x2F;过滤掉需要监控的文件
+        bean.setInitParameters(initParams);
+        bean.setUrlPatterns(Arrays.asList(&quot;&#x2F;*&quot;));
+        return  bean;
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>自定义分布式ID算法</p>
+</blockquote>
+<p><strong>实现ShardingKeyGenerator接口，自定义分布式主键生成算法</strong></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@Slf4j
+public class SimpleShardingKeyGenerator implements ShardingKeyGenerator &#123;
+
+    private AtomicLong atomic &#x3D; new AtomicLong(1000);
+
+    @Getter
+    @Setter
+    private Properties properties &#x3D; new Properties();
+
+    &#x2F;**
+     * 分布式主键实现算法。
+     *&#x2F;
+    @Override
+    public Comparable&lt;?&gt; generateKey() &#123;
+        return atomic.incrementAndGet();
+    &#125;
+
+    @Override
+    public String getType() &#123;
+        &#x2F;&#x2F;声明类型，需要在配置文件中配置此key
+        return &quot;SIMPLE&quot;;
+    &#125;
+
+    @Override
+    public Properties getProperties() &#123;
+        return null;
+    &#125;
+
+    @Override
+    public void setProperties(Properties properties) &#123;
+
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><strong>resources下配置META-INF/services/org.apache.shardingsphere.spi.keygen.ShardingKeyGenerator</strong></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">com.rrc.generator.SimpleShardingKeyGenerator<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><strong>配置主键生成策略为自定义key</strong></p>
+<p><img src="SIMPLE.png" alt="自定义主键生成策略"></p>
+<p>按上面配置的ShardingJDBC表主键生成策略并没有生效，主键依然是雪花算法生成的ID。</p>
+<p>问题原因：</p>
+<p>MybatisPLus在不显式指定主键且有名为“id”的字段，会将id视为主键，当分片键也是该字段时，会与MP冲突，导致Sharding-JDBC的分片键生成策略失效。<br>那么解决方案就很简单了：<br>第一种：分片键不叫“id”就行了<br>第二种：如果分片键是主键，又想叫id，可在分片键上标记主键@TableId，并指定主键类型type = IdType.AUTO即可</p>
+<blockquote>
+<p>广播表</p>
+</blockquote>
+<p>指所有的分片数据源中都存在的表，表结构和表中的数据在每个数据库中均完全一致。适用于数据量不大且需要与海量数据的表进行关联查询的场景，例如：字典表。</p>
+<p>简单此处不做说明</p>
+<blockquote>
+<p>绑定表</p>
+</blockquote>
+<p>指分片规则一致的主表和子表。例如：course表和 course_detail表，均按照 course_id分片，则此两张表互为绑定表关系。绑定表之间的多表关联查询不会出现笛卡尔积关联，关联查询效率将大大提升。</p>
+<p>简单此处不做说明</p>
+<blockquote>
+<p>读写分离</p>
+</blockquote>
+<p>配置文件：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"># 打印执行的数据库以及语句
+spring:
+  shardingsphere:
+    datasource:
+      names: ds0,ds1
+      ds0:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;shop_order_0?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf-8&amp;useSSL&#x3D;false&amp;serverTimezone&#x3D;Asia&#x2F;Shanghai&amp;allowPublicKeyRetrieval&#x3D;true
+        username: root
+        password: 900926
+      ds1:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql:&#x2F;&#x2F;localhost:3306&#x2F;shop_order_1?useUnicode&#x3D;true&amp;characterEncoding&#x3D;utf-8&amp;useSSL&#x3D;false&amp;serverTimezone&#x3D;Asia&#x2F;Shanghai&amp;allowPublicKeyRetrieval&#x3D;true
+        username: root
+        password: 900926
+    sharding:
+      default-data-source-name: ds0
+    masterslave:
+      #配置主从名称
+      name: ms
+      #置主库master,负责数据的写入
+      master-data-source-name: ds0
+      #配置从库slave节点
+      slave-data-source-names: ds1
+      #配置slave节点的负载均衡均衡策略,采用轮询机制
+      load-balance-algorithm-type: round_robin
+    props:
+      sql:
+        show: true<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>表结构：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">-- auto-generated definition
+create table ad_config
+(
+    id           bigint unsigned not null comment &#39;主键id&#39;
+        primary key,
+    config_key   varchar(1024)   null comment &#39;配置key&#39;,
+    config_value varchar(1024)   null comment &#39;配置value&#39;,
+    type         varchar(128)    null comment &#39;类型&#39;
+)
+    collate &#x3D; utf8mb4_bin;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>测试类：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">@ActiveProfiles(&quot;rw&quot;)
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes &#x3D; ShardingjdbcApplication.class)
+@Slf4j
+public class ShardingjdbcMasterSlave &#123;
+
+    @Autowired
+    private AdConfigMapper adConfigMapper;
+
+    @Test
+    public void insert() &#123;
+        AdConfig adConfig &#x3D; new AdConfig();
+
+        adConfig.setId(100002L);
+        adConfig.setConfigValue(&quot;1111&quot;);
+        adConfig.setConfigKey(&quot;333333&quot;);
+        adConfig.setType(&quot;44444&quot;);
+
+        adConfigMapper.insert(adConfig);
+
+        adConfig &#x3D; adConfigMapper.selectById(100001L);
+        System.out.println(adConfig);
+    &#125;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>日志打印：</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java">2022-11-02 00:41:07.324  INFO 19268 --- [           main] ShardingSphere-SQL                       : Logic SQL: INSERT INTO ad_config  ( id,
+config_key,
+config_value,
+type )  VALUES  ( ?,
+?,
+?,
+? )
+2022-11-02 00:41:07.324  INFO 19268 --- [           main] ShardingSphere-SQL                       : SQLStatement: CommonSQLStatementContext(sqlStatement&#x3D;org.apache.shardingsphere.sql.parser.sql.statement.dml.InsertStatement@54567b05, tablesContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.table.TablesContext@3a5e2525)
+2022-11-02 00:41:07.324  INFO 19268 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds0 ::: INSERT INTO ad_config  ( id,
+config_key,
+config_value,
+type )  VALUES  ( ?,
+?,
+?,
+? )
+2022-11-02 00:41:07.515  INFO 19268 --- [           main] ShardingSphere-SQL                       : Logic SQL: SELECT id,config_key,config_value,type FROM ad_config WHERE id&#x3D;? 
+2022-11-02 00:41:07.515  INFO 19268 --- [           main] ShardingSphere-SQL                       : SQLStatement: SelectStatementContext(super&#x3D;CommonSQLStatementContext(sqlStatement&#x3D;org.apache.shardingsphere.sql.parser.sql.statement.dml.SelectStatement@2086d469, tablesContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.table.TablesContext@b1d19ff), tablesContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.table.TablesContext@b1d19ff, projectionsContext&#x3D;ProjectionsContext(startIndex&#x3D;7, stopIndex&#x3D;37, distinctRow&#x3D;false, projections&#x3D;[ColumnProjection(owner&#x3D;null, name&#x3D;id, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;config_key, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;config_value, alias&#x3D;Optional.empty), ColumnProjection(owner&#x3D;null, name&#x3D;type, alias&#x3D;Optional.empty)]), groupByContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.groupby.GroupByContext@17c53dfb, orderByContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.orderby.OrderByContext@184de357, paginationContext&#x3D;org.apache.shardingsphere.sql.parser.binder.segment.select.pagination.PaginationContext@efe49ab, containsSubquery&#x3D;false)
+2022-11-02 00:41:07.515  INFO 19268 --- [           main] ShardingSphere-SQL                       : Actual SQL: ds1 ::: SELECT id,config_key,config_value,type FROM ad_config WHERE id&#x3D;? 
+null<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>从日志可以发现写请求进入ds0，读请求进入ds1。</p>
+<blockquote>
+<p>经验教训</p>
+</blockquote>
+<p>雪花算法最后12位为存储序列号。同一毫秒时间戳时，通过这个递增的序列号来区分。即对于同一台机器而言，同一毫秒时间戳下，可以生成 2^12=4096 个不重复 id。</p>
+<p>但是如果项目并发低，大概率同一毫秒内并发很少，12位序列号大概率都为0，生成的雪花算法都是偶数，所以分片HASH值应该为奇数，防止偶数/偶数导致数据分片不均匀。</p>
+<blockquote>
+<p>引用</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/architectforest/p/13531448.html">spring boot:配置shardingsphere</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jb51.net/article/214350.htm">springboot整合shardingjdbc实现分库分表最简单demo</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.51cto.com/u_13260163/3169387">10分钟入门分库分表中间件 Sharding-JDBC</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43584430/article/details/120367418">Sharding-JDBC整合Mybatisplus分片键生成策略冲突问题及分析解决</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1ei4y1K7dn/">ShardingJDBC最新完整教程IDEA版通俗易懂</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1CL411n738/?spm_id_from=333.337.search-card.all.click">终于有人把ShardingSphere一口气全讲清楚了，透彻讲解原理，源码到实战一步到位！</a></p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">WangQingLei</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://qinglei1989.github.io/2022/10/28/spring-boot-shardingjdbc/">https://qinglei1989.github.io/2022/10/28/spring-boot-shardingjdbc/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">WangQingLei</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/spring-boot/">
+                                    <span class="chip bg-color">spring-boot</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.4rem;
+        line-height: 38px;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2022/11/04/middleware-rabbitmq-message/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/15.jpg" class="responsive-img" alt="RabbitMQ -- RabbitMQ消息模式">
+                        
+                        <span class="card-title">RabbitMQ -- RabbitMQ消息模式</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            RabbitMQ – RabbitMQ消息模式
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-11-04
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/rabbitmq/" class="post-category">
+                                    rabbitmq
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/">
+                        <span class="chip bg-color">中间件</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2022/10/25/docker-rabbitmq/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/3.jpg" class="responsive-img" alt="docker-rabbitmq">
+                        
+                        <span class="card-title">docker-rabbitmq</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-10-25
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            WangQingLei
+                            
+                        </span>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="1379619299"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2021-2025</span>
+            
+            <span id="year">2021</span>
+            <a href="/about" target="_blank">WangQingLei</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/qinglei1989" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:437423902@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=437423902" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 437423902" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>
